@@ -43,7 +43,7 @@
     <div class="product__info">
       <h1 class="product__title">{{ product.title }}</h1>
 
-      <div class="product__price">
+      <div class="product__price" data-product-price>
         {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
           <span class="product__price--sale">{{ product.selected_or_first_available_variant.price | money }}</span>
           <span class="product__price--compare">{{ product.selected_or_first_available_variant.compare_at_price | money }}</span>
@@ -66,6 +66,9 @@
               </select>
             </div>
           {%- endfor -%}
+          <script type="application/json" data-product-variants>
+            {{ product.variants | json }}
+          </script>
         {%- endunless -%}
 
         <div class="product__quantity">
@@ -77,6 +80,8 @@
           type="submit"
           name="add"
           class="product__add-to-cart"
+          data-label-available="{{ 'products.product.add_to_cart' | t }}"
+          data-label-sold-out="{{ 'products.product.sold_out' | t }}"
           {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}
         >
           {%- if product.selected_or_first_available_variant.available -%}

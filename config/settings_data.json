@@ -2,14 +2,19 @@
   "current": "Default",
   "presets": {
     "Default": {
-      "color_background": "#FFFFFF",
-      "color_text": "#1A1A1A",
-      "color_accent": "#1A1A1A",
-      "color_border": "#E5E5E5",
-      "type_heading_font": "helvetica_n4",
-      "type_body_font": "helvetica_n4",
-      "page_width": 1200,
-      "grid_gap": 16,
+      "color_background": "#F4F0E8",
+      "color_surface": "#FFFFFF",
+      "color_surface_alt": "#E8E1D7",
+      "color_dark": "#2B2926",
+      "color_text": "#2A1B1B",
+      "color_text_muted": "#7A6F63",
+      "color_dark_text": "#F4F0E8",
+      "color_accent_primary": "#6E2635",
+      "color_accent_secondary": "#B68A3A",
+      "color_border": "#DFD6C7",
+      "base_font_size": 16,
+      "page_width": 1440,
+      "grid_gap": 24,
       "social_instagram_link": "",
       "social_facebook_link": ""
     }

@@ -1,10 +1,62 @@
 {
   "sections": {
-    "main": {
-      "type": "main-index"
+    "hero": {
+      "type": "hero-slider"
+    },
+    "categories": {
+      "type": "shop-by-category"
+    },
+    "new-arrivals": {
+      "type": "featured-collection",
+      "settings": {
+        "heading": "New Arrivals"
+      }
+    },
+    "editorial": {
+      "type": "editorial-split",
+      "settings": {
+        "image_position": "left",
+        "heading": "DESIGNED FOR REAL LIFE.",
+        "text": "<p>Good clothing should not require a special occasion.</p>",
+        "button_label": "DISCOVER NEXOIRA",
+        "button_link": "/collections/all"
+      }
+    },
+    "trousers-showcase": {
+      "type": "horizontal-showcase",
+      "settings": {
+        "heading": "Featured Trousers"
+      }
+    },
+    "brand-story": {
+      "type": "brand-story"
+    },
+    "kurta-editorial": {
+      "type": "immersive-banner",
+      "settings": {
+        "button_link": "/collections/kurtas"
+      }
+    },
+    "why-nexoira": {
+      "type": "why-nexoira"
+    },
+    "style-gallery": {
+      "type": "style-gallery"
+    },
+    "newsletter": {
+      "type": "newsletter"
     }
   },
   "order": [
-    "main"
+    "hero",
+    "categories",
+    "new-arrivals",
+    "editorial",
+    "trousers-showcase",
+    "brand-story",
+    "kurta-editorial",
+    "why-nexoira",
+    "style-gallery",
+    "newsletter"
   ]
 }

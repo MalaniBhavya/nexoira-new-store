@@ -1,0 +1,217 @@
+{%- doc -%}
+  Full-bleed editorial hero slider. Each block is one slide with its own
+  image, headline, subtext and call to action.
+{%- enddoc -%}
+
+{%- if section.blocks.size > 0 -%}
+  <section
+    class="hero-slider"
+    data-hero-slider
+    data-autoplay="{{ section.settings.autoplay }}"
+    data-interval="{{ section.settings.interval | times: 1000 }}"
+    aria-roledescription="carousel"
+    aria-label="{{ section.settings.heading | default: 'Featured collections' }}"
+  >
+    <div class="hero-slider__track">
+      {%- for block in section.blocks -%}
+        <div
+          class="hero-slider__slide{% if forloop.first %} is-active{% endif %}"
+          data-hero-slide
+          role="group"
+          aria-roledescription="slide"
+          aria-label="{{ forloop.index }} of {{ forloop.length }}"
+          {% unless forloop.first %}aria-hidden="true"{% endunless %}
+          {{ block.shopify_attributes }}
+        >
+          <div class="hero-slider__media">
+            {%- if block.settings.image != blank -%}
+              <img
+                class="hero-slider__image hero-slider__image--desktop"
+                src="{{ block.settings.image | image_url: width: 2000 }}"
+                srcset="
+                  {{ block.settings.image | image_url: width: 1200 }} 1200w,
+                  {{ block.settings.image | image_url: width: 1600 }} 1600w,
+                  {{ block.settings.image | image_url: width: 2000 }} 2000w,
+                  {{ block.settings.image | image_url: width: 2600 }} 2600w
+                "
+                sizes="100vw"
+                alt="{{ block.settings.heading | escape }}"
+                width="{{ block.settings.image.width }}"
+                height="{{ block.settings.image.height }}"
+                {% if forloop.first %}
+                  loading="eager"
+                  fetchpriority="high"
+                {% else %}
+                  loading="lazy"
+                {% endif %}
+              >
+            {%- else -%}
+              <div class="hero-slider__placeholder"></div>
+            {%- endif -%}
+
+            {%- if block.settings.image_mobile != blank -%}
+              <img
+                class="hero-slider__image hero-slider__image--mobile"
+                src="{{ block.settings.image_mobile | image_url: width: 1200 }}"
+                srcset="
+                  {{ block.settings.image_mobile | image_url: width: 750 }} 750w,
+                  {{ block.settings.image_mobile | image_url: width: 1000 }} 1000w,
+                  {{ block.settings.image_mobile | image_url: width: 1200 }} 1200w
+                "
+                sizes="100vw"
+                alt="{{ block.settings.heading | escape }}"
+                width="{{ block.settings.image_mobile.width }}"
+                height="{{ block.settings.image_mobile.height }}"
+                {% if forloop.first %}
+                  loading="eager"
+                {% else %}
+                  loading="lazy"
+                {% endif %}
+              >
+            {%- endif -%}
+          </div>
+
+          <div class="hero-slider__scrim" aria-hidden="true"></div>
+
+          <div class="hero-slider__content container">
+            <div class="hero-slider__text">
+              {%- if block.settings.heading != blank -%}
+                <h2 class="hero-slider__heading">{{ block.settings.heading }}</h2>
+              {%- endif -%}
+              {%- if block.settings.subtext != blank -%}
+                <p class="hero-slider__subtext">{{ block.settings.subtext }}</p>
+              {%- endif -%}
+              {%- if block.settings.button_label != blank -%}
+                <a href="{{ block.settings.button_link | default: '#' }}" class="button button--hero">
+                  {{ block.settings.button_label }}
+                </a>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+
+    {%- if section.blocks.size > 1 -%}
+      <button type="button" class="hero-slider__arrow hero-slider__arrow--prev" data-hero-prev aria-label="Previous slide">
+        {%- render 'icon-arrow-left' -%}
+      </button>
+      <button type="button" class="hero-slider__arrow hero-slider__arrow--next" data-hero-next aria-label="Next slide">
+        {%- render 'icon-arrow-right' -%}
+      </button>
+
+      <div class="hero-slider__dots" role="tablist" aria-label="Slides">
+        {%- for block in section.blocks -%}
+          <button
+            type="button"
+            class="hero-slider__dot{% if forloop.first %} is-active{% endif %}"
+            data-hero-dot
+            data-index="{{ forloop.index0 }}"
+            role="tab"
+            aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+            aria-label="Go to slide {{ forloop.index }}"
+          ></button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Hero slider",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Autoplay",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "interval",
+      "label": "Slide duration",
+      "min": 4,
+      "max": 12,
+      "step": 1,
+      "unit": "s",
+      "default": 6
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image (desktop)"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_mobile",
+          "label": "Image (mobile)",
+          "info": "Optional. Falls back to the desktop image."
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading"
+        },
+        {
+          "type": "text",
+          "id": "subtext",
+          "label": "Subtext"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        }
+      ]
+    }
+  ],
+  "default": {
+    "blocks": [
+      {
+        "type": "slide",
+        "settings": {
+          "heading": "EVERYDAY. ELEVATED.",
+          "subtext": "Contemporary essentials designed for the modern man.",
+          "button_label": "SHOP SHIRTS",
+          "button_link": "/collections/shirts"
+        }
+      },
+      {
+        "type": "slide",
+        "settings": {
+          "heading": "MADE TO MOVE.",
+          "subtext": "Effortless comfort. Refined silhouettes.",
+          "button_label": "SHOP TROUSERS",
+          "button_link": "/collections/trousers"
+        }
+      },
+      {
+        "type": "slide",
+        "settings": {
+          "heading": "TRADITION, REIMAGINED.",
+          "subtext": "Classic Indian silhouettes for the modern generation.",
+          "button_label": "SHOP KURTAS",
+          "button_link": "/collections/kurtas"
+        }
+      }
+    ]
+  },
+  "presets": [
+    {
+      "name": "Hero slider"
+    }
+  ]
+}
+{% endschema %}

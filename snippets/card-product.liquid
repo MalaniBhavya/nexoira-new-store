@@ -1,5 +1,6 @@
 {%- doc -%}
-  Renders a product card.
+  Renders a premium product card with hover image swap, sale/sold-out
+  badges and a quick-add action.
 
   @param product {product} - the product to render
 {%- enddoc -%}
@@ -7,13 +8,15 @@
 {%- liquid
   assign card_product = product
   assign featured_image = card_product.featured_media.preview_image
+  assign selected_variant = card_product.selected_or_first_available_variant
 -%}
 
 <div class="product-card">
-  <a href="{{ card_product.url }}" class="product-card__link">
+  <a href="{{ card_product.url }}" class="product-card__media-link" aria-hidden="true" tabindex="-1">
     <div class="product-card__media">
       {%- if featured_image -%}
         <img
+          class="product-card__image product-card__image--primary"
           src="{{ featured_image | image_url: width: 600 }}"
           srcset="
             {{ featured_image | image_url: width: 300 }} 300w,
@@ -31,7 +34,7 @@
         {%- if card_product.media.size > 1 -%}
           {%- assign second_image = card_product.media[1].preview_image -%}
           <img
-            class="product-card__media-hover"
+            class="product-card__image product-card__image--secondary"
             src="{{ second_image | image_url: width: 600 }}"
             alt=""
             width="{{ second_image.width }}"
@@ -40,20 +43,43 @@
           >
         {%- endif -%}
       {%- else -%}
-        <div class="product-card__media-placeholder"></div>
+        <div class="product-card__placeholder"></div>
       {%- endif -%}
-    </div>
 
-    <div class="product-card__info">
-      <h3 class="product-card__title">{{ card_product.title }}</h3>
-      <div class="product-card__price">
-        {%- if card_product.compare_at_price > card_product.price -%}
-          <span class="product-card__price--sale">{{ card_product.price | money }}</span>
-          <span class="product-card__price--compare">{{ card_product.compare_at_price | money }}</span>
-        {%- else -%}
-          <span>{{ card_product.price | money }}</span>
+      <div class="product-card__badges">
+        {%- if selected_variant.available == false -%}
+          <span class="badge badge--sold-out">{{ 'products.product.sold_out' | t }}</span>
+        {%- elsif selected_variant.compare_at_price > selected_variant.price -%}
+          <span class="badge badge--sale">{{ 'products.product.on_sale' | t }}</span>
         {%- endif -%}
       </div>
     </div>
   </a>
+
+  <div class="product-card__info">
+    <h3 class="product-card__title">
+      <a href="{{ card_product.url }}">{{ card_product.title }}</a>
+    </h3>
+    <div class="product-card__price">
+      {%- if selected_variant.compare_at_price > selected_variant.price -%}
+        <span class="product-card__price--sale">{{ selected_variant.price | money }}</span>
+        <span class="product-card__price--compare">{{ selected_variant.compare_at_price | money }}</span>
+      {%- else -%}
+        <span>{{ selected_variant.price | money }}</span>
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- if selected_variant.available -%}
+    <button
+      type="button"
+      class="product-card__quick-add"
+      data-quick-add
+      data-product-url="{{ card_product.url }}"
+      data-variant-id="{{ selected_variant.id }}"
+      data-single-variant="{{ card_product.has_only_default_variant }}"
+    >
+      {{ 'products.product.add_to_cart' | t }}
+    </button>
+  {%- endif -%}
 </div>

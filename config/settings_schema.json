@@ -2,7 +2,7 @@
   {
     "name": "theme_info",
     "theme_name": "Nexoira",
-    "theme_version": "0.1.0",
+    "theme_version": "0.2.0",
     "theme_author": "Nexoira",
     "theme_documentation_url": "",
     "theme_support_url": ""
@@ -11,28 +11,80 @@
     "name": "Colors",
     "settings": [
       {
+        "type": "header",
+        "content": "Backgrounds"
+      },
+      {
         "type": "color",
         "id": "color_background",
-        "label": "Background",
+        "label": "Background (ivory)",
+        "default": "#F4F0E8"
+      },
+      {
+        "type": "color",
+        "id": "color_surface",
+        "label": "Surface (white)",
         "default": "#FFFFFF"
       },
       {
         "type": "color",
-        "id": "color_text",
-        "label": "Text",
-        "default": "#1A1A1A"
+        "id": "color_surface_alt",
+        "label": "Surface alt (warm neutral)",
+        "default": "#E8E1D7"
       },
       {
         "type": "color",
-        "id": "color_accent",
-        "label": "Accent",
-        "default": "#1A1A1A"
+        "id": "color_dark",
+        "label": "Dark surface",
+        "default": "#2B2926"
+      },
+      {
+        "type": "header",
+        "content": "Text"
+      },
+      {
+        "type": "color",
+        "id": "color_text",
+        "label": "Primary text",
+        "default": "#2A1B1B"
+      },
+      {
+        "type": "color",
+        "id": "color_text_muted",
+        "label": "Muted text",
+        "default": "#7A6F63"
+      },
+      {
+        "type": "color",
+        "id": "color_dark_text",
+        "label": "Text on dark surfaces",
+        "default": "#F4F0E8"
+      },
+      {
+        "type": "header",
+        "content": "Accents"
+      },
+      {
+        "type": "color",
+        "id": "color_accent_primary",
+        "label": "Burgundy accent",
+        "default": "#6E2635"
+      },
+      {
+        "type": "color",
+        "id": "color_accent_secondary",
+        "label": "Gold accent",
+        "default": "#B68A3A"
+      },
+      {
+        "type": "header",
+        "content": "Borders"
       },
       {
         "type": "color",
         "id": "color_border",
         "label": "Border",
-        "default": "#E5E5E5"
+        "default": "#DFD6C7"
       }
     ]
   },
@@ -40,16 +92,18 @@
     "name": "Typography",
     "settings": [
       {
-        "type": "font_picker",
-        "id": "type_heading_font",
-        "label": "Heading font",
-        "default": "helvetica_n4"
+        "type": "paragraph",
+        "content": "Nexoira uses DM Serif Display for editorial headings and Manrope for body text and UI, loaded from Google Fonts."
       },
       {
-        "type": "font_picker",
-        "id": "type_body_font",
-        "label": "Body font",
-        "default": "helvetica_n4"
+        "type": "range",
+        "id": "base_font_size",
+        "label": "Base font size",
+        "min": 14,
+        "max": 18,
+        "step": 1,
+        "unit": "px",
+        "default": 16
       }
     ]
   },
@@ -60,11 +114,11 @@
         "type": "range",
         "id": "page_width",
         "label": "Page width",
-        "min": 1000,
+        "min": 1200,
         "max": 1600,
-        "step": 50,
+        "step": 20,
         "unit": "px",
-        "default": 1200
+        "default": 1440
       },
       {
         "type": "range",
@@ -74,7 +128,7 @@
         "max": 40,
         "step": 4,
         "unit": "px",
-        "default": 16
+        "default": 24
       }
     ]
   },
@@ -98,12 +152,12 @@
       {
         "type": "text",
         "id": "social_instagram_link",
-        "label": "Instagram"
+        "label": "Instagram URL"
       },
       {
         "type": "text",
         "id": "social_facebook_link",
-        "label": "Facebook"
+        "label": "Facebook URL"
       }
     ]
   }

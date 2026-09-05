@@ -23,19 +23,28 @@
     {% endif %}
 
     <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap"
+    >
 
     {{ content_for_header }}
 
+    {%- render 'css-variables' -%}
     {{ 'base.css' | asset_url | stylesheet_tag }}
 
+    <script>window.themeMoneyFormat = {{ shop.money_format | json }};</script>
     <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
   </head>
 
-  <body class="template-{{ request.page_type }}">
+  <body class="template-{{ request.page_type }}{% if request.page_type == 'index' %} has-transparent-header{% endif %}">
     <a class="skip-to-content" href="#MainContent">
       {{ 'accessibility.skip_to_content' | t }}
     </a>
 
+    {% section 'announcement-bar' %}
     {% section 'header' %}
 
     <main id="MainContent" class="main-content">
