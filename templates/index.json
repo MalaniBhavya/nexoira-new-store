@@ -9,7 +9,8 @@
     "new-arrivals": {
       "type": "featured-collection",
       "settings": {
-        "heading": "New Arrivals"
+        "heading": "New Arrivals",
+        "collection": "shopify://collections/new-arrivals"
       }
     },
     "editorial": {
@@ -25,7 +26,8 @@
     "trousers-showcase": {
       "type": "horizontal-showcase",
       "settings": {
-        "heading": "Featured Trousers"
+        "heading": "Featured Trousers",
+        "collection": "shopify://collections/pants"
       }
     },
     "brand-story": {
@@ -34,7 +36,7 @@
     "kurta-editorial": {
       "type": "immersive-banner",
       "settings": {
-        "button_link": "/collections/kurtas"
+        "button_link": "/collections/kurta"
       }
     },
     "why-nexoira": {
