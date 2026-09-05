@@ -18,5 +18,13 @@
       "social_instagram_link": "",
       "social_facebook_link": ""
     }
+  },
+  "sections": {
+    "header": {
+      "type": "header",
+      "settings": {
+        "menu": "nexoira-shop-menu"
+      }
+    }
   }
 }

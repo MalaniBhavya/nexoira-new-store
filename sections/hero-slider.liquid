@@ -76,7 +76,7 @@
           <div class="hero-slider__content container">
             <div class="hero-slider__text">
               {%- if block.settings.heading != blank -%}
-                <h2 class="hero-slider__heading">{{ block.settings.heading }}</h2>
+                <h2 class="hero-slider__heading">{{ block.settings.heading | newline_to_br }}</h2>
               {%- endif -%}
               {%- if block.settings.subtext != blank -%}
                 <p class="hero-slider__subtext">{{ block.settings.subtext }}</p>
@@ -154,9 +154,10 @@
           "info": "Optional. Falls back to the desktop image."
         },
         {
-          "type": "text",
+          "type": "textarea",
           "id": "heading",
-          "label": "Heading"
+          "label": "Heading",
+          "info": "Use a new line for a two-line headline."
         },
         {
           "type": "text",
@@ -181,8 +182,9 @@
       {
         "type": "slide",
         "settings": {
-          "heading": "EVERYDAY. ELEVATED.",
-          "subtext": "Contemporary essentials designed for the modern man.",
+          "image": "shopify://shop_images/SHTHMPBGWZYTVW9Z_1781343043969_1gn1mf83smtbbw4.jpg",
+          "heading": "EVERYDAY,\nELEVATED.",
+          "subtext": "Effortless shirts designed for comfort, versatility and everyday style.",
           "button_label": "SHOP SHIRTS",
           "button_link": "/collections/shirts"
         }
@@ -190,8 +192,9 @@
       {
         "type": "slide",
         "settings": {
-          "heading": "MADE TO MOVE.",
-          "subtext": "Effortless comfort. Refined silhouettes.",
+          "image": "shopify://shop_images/TROHZ6KZZMCKDSQP_1781343038900_0zkt2tmrtm4r5u0.jpg",
+          "heading": "MOVE WITH\nCOMFORT.",
+          "subtext": "Modern linen-blend trousers designed for effortless movement and refined everyday dressing.",
           "button_label": "SHOP TROUSERS",
           "button_link": "/collections/pants"
         }
@@ -199,8 +202,9 @@
       {
         "type": "slide",
         "settings": {
-          "heading": "TRADITION, REIMAGINED.",
-          "subtext": "Classic Indian silhouettes for the modern generation.",
+          "image": "shopify://shop_images/KTAHKYVS7GEEZXXX_1781343000222_kvesira8nu6p0ch.jpg",
+          "heading": "TRADITION,\nREDEFINED.",
+          "subtext": "Contemporary kurtas crafted for celebrations, gatherings and modern Indian style.",
           "button_label": "SHOP KURTAS",
           "button_link": "/collections/kurta"
         }
