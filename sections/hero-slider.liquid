@@ -106,7 +106,6 @@
             type="button"
             class="hero-slider__dot{% if forloop.first %} is-active{% endif %}"
             data-hero-dot
-            data-index="{{ forloop.index0 }}"
             role="tab"
             aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
             aria-label="Go to slide {{ forloop.index }}"

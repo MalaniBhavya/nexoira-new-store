@@ -75,7 +75,6 @@
               type="button"
               class="product__gallery-thumb{% if forloop.first %} is-active{% endif %}"
               data-gallery-thumb
-              data-index="{{ forloop.index0 }}"
             >
               <img
                 src="{{ media.preview_image | image_url: width: 200 }}"

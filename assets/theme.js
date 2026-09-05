@@ -522,9 +522,17 @@
   }
 
   function applyCartResponse(data) {
-    updateCartCount(data.item_count);
+    /* /cart/add.js resolves with the added line item, not the cart, so
+       it has no item_count field — /cart/change.js and /cart/update.js
+       DO include one. Rather than branch on which endpoint was called,
+       always read the count back off the freshly re-rendered drawer,
+       which Liquid renders correctly from `cart.item_count` either way. */
     if (data.sections && data.sections[CART_DRAWER_SECTION]) {
       replaceCartDrawerMarkup(data.sections[CART_DRAWER_SECTION]);
+    }
+    var drawer = document.querySelector('[data-cart-drawer]');
+    if (drawer && typeof drawer.dataset.cartItemCount !== 'undefined') {
+      updateCartCount(drawer.dataset.cartItemCount);
     }
   }
 
@@ -593,10 +601,7 @@
       cartRequest('/cart/add.js', { id: button.dataset.variantId, quantity: 1 })
         .then(function (data) {
           button.textContent = 'Added';
-          updateCartCount(data.item_count);
-          if (data.sections && data.sections[CART_DRAWER_SECTION]) {
-            replaceCartDrawerMarkup(data.sections[CART_DRAWER_SECTION]);
-          }
+          applyCartResponse(data);
           openCartDrawer();
           setTimeout(function () {
             button.textContent = originalText;
