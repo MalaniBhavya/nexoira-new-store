@@ -1,7 +1,28 @@
 {
   "sections": {
     "main": {
-      "type": "main-search"
+      "type": "main-search",
+      "blocks": {
+        "shirts": {
+          "type": "suggested_collection",
+          "settings": {
+            "collection": "shopify://collections/shirts"
+          }
+        },
+        "trousers": {
+          "type": "suggested_collection",
+          "settings": {
+            "collection": "shopify://collections/pants"
+          }
+        },
+        "kurtas": {
+          "type": "suggested_collection",
+          "settings": {
+            "collection": "shopify://collections/kurta"
+          }
+        }
+      },
+      "block_order": ["shirts", "trousers", "kurtas"]
     }
   },
   "order": [

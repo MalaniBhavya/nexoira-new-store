@@ -50,7 +50,8 @@
         "heading": "DESIGNED FOR REAL LIFE.",
         "text": "<p>Good clothing should not require a special occasion.</p>",
         "button_label": "DISCOVER NEXOIRA",
-        "button_link": "/collections/all"
+        "button_link": "/collections/all",
+        "image": "shopify://shop_images/SHTHKCR2GNBGZHFZ_1781343050774_fduifwyuzvfh5km.jpg"
       }
     },
     "trousers-showcase": {
@@ -66,14 +67,60 @@
     "kurta-editorial": {
       "type": "immersive-banner",
       "settings": {
-        "button_link": "/collections/kurta"
+        "button_link": "/collections/kurta",
+        "image": "shopify://shop_images/KTAHKH8DHY4Z2BU8_1781343048302_8yfhbxbdu6d3vi9.jpg"
       }
     },
     "why-nexoira": {
       "type": "why-nexoira"
     },
     "style-gallery": {
-      "type": "style-gallery"
+      "type": "style-gallery",
+      "blocks": {
+        "shirt-1": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/SHTHKBSTFHXWCRPJ_1781343032912_i8k3afph8m0dicr.jpg",
+            "link": "/collections/shirts"
+          }
+        },
+        "trouser-1": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/TROHKNYMZX3WGMNY_1781343040730_txtr80j4727i2ch.jpg",
+            "link": "/collections/pants"
+          }
+        },
+        "kurta-1": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/KTAHH4ZCYTD6RTTJ_1781343042846_p8mq35h2b9shq4m.jpg",
+            "link": "/collections/kurta"
+          }
+        },
+        "shirt-2": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/SHTHMQNK2JJYTX3Z_1781343044032_1jsazg3nce3djgc.jpg",
+            "link": "/collections/shirts"
+          }
+        },
+        "trouser-2": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/TROHZ6KNU4UGFEAY_1781343044562_x178zxlj6z5bd0y.jpg",
+            "link": "/collections/pants"
+          }
+        },
+        "kurta-2": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/KTAHGUCRFHTWVSJM_1781343008692_9336gnzj3c11rfx.jpg",
+            "link": "/collections/kurta"
+          }
+        }
+      },
+      "block_order": ["shirt-1", "trouser-1", "kurta-1", "shirt-2", "trouser-2", "kurta-2"]
     },
     "newsletter": {
       "type": "newsletter"

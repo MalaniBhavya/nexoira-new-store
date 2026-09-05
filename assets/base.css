@@ -1346,10 +1346,6 @@ body.search-open {
   color: rgba(244, 240, 232, 0.6);
 }
 
-.newsletter__form input:focus {
-  outline: none;
-}
-
 .newsletter__form button {
   background: none;
   border: none;
@@ -2708,10 +2704,6 @@ body.filter-drawer-open {
   font-size: 20px;
   font-family: var(--font-heading);
   padding: 4px 0;
-}
-
-.search-page__form input:focus {
-  outline: none;
 }
 
 .search-page__form button {

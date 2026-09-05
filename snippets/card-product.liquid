@@ -79,7 +79,11 @@
       data-variant-id="{{ selected_variant.id }}"
       data-single-variant="{{ card_product.has_only_default_variant }}"
     >
-      {{ 'products.product.add_to_cart' | t }}
+      {%- if card_product.has_only_default_variant -%}
+        {{ 'products.product.add_to_cart' | t }}
+      {%- else -%}
+        {{ 'products.product.choose_options' | t }}
+      {%- endif -%}
     </button>
   {%- endif -%}
 </div>

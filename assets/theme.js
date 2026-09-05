@@ -898,15 +898,21 @@
 
     if (!toShow.length) return;
 
+    var escapeHtml = function (value) {
+      var div = document.createElement('div');
+      div.textContent = value == null ? '' : String(value);
+      return div.innerHTML;
+    };
+
     var cardsHtml = toShow.map(function (item) {
       return (
-        '<a class="product-card recently-viewed__card" href="' + item.url + '">' +
+        '<a class="product-card recently-viewed__card" href="' + escapeHtml(item.url) + '">' +
           '<div class="product-card__media">' +
-            (item.image ? '<img class="product-card__image product-card__image--primary" src="' + item.image + '" alt="" loading="lazy" width="600" height="800">' : '') +
+            (item.image ? '<img class="product-card__image product-card__image--primary" src="' + escapeHtml(item.image) + '" alt="" loading="lazy" width="600" height="800">' : '') +
           '</div>' +
           '<div class="product-card__info">' +
-            '<h3 class="product-card__title">' + item.title + '</h3>' +
-            '<div class="product-card__price"><span>' + item.price + '</span></div>' +
+            '<h3 class="product-card__title">' + escapeHtml(item.title) + '</h3>' +
+            '<div class="product-card__price"><span>' + escapeHtml(item.price) + '</span></div>' +
           '</div>' +
         '</a>'
       );
