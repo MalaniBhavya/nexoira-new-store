@@ -4,7 +4,37 @@
       "type": "hero-slider"
     },
     "categories": {
-      "type": "shop-by-category"
+      "type": "shop-by-category",
+      "blocks": {
+        "shirts": {
+          "type": "category",
+          "settings": {
+            "heading": "SHIRTS",
+            "subtext": "Modern essentials for every day.",
+            "link": "/collections/shirts",
+            "image": "shopify://shop_images/SHTHKAH97HPGTGYP_1781343041411_ue9udbgci7mysst.jpg"
+          }
+        },
+        "trousers": {
+          "type": "category",
+          "settings": {
+            "heading": "TROUSERS",
+            "subtext": "Comfort meets contemporary style.",
+            "link": "/collections/pants",
+            "image": "shopify://shop_images/TROHKZXCKWP7W8SV_1781343050579_hj8dxpzhqw4s7ax.jpg"
+          }
+        },
+        "kurtas": {
+          "type": "category",
+          "settings": {
+            "heading": "KURTAS",
+            "subtext": "Tradition for the modern man.",
+            "link": "/collections/kurta",
+            "image": "shopify://shop_images/KTAHH4ZEBYGZRACY_1781343026790_fxx90z9lnh7uc37.jpg"
+          }
+        }
+      },
+      "block_order": ["shirts", "trousers", "kurtas"]
     },
     "new-arrivals": {
       "type": "featured-collection",
