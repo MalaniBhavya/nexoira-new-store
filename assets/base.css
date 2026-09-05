@@ -2484,6 +2484,23 @@ body.filter-drawer-open {
   margin-top: 12px;
 }
 
+.shopify-payment-button__button--unbranded {
+  background-color: var(--color-accent) !important;
+  color: var(--color-dark-text) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  font-family: var(--font-body) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  transition: background-color var(--transition-fast) !important;
+}
+
+.shopify-payment-button__button--unbranded:hover {
+  background-color: var(--color-text) !important;
+}
+
 .product__trust {
   display: flex;
   flex-direction: column;
