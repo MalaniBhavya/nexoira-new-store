@@ -1,0 +1,114 @@
+{%- doc -%}
+  Premium minimal contact page using Shopify's native contact form
+  (delivers to the store's customer email — no app required).
+{%- enddoc -%}
+
+<div class="contact-page" data-section-id="{{ section.id }}" data-section-type="contact">
+  <div class="container contact-page__inner">
+
+    <div class="contact-page__intro">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="about-story__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h1 class="contact-page__heading">{{ section.settings.heading }}</h1>
+      {%- if section.settings.subtext != blank -%}
+        <p class="contact-page__subtext">{{ section.settings.subtext }}</p>
+      {%- endif -%}
+
+      <div class="contact-page__details">
+        {%- if section.settings.support_email != blank -%}
+          <div class="contact-page__detail">
+            <span class="contact-page__detail-label">Email</span>
+            <a href="mailto:{{ section.settings.support_email }}">{{ section.settings.support_email }}</a>
+          </div>
+        {%- endif -%}
+        {%- if section.settings.response_time != blank -%}
+          <div class="contact-page__detail">
+            <span class="contact-page__detail-label">Response time</span>
+            <span>{{ section.settings.response_time }}</span>
+          </div>
+        {%- endif -%}
+        {%- if section.settings.faq_link != blank -%}
+          <div class="contact-page__detail">
+            <a href="{{ section.settings.faq_link }}" class="contact-page__faq-link">Visit our FAQ &rarr;</a>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div class="contact-page__form">
+      {%- form 'contact' -%}
+        {%- if form.posted_successfully? -%}
+          <p class="form-status form-status--success">Thanks — we'll be in touch shortly.</p>
+        {%- elsif form.errors -%}
+          <p class="form-status form-status--error">{{ form.errors | default_errors }}</p>
+        {%- endif -%}
+
+        <label for="ContactName">Name</label>
+        <input type="text" id="ContactName" name="contact[name]" autocomplete="name" required>
+
+        <label for="ContactEmail">Email</label>
+        <input
+          type="email"
+          id="ContactEmail"
+          name="contact[email]"
+          autocomplete="email"
+          value="{% if customer %}{{ customer.email }}{% endif %}"
+          required
+        >
+
+        <label for="ContactPhone">Phone (optional)</label>
+        <input type="tel" id="ContactPhone" name="contact[phone]" autocomplete="tel">
+
+        <label for="ContactMessage">Message</label>
+        <textarea id="ContactMessage" name="contact[body]" rows="6" required></textarea>
+
+        <button type="submit" class="button button--solid">Send message</button>
+      {%- endform -%}
+    </div>
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Contact",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "GET IN TOUCH"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "We're here to help."
+    },
+    {
+      "type": "text",
+      "id": "subtext",
+      "label": "Subtext",
+      "default": "Questions about an order, sizing, or anything else — reach out and a real person will get back to you."
+    },
+    {
+      "type": "text",
+      "id": "support_email",
+      "label": "Support email",
+      "default": "support@nexoira.com"
+    },
+    {
+      "type": "text",
+      "id": "response_time",
+      "label": "Response time",
+      "default": "Within 24 hours, Monday to Saturday"
+    },
+    {
+      "type": "url",
+      "id": "faq_link",
+      "label": "FAQ page link"
+    }
+  ]
+}
+{% endschema %}

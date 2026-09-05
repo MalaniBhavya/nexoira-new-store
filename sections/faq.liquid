@@ -1,0 +1,204 @@
+{%- doc -%}
+  FAQ page grouped into categories, each question a native <details>
+  accordion (no JS required, fully accessible).
+{%- enddoc -%}
+
+<div class="faq-page" data-section-id="{{ section.id }}" data-section-type="faq">
+  <div class="container">
+    <div class="section-heading section-heading--center">
+      <h1 class="section-heading__title">{{ section.settings.heading }}</h1>
+      {%- if section.settings.subtext != blank -%}
+        <p class="faq-page__subtext">{{ section.settings.subtext }}</p>
+      {%- endif -%}
+    </div>
+
+    {%- assign categories = 'Orders,Shipping,Returns,Sizing,Products,Payments' | split: ',' -%}
+    {%- for category in categories -%}
+      {%- liquid
+        assign has_questions = false
+        for block in section.blocks
+          if block.settings.category == category
+            assign has_questions = true
+          endif
+        endfor
+      -%}
+      {%- if has_questions -%}
+        <div class="faq-category">
+          <h2 class="faq-category__title">{{ category }}</h2>
+          <div class="faq-category__list">
+            {%- for block in section.blocks -%}
+              {%- if block.settings.category == category -%}
+                <details class="faq-item" {{ block.shopify_attributes }}>
+                  <summary>{{ block.settings.question }}</summary>
+                  <div class="faq-item__answer">{{ block.settings.answer }}</div>
+                </details>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "FAQ",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Frequently Asked Questions"
+    },
+    {
+      "type": "text",
+      "id": "subtext",
+      "label": "Subtext",
+      "default": "Everything you need to know about shopping with Nexoira."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        {
+          "type": "select",
+          "id": "category",
+          "label": "Category",
+          "options": [
+            {
+              "value": "Orders",
+              "label": "Orders"
+            },
+            {
+              "value": "Shipping",
+              "label": "Shipping"
+            },
+            {
+              "value": "Returns",
+              "label": "Returns"
+            },
+            {
+              "value": "Sizing",
+              "label": "Sizing"
+            },
+            {
+              "value": "Products",
+              "label": "Products"
+            },
+            {
+              "value": "Payments",
+              "label": "Payments"
+            }
+          ],
+          "default": "Orders"
+        },
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer"
+        }
+      ]
+    }
+  ],
+  "default": {
+    "blocks": [
+      {
+        "type": "question",
+        "settings": {
+          "category": "Orders",
+          "question": "How do I track my order?",
+          "answer": "<p>Once your order ships, you'll receive a tracking link by email and SMS. You can also track your order from your account page.</p>"
+        }
+      },
+      {
+        "type": "question",
+        "settings": {
+          "category": "Orders",
+          "question": "Can I cancel or change my order?",
+          "answer": "<p>Reach out to us within 2 hours of placing your order and we'll do our best to update or cancel it before it ships.</p>"
+        }
+      },
+      {
+        "type": "question",
+        "settings": {
+          "category": "Shipping",
+          "question": "How long does delivery take?",
+          "answer": "<p>Most orders arrive within 3-7 business days across India. You'll get tracking details as soon as your order ships.</p>"
+        }
+      },
+      {
+        "type": "question",
+        "settings": {
+          "category": "Shipping",
+          "question": "Do you ship internationally?",
+          "answer": "<p>Currently we ship across India only. International shipping is coming soon.</p>"
+        }
+      },
+      {
+        "type": "question",
+        "settings": {
+          "category": "Returns",
+          "question": "What is your return policy?",
+          "answer": "<p>We accept returns within 7 days of delivery, provided the item is unworn and in its original packaging.</p>"
+        }
+      },
+      {
+        "type": "question",
+        "settings": {
+          "category": "Returns",
+          "question": "How do I start a return?",
+          "answer": "<p>Email us at support@nexoira.com with your order number and we'll guide you through the process.</p>"
+        }
+      },
+      {
+        "type": "question",
+        "settings": {
+          "category": "Sizing",
+          "question": "How do I find my size?",
+          "answer": "<p>Check the Size Guide link on any product page for detailed measurements across shirts, trousers and kurtas.</p>"
+        }
+      },
+      {
+        "type": "question",
+        "settings": {
+          "category": "Sizing",
+          "question": "What if I'm between sizes?",
+          "answer": "<p>We generally recommend sizing up for a more relaxed, comfortable fit.</p>"
+        }
+      },
+      {
+        "type": "question",
+        "settings": {
+          "category": "Products",
+          "question": "What fabrics do you use?",
+          "answer": "<p>Each product page lists fabric composition and care instructions under the Fabric & Care section.</p>"
+        }
+      },
+      {
+        "type": "question",
+        "settings": {
+          "category": "Payments",
+          "question": "What payment methods do you accept?",
+          "answer": "<p>We accept all major cards, UPI, net banking and popular wallets at checkout.</p>"
+        }
+      },
+      {
+        "type": "question",
+        "settings": {
+          "category": "Payments",
+          "question": "Is it safe to pay on your site?",
+          "answer": "<p>Yes — all payments are processed securely through Shopify's PCI-compliant checkout.</p>"
+        }
+      }
+    ]
+  }
+}
+{% endschema %}

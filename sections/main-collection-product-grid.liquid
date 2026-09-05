@@ -1,43 +1,209 @@
-<div class="collection" data-section-id="{{ section.id }}" data-section-type="main-collection-product-grid">
-  <div class="container">
+{%- doc -%}
+  Premium collection page: editorial hero, native Shopify filtering
+  and sorting (Search & Discovery), AJAX-updated grid, pagination.
+{%- enddoc -%}
 
-    <div class="collection__header">
-      <h1 class="collection__title">{{ collection.title }}</h1>
-      {%- if collection.description != blank -%}
-        <div class="collection__description">{{ collection.description }}</div>
-      {%- endif -%}
+<div
+  class="collection"
+  data-collection-section-root
+  data-section-fetch-id="{{ section.id }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="main-collection-product-grid"
+>
+
+  {%- if collection.image -%}
+    <div class="collection-hero">
+      <div class="collection-hero__media">
+        <img
+          src="{{ collection.image | image_url: width: 2000 }}"
+          srcset="
+            {{ collection.image | image_url: width: 1000 }} 1000w,
+            {{ collection.image | image_url: width: 1600 }} 1600w,
+            {{ collection.image | image_url: width: 2000 }} 2000w
+          "
+          sizes="100vw"
+          alt="{{ collection.title | escape }}"
+          width="{{ collection.image.width }}"
+          height="{{ collection.image.height }}"
+          loading="eager"
+        >
+        <div class="collection-hero__scrim" aria-hidden="true"></div>
+      </div>
+      <div class="collection-hero__content container">
+        <h1 class="collection-hero__title">{{ collection.title }}</h1>
+        {%- if collection.description != blank -%}
+          <div class="collection-hero__description">{{ collection.description }}</div>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- else -%}
+    <div class="container">
+      <div class="collection__header">
+        <h1 class="collection__title">{{ collection.title }}</h1>
+        {%- if collection.description != blank -%}
+          <div class="collection__description">{{ collection.description }}</div>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+  <div class="container">
+    <div class="collection-toolbar">
+      <p class="collection-toolbar__count">
+        {{ collection.products_count }}
+        {%- if collection.products_count == 1 %} product{% else %} products{% endif -%}
+      </p>
+      <div class="collection-toolbar__actions">
+        {%- if collection.filters.size > 0 -%}
+          <button
+            type="button"
+            class="collection-toolbar__filter-btn"
+            data-filter-drawer-open
+            aria-expanded="false"
+            aria-controls="FilterDrawer-{{ section.id }}"
+          >
+            {%- render 'icon-filter' -%}
+            <span>Filter</span>
+          </button>
+        {%- endif -%}
+
+        {%- if collection.sort_options.size > 0 -%}
+          <div class="collection-toolbar__sort">
+            <label for="SortBy-{{ section.id }}" class="visually-hidden">Sort by</label>
+            <select id="SortBy-{{ section.id }}" data-collection-sort>
+              {%- for option in collection.sort_options -%}
+                <option value="{{ option.value }}" {% if option.value == collection.sort_by %}selected{% endif %}>
+                  {{ option.name }}
+                </option>
+              {%- endfor -%}
+            </select>
+          </div>
+        {%- endif -%}
+      </div>
     </div>
 
-    {%- paginate collection.products by section.settings.products_per_page -%}
-      {%- if collection.products.size > 0 -%}
-        <div class="collection__grid" style="--grid-columns: {{ section.settings.columns_desktop }};">
-          {%- for product in collection.products -%}
-            {%- render 'card-product', product: product -%}
+    {%- liquid
+      assign has_active_filters = false
+      for filter in collection.filters
+        if filter.active_values.size > 0 or filter.min_value.value or filter.max_value.value
+          assign has_active_filters = true
+        endif
+      endfor
+    -%}
+
+    {%- if has_active_filters -%}
+      <div class="collection-active-filters">
+        {%- for filter in collection.filters -%}
+          {%- for value in filter.active_values -%}
+            <a href="{{ value.url_to_remove }}" class="filter-pill">
+              {{ value.label }}
+              {%- render 'icon-close' -%}
+            </a>
           {%- endfor -%}
+        {%- endfor -%}
+        <a href="{{ collection.url }}" class="collection-active-filters__clear">Clear all</a>
+      </div>
+    {%- endif -%}
+
+    <div class="collection-layout">
+      {%- if collection.filters.size > 0 -%}
+        <div class="filter-drawer" id="FilterDrawer-{{ section.id }}" data-filter-drawer aria-hidden="true">
+          <div class="filter-drawer__panel">
+            <div class="filter-drawer__header">
+              <h2>Filter</h2>
+              <button type="button" data-filter-drawer-close aria-label="{{ 'general.menu.close' | t }}">
+                {%- render 'icon-close' -%}
+              </button>
+            </div>
+            <form class="filter-drawer__body" data-filter-form>
+              {%- for filter in collection.filters -%}
+                <details class="filter-group" open>
+                  <summary>{{ filter.label }}</summary>
+                  <div class="filter-group__options">
+                    {%- case filter.type -%}
+                      {%- when 'list' or 'boolean' -%}
+                        {%- for value in filter.values -%}
+                          <label class="filter-option{% if value.count == 0 and value.active == false %} filter-option--disabled{% endif %}">
+                            <input
+                              type="checkbox"
+                              name="{{ value.param_name }}"
+                              value="{{ value.value }}"
+                              {% if value.active %}checked{% endif %}
+                              {% if value.count == 0 and value.active == false %}disabled{% endif %}
+                            >
+                            <span>{{ value.label }} ({{ value.count }})</span>
+                          </label>
+                        {%- endfor -%}
+                      {%- when 'price_range' -%}
+                        <div class="filter-price-range">
+                          <label>
+                            <span class="visually-hidden">Minimum price</span>
+                            <input
+                              type="number"
+                              name="{{ filter.min_value.param_name }}"
+                              placeholder="{{ filter.range_min | money_without_trailing_zeros }}"
+                              value="{{ filter.min_value.value }}"
+                              min="0"
+                            >
+                          </label>
+                          <span aria-hidden="true">&ndash;</span>
+                          <label>
+                            <span class="visually-hidden">Maximum price</span>
+                            <input
+                              type="number"
+                              name="{{ filter.max_value.param_name }}"
+                              placeholder="{{ filter.range_max | money_without_trailing_zeros }}"
+                              value="{{ filter.max_value.value }}"
+                              min="0"
+                            >
+                          </label>
+                        </div>
+                    {%- endcase -%}
+                  </div>
+                </details>
+              {%- endfor -%}
+              <button type="submit" class="button button--solid filter-drawer__apply">Apply filters</button>
+            </form>
+          </div>
         </div>
-
-        {%- if paginate.pages > 1 -%}
-          <nav class="pagination" aria-label="{{ 'collections.general.pagination_label' | t }}">
-            {%- if paginate.previous -%}
-              <a href="{{ paginate.previous.url }}" class="pagination__link">&larr;</a>
-            {%- endif -%}
-            {%- for part in paginate.parts -%}
-              {%- if part.is_link -%}
-                <a href="{{ part.url }}" class="pagination__link">{{ part.title }}</a>
-              {%- else -%}
-                <span class="pagination__current">{{ part.title }}</span>
-              {%- endif -%}
-            {%- endfor -%}
-            {%- if paginate.next -%}
-              <a href="{{ paginate.next.url }}" class="pagination__link">&rarr;</a>
-            {%- endif -%}
-          </nav>
-        {%- endif -%}
-      {%- else -%}
-        <p class="collection__empty">{{ 'collections.general.no_matches' | t }}</p>
+        <div class="filter-drawer-overlay" data-filter-drawer-overlay></div>
       {%- endif -%}
-    {%- endpaginate -%}
 
+      <div class="collection-grid-wrap">
+        {%- paginate collection.products by section.settings.products_per_page -%}
+          {%- if collection.products.size > 0 -%}
+            <div class="collection__grid" style="--grid-columns: {{ section.settings.columns_desktop }};">
+              {%- for product in collection.products -%}
+                {%- render 'card-product', product: product -%}
+              {%- endfor -%}
+            </div>
+
+            {%- if paginate.pages > 1 -%}
+              <nav class="pagination" aria-label="{{ 'collections.general.pagination_label' | t }}">
+                {%- if paginate.previous -%}
+                  <a href="{{ paginate.previous.url }}" class="pagination__link">&larr;</a>
+                {%- endif -%}
+                {%- for part in paginate.parts -%}
+                  {%- if part.is_link -%}
+                    <a href="{{ part.url }}" class="pagination__link">{{ part.title }}</a>
+                  {%- else -%}
+                    <span class="pagination__current">{{ part.title }}</span>
+                  {%- endif -%}
+                {%- endfor -%}
+                {%- if paginate.next -%}
+                  <a href="{{ paginate.next.url }}" class="pagination__link">&rarr;</a>
+                {%- endif -%}
+              </nav>
+            {%- endif -%}
+          {%- else -%}
+            <div class="collection__empty">
+              <p>{{ 'collections.general.no_matches' | t }}</p>
+              <a href="{{ collection.url }}" class="button button--outline">Clear filters</a>
+            </div>
+          {%- endif -%}
+        {%- endpaginate -%}
+      </div>
+    </div>
   </div>
 </div>
 

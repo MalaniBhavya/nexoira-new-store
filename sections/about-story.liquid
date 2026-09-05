@@ -1,0 +1,208 @@
+{%- doc -%}
+  Image-driven editorial brand story: a full-bleed hero statement
+  followed by alternating image/text chapters. Every chapter is a
+  block so the narrative order and content are fully customizable.
+{%- enddoc -%}
+
+<div class="about-story" data-section-id="{{ section.id }}" data-section-type="about-story">
+
+  <div class="about-story__hero">
+    {%- if section.settings.hero_image != blank -%}
+      <div class="about-story__hero-media">
+        <img
+          src="{{ section.settings.hero_image | image_url: width: 2000 }}"
+          srcset="
+            {{ section.settings.hero_image | image_url: width: 1000 }} 1000w,
+            {{ section.settings.hero_image | image_url: width: 1600 }} 1600w,
+            {{ section.settings.hero_image | image_url: width: 2000 }} 2000w
+          "
+          sizes="100vw"
+          alt="{{ section.settings.hero_heading | escape }}"
+          width="{{ section.settings.hero_image.width }}"
+          height="{{ section.settings.hero_image.height }}"
+          loading="eager"
+          fetchpriority="high"
+        >
+        <div class="about-story__hero-scrim" aria-hidden="true"></div>
+      </div>
+    {%- endif -%}
+    <div class="about-story__hero-content container">
+      {%- if section.settings.hero_eyebrow != blank -%}
+        <p class="about-story__eyebrow">{{ section.settings.hero_eyebrow }}</p>
+      {%- endif -%}
+      <h1 class="about-story__hero-heading">{{ section.settings.hero_heading }}</h1>
+    </div>
+  </div>
+
+  {%- if section.settings.intro_text != blank -%}
+    <div class="container">
+      <div class="about-story__intro">{{ section.settings.intro_text }}</div>
+    </div>
+  {%- endif -%}
+
+  {%- for block in section.blocks -%}
+    {%- assign is_reverse = forloop.index0 | modulo: 2 -%}
+    <div
+      class="about-story__chapter{% if is_reverse != 0 %} about-story__chapter--reverse{% endif %}"
+      {{ block.shopify_attributes }}
+    >
+      <div class="about-story__chapter-media">
+        {%- if block.settings.image != blank -%}
+          <img
+            src="{{ block.settings.image | image_url: width: 1200 }}"
+            srcset="
+              {{ block.settings.image | image_url: width: 600 }} 600w,
+              {{ block.settings.image | image_url: width: 900 }} 900w,
+              {{ block.settings.image | image_url: width: 1200 }} 1200w
+            "
+            sizes="(min-width: 750px) 50vw, 100vw"
+            alt="{{ block.settings.heading | escape }}"
+            width="{{ block.settings.image.width }}"
+            height="{{ block.settings.image.height }}"
+            loading="lazy"
+          >
+        {%- else -%}
+          <div class="about-story__chapter-placeholder"></div>
+        {%- endif -%}
+      </div>
+      <div class="about-story__chapter-content">
+        <div class="about-story__chapter-text">
+          {%- if block.settings.eyebrow != blank -%}
+            <p class="about-story__eyebrow">{{ block.settings.eyebrow }}</p>
+          {%- endif -%}
+          {%- if block.settings.heading != blank -%}
+            <h2 class="about-story__chapter-heading">{{ block.settings.heading }}</h2>
+          {%- endif -%}
+          {%- if block.settings.text != blank -%}
+            <div class="about-story__chapter-body">{{ block.settings.text }}</div>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  {%- endfor -%}
+
+  {%- if section.settings.closing_heading != blank -%}
+    <div class="about-story__closing">
+      <div class="container">
+        <h2 class="about-story__closing-heading">{{ section.settings.closing_heading }}</h2>
+        {%- if section.settings.closing_button_label != blank -%}
+          <a href="{{ section.settings.closing_button_link | default: '#' }}" class="button button--outline">
+            {{ section.settings.closing_button_label }}
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "About story",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero image"
+    },
+    {
+      "type": "text",
+      "id": "hero_eyebrow",
+      "label": "Hero eyebrow",
+      "default": "OUR STORY"
+    },
+    {
+      "type": "text",
+      "id": "hero_heading",
+      "label": "Hero heading",
+      "default": "THE NEW FACE OF TRADITION."
+    },
+    {
+      "type": "richtext",
+      "id": "intro_text",
+      "label": "Intro text",
+      "default": "<p>Nexoira was created with a simple belief — great style should not come at an unreasonable price. We combine contemporary design, everyday comfort and timeless Indian sensibilities to create clothing for the modern man.</p>"
+    },
+    {
+      "type": "text",
+      "id": "closing_heading",
+      "label": "Closing heading",
+      "default": "Designed for real life. Priced for everyone."
+    },
+    {
+      "type": "text",
+      "id": "closing_button_label",
+      "label": "Closing button label",
+      "default": "SHOP THE COLLECTION"
+    },
+    {
+      "type": "url",
+      "id": "closing_button_link",
+      "label": "Closing button link"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "chapter",
+      "name": "Chapter",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "Eyebrow"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text"
+        }
+      ]
+    }
+  ],
+  "default": {
+    "blocks": [
+      {
+        "type": "chapter",
+        "settings": {
+          "eyebrow": "AFFORDABLE QUALITY",
+          "heading": "Premium shouldn't mean expensive.",
+          "text": "<p>We work directly with mills and manufacturers to bring you fabrics and finishing that feel premium, without the premium markup that usually comes with it.</p>"
+        }
+      },
+      {
+        "type": "chapter",
+        "settings": {
+          "eyebrow": "FOR THE MODERN INDIAN MAN",
+          "heading": "Built around how you actually live.",
+          "text": "<p>From boardrooms to weekend plans to family functions, Nexoira is designed for the many roles a modern Indian man moves through in a single day.</p>"
+        }
+      },
+      {
+        "type": "chapter",
+        "settings": {
+          "eyebrow": "CONTEMPORARY MEETS TRADITIONAL",
+          "heading": "Heritage, reimagined.",
+          "text": "<p>Our kurtas and everyday essentials borrow silhouettes from Indian tradition and reinterpret them with modern cuts, fabrics and finishing.</p>"
+        }
+      },
+      {
+        "type": "chapter",
+        "settings": {
+          "eyebrow": "DESIGNED FOR REAL LIFE",
+          "heading": "Clothing that keeps up with you.",
+          "text": "<p>No special occasion required. Every Nexoira piece is built to be worn often, washed well and to look better the more you live in it.</p>"
+        }
+      }
+    ]
+  }
+}
+{% endschema %}

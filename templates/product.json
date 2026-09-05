@@ -2,9 +2,13 @@
   "sections": {
     "main": {
       "type": "main-product"
+    },
+    "size-guide": {
+      "type": "size-guide"
     }
   },
   "order": [
-    "main"
+    "main",
+    "size-guide"
   ]
 }

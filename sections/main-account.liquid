@@ -1,33 +1,62 @@
-<div class="customer-account container">
-  <h1>Account</h1>
-  <p>Welcome, {{ customer.first_name }}</p>
+<div class="customer-account container" data-section-id="{{ section.id }}" data-section-type="main-account">
+  <div class="account-header">
+    <div>
+      <p class="about-story__eyebrow">MY ACCOUNT</p>
+      <h1>Welcome, {{ customer.first_name }}</h1>
+    </div>
+    <div class="account-header__actions">
+      <a href="{{ routes.account_addresses_url }}" class="button button--outline">Addresses</a>
+      <a href="{{ routes.account_logout_url }}" class="button button--outline">Log out</a>
+    </div>
+  </div>
 
-  <a href="{{ routes.account_logout_url }}">Log out</a>
+  <h2 class="account-orders__title">Order History</h2>
 
   {%- paginate customer.orders by 20 -%}
     {%- if customer.orders.size > 0 -%}
-      <table class="customer-orders">
-        <thead>
-          <tr>
-            <th>Order</th>
-            <th>Date</th>
-            <th>Payment status</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {%- for order in customer.orders -%}
+      <div class="customer-order-table-wrap">
+        <table class="customer-orders">
+          <thead>
             <tr>
-              <td><a href="{{ order.customer_url }}">{{ order.name }}</a></td>
-              <td>{{ order.created_at | date: '%B %d, %Y' }}</td>
-              <td>{{ order.financial_status_label }}</td>
-              <td>{{ order.total_price | money }}</td>
+              <th>Order</th>
+              <th>Date</th>
+              <th>Payment status</th>
+              <th>Total</th>
             </tr>
+          </thead>
+          <tbody>
+            {%- for order in customer.orders -%}
+              <tr>
+                <td><a href="{{ order.customer_url }}">{{ order.name }}</a></td>
+                <td>{{ order.created_at | date: '%B %d, %Y' }}</td>
+                <td>{{ order.financial_status_label }}</td>
+                <td>{{ order.total_price | money }}</td>
+              </tr>
+            {%- endfor -%}
+          </tbody>
+        </table>
+      </div>
+
+      {%- if paginate.pages > 1 -%}
+        <nav class="pagination" aria-label="{{ 'collections.general.pagination_label' | t }}">
+          {%- if paginate.previous -%}
+            <a href="{{ paginate.previous.url }}" class="pagination__link">&larr;</a>
+          {%- endif -%}
+          {%- for part in paginate.parts -%}
+            {%- if part.is_link -%}
+              <a href="{{ part.url }}" class="pagination__link">{{ part.title }}</a>
+            {%- else -%}
+              <span class="pagination__current">{{ part.title }}</span>
+            {%- endif -%}
           {%- endfor -%}
-        </tbody>
-      </table>
+          {%- if paginate.next -%}
+            <a href="{{ paginate.next.url }}" class="pagination__link">&rarr;</a>
+          {%- endif -%}
+        </nav>
+      {%- endif -%}
     {%- else -%}
-      <p>You haven't placed any orders yet.</p>
+      <p class="customer-account__empty">You haven't placed any orders yet.</p>
+      <a href="{{ routes.all_products_collection_url }}" class="button button--solid">Start shopping</a>
     {%- endif -%}
   {%- endpaginate -%}
 </div>

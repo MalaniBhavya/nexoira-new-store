@@ -58,7 +58,12 @@
       <a href="{{ routes.account_url }}" class="site-header__action" aria-label="Account">
         {%- render 'icon-account' -%}
       </a>
-      <a href="{{ routes.cart_url }}" class="site-header__action site-header__cart" aria-label="{{ 'cart.general.title' | t }}">
+      <a
+        href="{{ routes.cart_url }}"
+        class="site-header__action site-header__cart"
+        aria-label="{{ 'cart.general.title' | t }}"
+        data-cart-drawer-open
+      >
         {%- render 'icon-cart' -%}
         <span class="site-header__cart-count" data-cart-count>{{ cart.item_count }}</span>
       </a>

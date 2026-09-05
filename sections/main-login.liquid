@@ -1,19 +1,54 @@
-<div class="customer-login container">
-  {%- form 'customer_login' -%}
-    {%- if form.errors -%}
-      <div class="form-status form-status--error">{{ form.errors | default_errors }}</div>
-    {%- endif -%}
+<div class="customer-login container" data-section-id="{{ section.id }}" data-section-type="main-login" data-auth-toggle>
+  <div class="auth-card" data-login-panel>
+    <div class="section-heading section-heading--center">
+      <h1 class="section-heading__title">Sign In</h1>
+    </div>
 
-    <label for="CustomerEmail">Email</label>
-    <input type="email" name="customer[email]" id="CustomerEmail" autocomplete="email" required>
+    {%- form 'customer_login' -%}
+      {%- if form.errors -%}
+        <p class="form-status form-status--error">{{ form.errors | default_errors }}</p>
+      {%- endif -%}
 
-    {%- unless form.password_needed == false -%}
-      <label for="CustomerPassword">Password</label>
-      <input type="password" name="customer[password]" id="CustomerPassword" autocomplete="current-password">
-    {%- endunless -%}
+      <label for="CustomerEmail">Email</label>
+      <input type="email" name="customer[email]" id="CustomerEmail" autocomplete="email" required>
 
-    <button type="submit">Sign in</button>
-  {%- endform -%}
+      {%- unless form.password_needed == false -%}
+        <label for="CustomerPassword">Password</label>
+        <input type="password" name="customer[password]" id="CustomerPassword" autocomplete="current-password">
+      {%- endunless -%}
+
+      <button type="submit" class="button button--solid">Sign in</button>
+
+      <div class="auth-card__links">
+        <a href="#recover" data-recover-toggle>Forgot your password?</a>
+        <a href="{{ routes.account_register_url }}">Create an account</a>
+      </div>
+    {%- endform -%}
+  </div>
+
+  <div class="auth-card" data-recover-panel hidden>
+    <div class="section-heading section-heading--center">
+      <h1 class="section-heading__title">Reset password</h1>
+    </div>
+
+    {%- form 'recover_customer_password' -%}
+      {%- if form.posted_successfully? -%}
+        <p class="form-status form-status--success">We've sent you an email with a link to reset your password.</p>
+      {%- endif -%}
+      {%- if form.errors -%}
+        <p class="form-status form-status--error">{{ form.errors | default_errors }}</p>
+      {%- endif -%}
+
+      <label for="RecoverEmail">Email</label>
+      <input type="email" name="email" id="RecoverEmail" autocomplete="email" required>
+
+      <button type="submit" class="button button--solid">Send reset link</button>
+
+      <div class="auth-card__links">
+        <a href="#login" data-recover-cancel>Back to sign in</a>
+      </div>
+    {%- endform -%}
+  </div>
 </div>
 
 {% schema %}

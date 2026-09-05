@@ -1,112 +1,319 @@
+{%- doc -%}
+  Premium product detail page: gallery with thumbnails/zoom/swipe on the
+  left, a sticky info panel on the right, accordions for details/fabric/
+  fit/shipping, native dynamic checkout buttons, and native product
+  recommendations + a localStorage-backed recently-viewed rail below.
+{%- enddoc -%}
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign fabric_content = product.metafields.custom.fabric_care
+  if fabric_content == blank
+    assign fabric_content = section.settings.fabric_default
+  endif
+  assign fit_content = product.metafields.custom.size_fit
+  if fit_content == blank
+    assign fit_content = section.settings.fit_default
+  endif
+  assign shipping_content = shop.policies.shipping_policy.body
+  if shipping_content == blank
+    assign shipping_content = section.settings.shipping_default
+  endif
+-%}
+
 <div class="product" data-section-id="{{ section.id }}" data-section-type="main-product">
   <div class="container product__inner">
 
-    <div class="product__media">
-      {%- if product.featured_media -%}
-        <div class="product__media-main">
-          <img
-            src="{{ product.featured_media.preview_image | image_url: width: 1200 }}"
-            srcset="
-              {{ product.featured_media.preview_image | image_url: width: 600 }} 600w,
-              {{ product.featured_media.preview_image | image_url: width: 900 }} 900w,
-              {{ product.featured_media.preview_image | image_url: width: 1200 }} 1200w,
-              {{ product.featured_media.preview_image | image_url: width: 1600 }} 1600w
-            "
-            sizes="(min-width: 750px) 50vw, 100vw"
-            alt="{{ product.featured_media.alt | escape }}"
-            width="{{ product.featured_media.preview_image.width }}"
-            height="{{ product.featured_media.preview_image.height }}"
-            loading="eager"
-          >
-        </div>
-
-        {%- if product.media.size > 1 -%}
-          <div class="product__media-thumbnails">
-            {%- for media in product.media -%}
-              <button type="button" class="product__media-thumb" data-media-id="{{ media.id }}">
+    <div class="product__gallery" data-product-gallery>
+      <div class="product__gallery-main" data-gallery-main>
+        {%- for media in product.media -%}
+          <div class="product__gallery-slide{% if forloop.first %} is-active{% endif %}" data-gallery-slide>
+            {%- if media.media_type == 'image' -%}
+              <button
+                type="button"
+                class="product__zoom-trigger"
+                data-zoom-trigger
+                data-zoom-src="{{ media.preview_image | image_url: width: 2400 }}"
+                data-zoom-alt="{{ media.alt | escape }}"
+                aria-label="View larger image"
+              >
                 <img
-                  src="{{ media.preview_image | image_url: width: 200 }}"
+                  src="{{ media.preview_image | image_url: width: 1200 }}"
+                  srcset="
+                    {{ media.preview_image | image_url: width: 600 }} 600w,
+                    {{ media.preview_image | image_url: width: 900 }} 900w,
+                    {{ media.preview_image | image_url: width: 1200 }} 1200w,
+                    {{ media.preview_image | image_url: width: 1600 }} 1600w
+                  "
+                  sizes="(min-width: 990px) 50vw, 100vw"
                   alt="{{ media.alt | escape }}"
-                  width="100"
-                  height="100"
-                  loading="lazy"
+                  width="{{ media.preview_image.width }}"
+                  height="{{ media.preview_image.height }}"
+                  {% if forloop.first %}
+                    loading="eager"
+                    fetchpriority="high"
+                  {% else %}
+                    loading="lazy"
+                  {% endif %}
                 >
               </button>
-            {%- endfor -%}
+            {%- else -%}
+              {{ media | media_tag: image_size: '1200x' }}
+            {%- endif -%}
           </div>
-        {%- endif -%}
-      {%- else -%}
-        <div class="product__media-placeholder"></div>
+        {%- else -%}
+          <div class="product__gallery-slide is-active">
+            <div class="product__media-placeholder"></div>
+          </div>
+        {%- endfor -%}
+      </div>
+
+      {%- if product.media.size > 1 -%}
+        <div class="product__gallery-thumbs" data-gallery-thumbs>
+          {%- for media in product.media -%}
+            <button
+              type="button"
+              class="product__gallery-thumb{% if forloop.first %} is-active{% endif %}"
+              data-gallery-thumb
+              data-index="{{ forloop.index0 }}"
+            >
+              <img
+                src="{{ media.preview_image | image_url: width: 200 }}"
+                alt=""
+                width="80"
+                height="100"
+                loading="lazy"
+              >
+            </button>
+          {%- endfor -%}
+        </div>
       {%- endif -%}
     </div>
 
     <div class="product__info">
-      <h1 class="product__title">{{ product.title }}</h1>
+      <div class="product__info-sticky">
+        <h1 class="product__title">{{ product.title }}</h1>
 
-      <div class="product__price" data-product-price>
-        {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
-          <span class="product__price--sale">{{ product.selected_or_first_available_variant.price | money }}</span>
-          <span class="product__price--compare">{{ product.selected_or_first_available_variant.compare_at_price | money }}</span>
-        {%- else -%}
-          <span>{{ product.selected_or_first_available_variant.price | money }}</span>
-        {%- endif -%}
-      </div>
-
-      {%- form 'product', product, id: 'ProductForm', class: 'product__form' -%}
-        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" id="ProductSelectedVariant">
-
-        {%- unless product.has_only_default_variant -%}
-          {%- for option in product.options_with_values -%}
-            <div class="product__option">
-              <label for="Option-{{ option.position }}">{{ option.name }}</label>
-              <select id="Option-{{ option.position }}" class="product__option-select" data-option-position="{{ option.position }}">
-                {%- for value in option.values -%}
-                  <option value="{{ value | escape }}"{% if option.selected_value == value %} selected{% endif %}>{{ value }}</option>
-                {%- endfor -%}
-              </select>
-            </div>
-          {%- endfor -%}
-          <script type="application/json" data-product-variants>
-            {{ product.variants | json }}
-          </script>
-        {%- endunless -%}
-
-        <div class="product__quantity">
-          <label for="Quantity">{{ 'products.product.quantity.label' | t }}</label>
-          <input type="number" id="Quantity" name="quantity" value="1" min="1">
-        </div>
-
-        <button
-          type="submit"
-          name="add"
-          class="product__add-to-cart"
-          data-label-available="{{ 'products.product.add_to_cart' | t }}"
-          data-label-sold-out="{{ 'products.product.sold_out' | t }}"
-          {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}
-        >
-          {%- if product.selected_or_first_available_variant.available -%}
-            {{ 'products.product.add_to_cart' | t }}
+        <div class="product__price" data-product-price>
+          {%- if current_variant.compare_at_price > current_variant.price -%}
+            <span class="product__price--sale">{{ current_variant.price | money }}</span>
+            <span class="product__price--compare">{{ current_variant.compare_at_price | money }}</span>
+            <span class="badge badge--sale">{{ 'products.product.on_sale' | t }}</span>
           {%- else -%}
-            {{ 'products.product.sold_out' | t }}
+            <span>{{ current_variant.price | money }}</span>
           {%- endif -%}
-        </button>
-      {%- endform -%}
-
-      {%- if product.description != blank -%}
-        <div class="product__description">
-          {{ product.description }}
         </div>
-      {%- endif -%}
+
+        {%- if product.description != blank -%}
+          <div class="product__short-description">
+            {{ product.description | strip_html | truncatewords: 35 }}
+          </div>
+        {%- endif -%}
+
+        {%- form 'product', product, id: 'ProductForm', class: 'product__form' -%}
+          <input type="hidden" name="id" value="{{ current_variant.id }}" id="ProductSelectedVariant">
+
+          {%- unless product.has_only_default_variant -%}
+            {%- for option in product.options_with_values -%}
+              <div class="product__option">
+                <div class="product__option-header">
+                  <span class="product__option-label">{{ option.name }}: <strong>{{ option.selected_value }}</strong></span>
+                  {%- if option.name == 'Size' -%}
+                    <button
+                      type="button"
+                      class="product__size-guide-trigger"
+                      data-size-guide-open
+                      data-garment-type="{{ product.type | escape }}"
+                    >
+                      Size Guide
+                    </button>
+                  {%- endif -%}
+                </div>
+
+                {%- if option.name == 'Color' -%}
+                  <div class="product__swatches">
+                    {%- for value in option.values -%}
+                      <label class="product__swatch{% if option.selected_value == value %} is-selected{% endif %}">
+                        <input
+                          type="radio"
+                          name="Option-{{ option.position }}-{{ section.id }}"
+                          value="{{ value | escape }}"
+                          class="product__option-input"
+                          data-option-position="{{ option.position }}"
+                          {% if option.selected_value == value %}checked{% endif %}
+                        >
+                        <span class="product__swatch-dot" style="background-color: {{ value | handle }};"></span>
+                        <span class="visually-hidden">{{ value }}</span>
+                      </label>
+                    {%- endfor -%}
+                  </div>
+                {%- else -%}
+                  <div class="product__pills">
+                    {%- for value in option.values -%}
+                      <label class="product__pill{% if option.selected_value == value %} is-selected{% endif %}">
+                        <input
+                          type="radio"
+                          name="Option-{{ option.position }}-{{ section.id }}"
+                          value="{{ value | escape }}"
+                          class="product__option-input"
+                          data-option-position="{{ option.position }}"
+                          {% if option.selected_value == value %}checked{% endif %}
+                        >
+                        <span>{{ value }}</span>
+                      </label>
+                    {%- endfor -%}
+                  </div>
+                {%- endif -%}
+              </div>
+            {%- endfor -%}
+            <script type="application/json" data-product-variants>
+              {{ product.variants | json }}
+            </script>
+          {%- endunless -%}
+
+          <div class="product__quantity">
+            <label for="Quantity">{{ 'products.product.quantity.label' | t }}</label>
+            <div class="product__quantity-stepper">
+              <button type="button" data-quantity-decrease aria-label="Decrease quantity">&minus;</button>
+              <input type="number" id="Quantity" name="quantity" value="1" min="1">
+              <button type="button" data-quantity-increase aria-label="Increase quantity">+</button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            name="add"
+            class="product__add-to-cart"
+            data-label-available="{{ 'products.product.add_to_cart' | t }}"
+            data-label-sold-out="{{ 'products.product.sold_out' | t }}"
+            {% unless current_variant.available %}disabled{% endunless %}
+          >
+            {%- if current_variant.available -%}
+              {{ 'products.product.add_to_cart' | t }}
+            {%- else -%}
+              {{ 'products.product.sold_out' | t }}
+            {%- endif -%}
+          </button>
+
+          {%- if current_variant.available -%}
+            <div class="product__dynamic-checkout">
+              {{ form | payment_button }}
+            </div>
+          {%- endif -%}
+        {%- endform -%}
+
+        <div class="product__trust">
+          <div class="product__trust-item">
+            {%- render 'icon-truck' -%}
+            <span>{{ section.settings.shipping_note }}</span>
+          </div>
+          <div class="product__trust-item">
+            {%- render 'icon-return' -%}
+            <span>{{ section.settings.returns_note }}</span>
+          </div>
+          <div class="product__trust-item">
+            {%- render 'icon-shield' -%}
+            <span>{{ section.settings.security_note }}</span>
+          </div>
+        </div>
+
+        <div class="product__accordions">
+          <details class="product__accordion" open>
+            <summary>Product Details</summary>
+            <div class="product__accordion-content">{{ product.description }}</div>
+          </details>
+          {%- if fabric_content != blank -%}
+            <details class="product__accordion">
+              <summary>Fabric &amp; Care</summary>
+              <div class="product__accordion-content">{{ fabric_content }}</div>
+            </details>
+          {%- endif -%}
+          {%- if fit_content != blank -%}
+            <details class="product__accordion">
+              <summary>Size &amp; Fit</summary>
+              <div class="product__accordion-content">{{ fit_content }}</div>
+            </details>
+          {%- endif -%}
+          {%- if shipping_content != blank -%}
+            <details class="product__accordion">
+              <summary>Shipping &amp; Returns</summary>
+              <div class="product__accordion-content">{{ shipping_content }}</div>
+            </details>
+          {%- endif -%}
+        </div>
+      </div>
     </div>
 
   </div>
 </div>
 
+<div
+  class="product-recommendations-mount"
+  data-product-recommendations
+  data-url="{{ routes.product_recommendations_url }}?section_id=product-recommendations&limit=4&product_id={{ product.id }}"
+></div>
+
+<div
+  class="recently-viewed"
+  data-recently-viewed
+  data-current-handle="{{ product.handle }}"
+  data-product-handle="{{ product.handle }}"
+  data-product-title="{{ product.title | escape }}"
+  data-product-url="{{ product.url }}"
+  data-product-image="{{ product.featured_media.preview_image | image_url: width: 600 }}"
+  data-product-price="{{ current_variant.price | money }}"
+></div>
+
+<dialog class="product-zoom" data-zoom-dialog>
+  <button type="button" class="product-zoom__close" data-zoom-close aria-label="{{ 'general.menu.close' | t }}">
+    {%- render 'icon-close' -%}
+  </button>
+  <img data-zoom-image src="" alt="" width="1200" height="1200" loading="lazy">
+</dialog>
+
 {% schema %}
 {
   "name": "Product information",
   "settings": [
-
+    {
+      "type": "text",
+      "id": "shipping_note",
+      "label": "Shipping trust note",
+      "default": "Free shipping on orders above ₹999"
+    },
+    {
+      "type": "text",
+      "id": "returns_note",
+      "label": "Returns trust note",
+      "default": "Easy 7-day returns"
+    },
+    {
+      "type": "text",
+      "id": "security_note",
+      "label": "Security trust note",
+      "default": "100% secure checkout"
+    },
+    {
+      "type": "richtext",
+      "id": "fabric_default",
+      "label": "Default fabric & care copy",
+      "info": "Used when a product has no custom.fabric_care metafield.",
+      "default": "<p>Crafted from premium, breathable fabric. Machine wash cold with like colors. Do not bleach. Iron on low heat.</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "fit_default",
+      "label": "Default size & fit copy",
+      "info": "Used when a product has no custom.size_fit metafield.",
+      "default": "<p>This piece is designed with a modern, relaxed fit. If you're between sizes, we recommend sizing up for a more comfortable fit.</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "shipping_default",
+      "label": "Default shipping & returns copy",
+      "info": "Used when no shipping policy is set under Settings → Policies.",
+      "default": "<p>Orders are dispatched within 1-2 business days. Delivery typically takes 3-7 business days across India. Returns accepted within 7 days of delivery.</p>"
+    }
   ]
 }
 {% endschema %}
