@@ -1,0 +1,27 @@
+<article class="article container">
+  <h1 class="article__title">{{ article.title }}</h1>
+  <p class="article__meta">{{ article.published_at | date: '%B %d, %Y' }}{% if article.author != blank %} &middot; {{ article.author }}{% endif %}</p>
+
+  {%- if article.image -%}
+    <img
+      src="{{ article.image | image_url: width: 1200 }}"
+      alt="{{ article.image.alt | escape }}"
+      width="{{ article.image.width }}"
+      height="{{ article.image.height }}"
+      loading="eager"
+    >
+  {%- endif -%}
+
+  <div class="article__content">
+    {{ article.content }}
+  </div>
+</article>
+
+{% schema %}
+{
+  "name": "Article",
+  "settings": [
+
+  ]
+}
+{% endschema %}

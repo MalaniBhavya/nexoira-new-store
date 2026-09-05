@@ -1,0 +1,21 @@
+<div class="customer-activate-account container">
+  {%- form 'activate_customer_password' -%}
+    <label for="ActivatePassword">Password</label>
+    <input type="password" name="customer[password]" id="ActivatePassword" autocomplete="new-password">
+
+    <label for="ActivatePasswordConfirmation">Confirm password</label>
+    <input type="password" name="customer[password_confirmation]" id="ActivatePasswordConfirmation" autocomplete="new-password">
+
+    <button type="submit" name="decline">Decline invitation</button>
+    <button type="submit">Activate account</button>
+  {%- endform -%}
+</div>
+
+{% schema %}
+{
+  "name": "Activate account",
+  "settings": [
+
+  ]
+}
+{% endschema %}

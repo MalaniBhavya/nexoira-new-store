@@ -1,0 +1,59 @@
+{%- doc -%}
+  Renders a product card.
+
+  @param product {product} - the product to render
+{%- enddoc -%}
+
+{%- liquid
+  assign card_product = product
+  assign featured_image = card_product.featured_media.preview_image
+-%}
+
+<div class="product-card">
+  <a href="{{ card_product.url }}" class="product-card__link">
+    <div class="product-card__media">
+      {%- if featured_image -%}
+        <img
+          src="{{ featured_image | image_url: width: 600 }}"
+          srcset="
+            {{ featured_image | image_url: width: 300 }} 300w,
+            {{ featured_image | image_url: width: 600 }} 600w,
+            {{ featured_image | image_url: width: 900 }} 900w,
+            {{ featured_image | image_url: width: 1200 }} 1200w
+          "
+          sizes="(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw"
+          alt="{{ featured_image.alt | escape }}"
+          width="{{ featured_image.width }}"
+          height="{{ featured_image.height }}"
+          loading="lazy"
+        >
+
+        {%- if card_product.media.size > 1 -%}
+          {%- assign second_image = card_product.media[1].preview_image -%}
+          <img
+            class="product-card__media-hover"
+            src="{{ second_image | image_url: width: 600 }}"
+            alt=""
+            width="{{ second_image.width }}"
+            height="{{ second_image.height }}"
+            loading="lazy"
+          >
+        {%- endif -%}
+      {%- else -%}
+        <div class="product-card__media-placeholder"></div>
+      {%- endif -%}
+    </div>
+
+    <div class="product-card__info">
+      <h3 class="product-card__title">{{ card_product.title }}</h3>
+      <div class="product-card__price">
+        {%- if card_product.compare_at_price > card_product.price -%}
+          <span class="product-card__price--sale">{{ card_product.price | money }}</span>
+          <span class="product-card__price--compare">{{ card_product.compare_at_price | money }}</span>
+        {%- else -%}
+          <span>{{ card_product.price | money }}</span>
+        {%- endif -%}
+      </div>
+    </div>
+  </a>
+</div>

@@ -1,0 +1,123 @@
+<footer class="site-footer" data-section-id="{{ section.id }}" data-section-type="footer">
+  <div class="site-footer__inner container">
+
+    <div class="site-footer__blocks">
+      {%- for block in section.blocks -%}
+        <div class="site-footer__block" {{ block.shopify_attributes }}>
+          {%- case block.type -%}
+
+            {%- when 'text' -%}
+              {%- if block.settings.heading != blank -%}
+                <h3 class="site-footer__heading">{{ block.settings.heading }}</h3>
+              {%- endif -%}
+              {%- if block.settings.text != blank -%}
+                <div class="site-footer__text">{{ block.settings.text }}</div>
+              {%- endif -%}
+
+            {%- when 'link_list' -%}
+              {%- if block.settings.heading != blank -%}
+                <h3 class="site-footer__heading">{{ block.settings.heading }}</h3>
+              {%- endif -%}
+              <ul class="site-footer__link-list">
+                {%- for link in block.settings.menu.links -%}
+                  <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                {%- endfor -%}
+              </ul>
+
+            {%- when 'newsletter' -%}
+              <h3 class="site-footer__heading">
+                {%- if block.settings.heading != blank -%}
+                  {{ block.settings.heading }}
+                {%- else -%}
+                  {{ 'footer.newsletter.heading' | t }}
+                {%- endif -%}
+              </h3>
+              {%- form 'customer', class: 'site-footer__newsletter-form' -%}
+                <input type="hidden" name="contact[tags]" value="newsletter">
+                <label class="visually-hidden" for="NewsletterEmail">{{ 'footer.newsletter.placeholder' | t }}</label>
+                <input
+                  type="email"
+                  name="contact[email]"
+                  id="NewsletterEmail"
+                  placeholder="{{ 'footer.newsletter.placeholder' | t }}"
+                  required
+                >
+                <button type="submit">{{ 'footer.newsletter.submit' | t }}</button>
+                {%- if form.posted_successfully? -%}
+                  <p class="form-status form-status--success">{{ 'footer.newsletter.success' | t }}</p>
+                {%- endif -%}
+              {%- endform -%}
+
+          {%- endcase -%}
+        </div>
+      {%- endfor -%}
+    </div>
+
+    <div class="site-footer__bottom">
+      <p class="site-footer__copyright">&copy; {{ 'now' | date: '%Y' }} {{ shop.name }} &mdash; {{ 'footer.copyright' | t }}</p>
+    </div>
+
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "blocks": [
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text"
+        }
+      ]
+    },
+    {
+      "type": "link_list",
+      "name": "Menu",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu"
+        }
+      ]
+    },
+    {
+      "type": "newsletter",
+      "name": "Newsletter",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading"
+        }
+      ]
+    }
+  ],
+  "default": {
+    "blocks": [
+      {
+        "type": "link_list"
+      },
+      {
+        "type": "newsletter"
+      }
+    ]
+  }
+}
+{% endschema %}

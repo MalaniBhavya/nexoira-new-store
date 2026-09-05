@@ -1,0 +1,28 @@
+<div class="list-collections container">
+  <h1>Collections</h1>
+  <div class="collection__grid">
+    {%- for collection in collections -%}
+      <a href="{{ collection.url }}" class="product-card">
+        {%- if collection.featured_image -%}
+          <img
+            src="{{ collection.featured_image | image_url: width: 600 }}"
+            alt="{{ collection.featured_image.alt | escape }}"
+            width="{{ collection.featured_image.width }}"
+            height="{{ collection.featured_image.height }}"
+            loading="lazy"
+          >
+        {%- endif -%}
+        <h3>{{ collection.title }}</h3>
+      </a>
+    {%- endfor -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "List of collections",
+  "settings": [
+
+  ]
+}
+{% endschema %}

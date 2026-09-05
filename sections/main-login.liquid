@@ -1,0 +1,26 @@
+<div class="customer-login container">
+  {%- form 'customer_login' -%}
+    {%- if form.errors -%}
+      <div class="form-status form-status--error">{{ form.errors | default_errors }}</div>
+    {%- endif -%}
+
+    <label for="CustomerEmail">Email</label>
+    <input type="email" name="customer[email]" id="CustomerEmail" autocomplete="email" required>
+
+    {%- unless form.password_needed == false -%}
+      <label for="CustomerPassword">Password</label>
+      <input type="password" name="customer[password]" id="CustomerPassword" autocomplete="current-password">
+    {%- endunless -%}
+
+    <button type="submit">Sign in</button>
+  {%- endform -%}
+</div>
+
+{% schema %}
+{
+  "name": "Customer login",
+  "settings": [
+
+  ]
+}
+{% endschema %}

@@ -1,0 +1,18 @@
+<div class="customer-addresses container">
+  <h1>Addresses</h1>
+
+  {%- for address in customer.addresses -%}
+    <div class="customer-address">
+      {{ address | format_address }}
+    </div>
+  {%- endfor -%}
+</div>
+
+{% schema %}
+{
+  "name": "Customer addresses",
+  "settings": [
+
+  ]
+}
+{% endschema %}

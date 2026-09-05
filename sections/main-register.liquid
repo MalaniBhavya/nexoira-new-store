@@ -1,0 +1,30 @@
+<div class="customer-register container">
+  {%- form 'create_customer' -%}
+    {%- if form.errors -%}
+      <div class="form-status form-status--error">{{ form.errors | default_errors }}</div>
+    {%- endif -%}
+
+    <label for="RegisterFirstName">First name</label>
+    <input type="text" name="customer[first_name]" id="RegisterFirstName" autocomplete="given-name">
+
+    <label for="RegisterLastName">Last name</label>
+    <input type="text" name="customer[last_name]" id="RegisterLastName" autocomplete="family-name">
+
+    <label for="RegisterEmail">Email</label>
+    <input type="email" name="customer[email]" id="RegisterEmail" autocomplete="email" required>
+
+    <label for="RegisterPassword">Password</label>
+    <input type="password" name="customer[password]" id="RegisterPassword" autocomplete="new-password">
+
+    <button type="submit">Create account</button>
+  {%- endform -%}
+</div>
+
+{% schema %}
+{
+  "name": "Customer register",
+  "settings": [
+
+  ]
+}
+{% endschema %}

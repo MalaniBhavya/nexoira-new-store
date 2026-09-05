@@ -1,0 +1,17 @@
+{
+  "current": "Default",
+  "presets": {
+    "Default": {
+      "color_background": "#FFFFFF",
+      "color_text": "#1A1A1A",
+      "color_accent": "#1A1A1A",
+      "color_border": "#E5E5E5",
+      "type_heading_font": "helvetica_n4",
+      "type_body_font": "helvetica_n4",
+      "page_width": 1200,
+      "grid_gap": 16,
+      "social_instagram_link": "",
+      "social_facebook_link": ""
+    }
+  }
+}

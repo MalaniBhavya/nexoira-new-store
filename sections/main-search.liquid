@@ -1,0 +1,33 @@
+<div class="search-page container">
+  <h1>{{ 'general.search.submit' | t }}</h1>
+
+  <form action="{{ routes.search_url }}" method="get" role="search">
+    <input type="search" name="q" value="{{ search.terms | escape }}" placeholder="{{ 'general.search.placeholder' | t }}">
+    <button type="submit">{{ 'general.search.submit' | t }}</button>
+  </form>
+
+  {%- if search.performed -%}
+    {%- if search.results.size > 0 -%}
+      <div class="collection__grid">
+        {%- for item in search.results -%}
+          {%- if item.object_type == 'product' -%}
+            {%- render 'card-product', product: item -%}
+          {%- else -%}
+            <a href="{{ item.url }}">{{ item.title }}</a>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      <p>{{ 'collections.general.no_matches' | t }}</p>
+    {%- endif -%}
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Search results",
+  "settings": [
+
+  ]
+}
+{% endschema %}
