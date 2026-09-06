@@ -101,25 +101,14 @@
     if (!header || header.dataset.panelsInitialized) return;
     header.dataset.panelsInitialized = 'true';
 
-    var shopTrigger = header.querySelector('[data-shop-trigger]');
-    var shopDropdown = header.querySelector('[data-shop-dropdown]');
     var searchTrigger = header.querySelector('[data-search-toggle]');
     var searchPanel = header.querySelector('[data-search-panel]');
 
     function closeAll() {
-      if (shopDropdown) closePanel(shopDropdown, shopTrigger);
       if (searchPanel) {
         closePanel(searchPanel, searchTrigger);
         document.body.classList.remove('search-open');
       }
-    }
-
-    if (shopTrigger && shopDropdown) {
-      shopTrigger.addEventListener('click', function () {
-        var isOpen = shopDropdown.classList.contains('is-open');
-        closeAll();
-        if (!isOpen) openPanel(shopDropdown, shopTrigger);
-      });
     }
 
     if (searchTrigger && searchPanel) {

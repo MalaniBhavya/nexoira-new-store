@@ -7,16 +7,14 @@
   <div class="site-header__row container">
 
     <div class="site-header__side site-header__side--left">
-      <button
-        type="button"
-        class="site-header__shop-trigger"
-        data-shop-trigger
-        aria-expanded="false"
-        aria-controls="ShopDropdown-{{ section.id }}"
-      >
-        <span>Shop</span>
-        {%- render 'icon-chevron-down' -%}
-      </button>
+      <nav class="site-header__nav">
+        {%- for link in section.settings.menu.links -%}
+          {%- assign link_title_down = link.title | downcase -%}
+          {%- if link_title_down == 'shirts' or link_title_down == 'trousers' or link_title_down == 'kurtas' -%}
+            <a href="{{ link.url }}" class="site-header__nav-link">{{ link.title }}</a>
+          {%- endif -%}
+        {%- endfor -%}
+      </nav>
 
       <button
         type="button"
@@ -69,16 +67,6 @@
       </a>
     </div>
 
-  </div>
-
-  <div class="site-header__dropdown" id="ShopDropdown-{{ section.id }}" data-shop-dropdown>
-    <div class="container site-header__dropdown-inner">
-      <ul class="site-header__dropdown-list">
-        {%- for link in section.settings.menu.links -%}
-          <li><a href="{{ link.url }}">{{ link.title }}</a></li>
-        {%- endfor -%}
-      </ul>
-    </div>
   </div>
 
   <div class="site-header__search-panel" id="HeaderSearch-{{ section.id }}" data-search-panel>
@@ -143,7 +131,7 @@
       "type": "link_list",
       "id": "menu",
       "label": "Shop menu",
-      "info": "Shown in the Shop dropdown and the mobile menu.",
+      "info": "Shirts/Trousers/Kurtas links are shown in the header nav; the full list is shown in the mobile menu.",
       "default": "main-menu"
     }
   ]
