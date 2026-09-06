@@ -16,14 +16,16 @@
       "page_width": 1440,
       "grid_gap": 24,
       "social_instagram_link": "",
-      "social_facebook_link": ""
+      "social_facebook_link": "",
+      "favicon": "shopify://shop_images/logowithoutbg.png"
     }
   },
   "sections": {
     "header": {
       "type": "header",
       "settings": {
-        "menu": "nexoira-shop-menu"
+        "menu": "nexoira-shop-menu",
+        "logo": "shopify://shop_images/logowithoutbg.png"
       }
     }
   }
