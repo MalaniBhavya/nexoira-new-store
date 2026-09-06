@@ -74,11 +74,9 @@
         {%- render 'icon', name: 'account', size: 20, title: 'general.accessibility.account' | t -%}
       </a>
 
-      <a href="{{ routes.cart_url }}" class="button--icon site-header__cart">
+      <a href="{{ routes.cart_url }}" class="button--icon site-header__cart" data-cart-link>
         {%- render 'icon', name: 'cart', size: 20, title: 'general.accessibility.cart' | t -%}
-        {%- if cart.item_count > 0 -%}
-          <span class="site-header__cart-count" aria-hidden="true">{{ cart.item_count }}</span>
-        {%- endif -%}
+        <span class="site-header__cart-count" aria-hidden="true" data-cart-count {% if cart.item_count == 0 %}hidden{% endif %}>{{ cart.item_count }}</span>
       </a>
     </div>
   </div>
@@ -573,29 +571,25 @@
       var backdrop = drawer.querySelector('[data-drawer-backdrop]');
       var closeBtn = drawer.querySelector('[data-drawer-close]');
       var lastFocused = null;
-
-      function getFocusable() {
-        return Array.prototype.slice.call(
-          panel.querySelectorAll('a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])')
-        );
-      }
+      var releaseFocusTrap = null;
+      var unlockScroll = null;
 
       function open() {
         lastFocused = document.activeElement;
         drawer.hidden = false;
-        document.body.style.overflow = 'hidden';
+        unlockScroll = Nexoira.lockScroll();
         openBtn.setAttribute('aria-expanded', 'true');
         window.requestAnimationFrame(function () {
           drawer.setAttribute('data-open', '');
         });
-        var focusable = getFocusable();
-        if (focusable[0]) focusable[0].focus();
+        releaseFocusTrap = Nexoira.trapFocus(panel, { onEscape: close });
       }
 
       function close() {
         drawer.removeAttribute('data-open');
         openBtn.setAttribute('aria-expanded', 'false');
-        document.body.style.overflow = '';
+        if (unlockScroll) unlockScroll();
+        if (releaseFocusTrap) releaseFocusTrap();
         window.setTimeout(function () {
           drawer.hidden = true;
         }, 250);
@@ -605,23 +599,20 @@
       openBtn.addEventListener('click', open);
       if (closeBtn) closeBtn.addEventListener('click', close);
       if (backdrop) backdrop.addEventListener('click', close);
+    }
 
-      drawer.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') {
-          close();
-          return;
-        }
-        if (e.key !== 'Tab') return;
-        var focusable = getFocusable();
-        if (!focusable.length) return;
-        var first = focusable[0];
-        var last = focusable[focusable.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
+    function initCartCount() {
+      var countEl = document.querySelector('[data-cart-count]');
+      var cartLink = document.querySelector('[data-cart-link]');
+      if (!countEl || !cartLink) return;
+
+      document.addEventListener('cart:updated', function (e) {
+        var cart = e.detail;
+        if (cart.item_count > 0) {
+          countEl.textContent = cart.item_count;
+          countEl.hidden = false;
+        } else {
+          countEl.hidden = true;
         }
       });
     }
@@ -629,6 +620,7 @@
     initMegaMenu();
     initSearchPanel();
     initDrawer();
+    initCartCount();
   })();
 {% endjavascript %}
 

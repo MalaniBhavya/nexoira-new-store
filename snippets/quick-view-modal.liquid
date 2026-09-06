@@ -1,0 +1,46 @@
+{%- comment -%}
+  Shared Quick View dialog shell, rendered once globally (theme.liquid).
+  Populated per-product by assets/quick-view.js from the product's JSON
+  endpoint (/products/{handle}.js) when a [data-quick-view-trigger]
+  button is clicked anywhere on the page. PRD §6: images, sizes, price
+  and Add to Cart.
+{%- endcomment -%}
+
+<div class="dialog-backdrop" id="QuickViewBackdrop" data-quick-view-backdrop hidden></div>
+
+<div
+  class="dialog-panel quick-view-modal"
+  id="QuickViewModal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="QuickViewTitle"
+  data-quick-view-modal
+  data-i18n-select-size="{{ 'general.product.select_size' | t }}"
+  data-i18n-add-to-cart="{{ 'general.product.add_to_cart' | t }}"
+  data-i18n-adding="{{ 'general.product.adding' | t }}"
+  data-i18n-added="{{ 'general.product.added' | t }}"
+  data-i18n-sold-out="{{ 'general.product.badge_sold_out' | t }}"
+  data-i18n-error="{{ 'general.product.add_to_cart_error' | t }}"
+  data-i18n-view-cart="{{ 'general.navigation.view_cart' | t }}"
+  data-i18n-view-full-details="{{ 'general.product.view_full_details' | t }}"
+  hidden
+>
+  <button type="button" class="button--icon dialog-close" data-quick-view-close>
+    {%- render 'icon', name: 'close', size: 18, title: 'general.accessibility.close' | t -%}
+  </button>
+
+  <div class="quick-view-modal__body">
+    <div class="quick-view-modal__gallery">
+      <div class="quick-view-modal__main-image aspect-portrait" data-quick-view-main-image></div>
+      <div class="quick-view-modal__thumbs" data-quick-view-thumbs></div>
+    </div>
+
+    <div class="quick-view-modal__info">
+      <h2 id="QuickViewTitle" class="quick-view-modal__title" data-quick-view-title></h2>
+      <p class="quick-view-modal__price" data-quick-view-price></p>
+      <div class="quick-view-modal__sizes" data-quick-view-sizes></div>
+      <p class="quick-view-modal__status" data-quick-view-status role="status" aria-live="polite"></p>
+      <a href="#" class="button--tertiary quick-view-modal__link" data-quick-view-full-link></a>
+    </div>
+  </div>
+</div>

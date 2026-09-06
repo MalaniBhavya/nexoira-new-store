@@ -1,0 +1,123 @@
+{%- comment -%}
+  Renders whatever filters/sort options Search & Discovery (free, native -
+  not a paid app) has been configured to expose for this collection or
+  search result set. Nothing here is hardcoded to a specific filter -
+  size, color family, price, fit, fabric, category and availability all
+  come from `results.filters` once the merchant maps the corresponding
+  product option/metafield as a filter in Search & Discovery settings.
+
+  Accepts:
+    results       (required) a collection or search object
+    results_url   (required) the form action - collection.url or routes.search_url
+{%- endcomment -%}
+
+<form id="FacetFiltersForm" method="get" action="{{ results_url }}" class="facet-filters">
+  {%- if results.terms -%}
+    <input type="hidden" name="q" value="{{ results.terms | escape }}">
+  {%- endif -%}
+  <input type="hidden" name="type" value="product">
+
+  <div class="facet-filters__header">
+    <p class="facet-filters__heading">{{ 'general.accessibility.filters' | t }}</p>
+    <a href="{{ results_url }}" class="button--tertiary" data-clear-filters>{{ 'general.product.clear_filters' | t }}</a>
+  </div>
+
+  {%- for filter in results.filters -%}
+    <details class="facet" open>
+      <summary class="facet__summary">
+        {{ filter.label }}
+        {%- render 'icon', name: 'chevron-down', size: 14, class: 'facet__chevron' -%}
+      </summary>
+
+      <div class="facet__body">
+        {%- if filter.type == 'price_range' -%}
+          <div class="facet__price-range">
+            <div class="field">
+              <label class="visually-hidden" for="FilterPriceMin">{{ 'general.product.price_min' | t }}</label>
+              <input
+                type="number"
+                id="FilterPriceMin"
+                class="input"
+                name="{{ filter.min_value.param_name }}"
+                value="{{ filter.min_value.value }}"
+                placeholder="{{ filter.range_min | money }}"
+                min="0"
+              >
+            </div>
+            <span class="facet__price-sep">–</span>
+            <div class="field">
+              <label class="visually-hidden" for="FilterPriceMax">{{ 'general.product.price_max' | t }}</label>
+              <input
+                type="number"
+                id="FilterPriceMax"
+                class="input"
+                name="{{ filter.max_value.param_name }}"
+                value="{{ filter.max_value.value }}"
+                placeholder="{{ filter.range_max | money }}"
+                min="0"
+              >
+            </div>
+          </div>
+        {%- elsif filter.label contains 'Color' -%}
+          <div class="facet__swatches">
+            {%- for value in filter.values -%}
+              {%- liquid
+                assign swatch_hex = ''
+                case value.label
+                  when 'Black'
+                    assign swatch_hex = '#1C1614'
+                  when 'White'
+                    assign swatch_hex = '#FFFFFF'
+                  when 'Blue'
+                    assign swatch_hex = '#2E5090'
+                  when 'Grey'
+                    assign swatch_hex = '#8A8683'
+                  when 'Green'
+                    assign swatch_hex = '#3F6B4F'
+                  when 'Red'
+                    assign swatch_hex = '#B3261E'
+                  when 'Brown'
+                    assign swatch_hex = '#6B4A2E'
+                  when 'Beige'
+                    assign swatch_hex = '#D8C3A0'
+                endcase
+              -%}
+              <label class="facet__swatch-option{% if value.count == 0 and value.active == false %} facet__swatch-option--empty{% endif %}">
+                <input
+                  type="checkbox"
+                  name="{{ value.param_name }}"
+                  value="{{ value.value }}"
+                  {% if value.active %}checked{% endif %}
+                  {% if value.count == 0 and value.active == false %}disabled{% endif %}
+                >
+                <span class="facet__swatch-dot" style="{% if swatch_hex != blank %}background-color:{{ swatch_hex }};{% endif %}"></span>
+                <span class="facet__swatch-label">{{ value.label }} ({{ value.count }})</span>
+              </label>
+            {%- endfor -%}
+          </div>
+        {%- else -%}
+          <ul class="facet__list">
+            {%- for value in filter.values -%}
+              <li>
+                <label class="facet__checkbox{% if value.count == 0 and value.active == false %} facet__checkbox--empty{% endif %}">
+                  <input
+                    type="checkbox"
+                    name="{{ value.param_name }}"
+                    value="{{ value.value }}"
+                    {% if value.active %}checked{% endif %}
+                    {% if value.count == 0 and value.active == false %}disabled{% endif %}
+                  >
+                  <span>{{ value.label }} ({{ value.count }})</span>
+                </label>
+              </li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+      </div>
+    </details>
+  {%- endfor -%}
+
+  <button type="submit" class="button--primary button--full facet-filters__submit">
+    {{ 'general.product.apply_filters' | t }}
+  </button>
+</form>

@@ -1,0 +1,228 @@
+/* Shared dialog chrome for Quick Add and Quick View - both are global,
+   event-delegated overlays (assets/quick-add.js, assets/quick-view.js)
+   rather than section-scoped, since they attach to product cards that
+   render inside many different sections. */
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: rgba(28, 22, 20, 0.5);
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+.dialog-backdrop[hidden] {
+  display: none;
+}
+
+.dialog-backdrop[data-open] {
+  opacity: 1;
+}
+
+.dialog-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: calc(var(--z-modal) + 1);
+  transform: translate(-50%, -50%) scale(0.96);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-modal);
+  max-height: 90vh;
+  overflow-y: auto;
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease-standard), transform var(--duration-base) var(--ease-standard);
+}
+
+.dialog-panel[hidden] {
+  display: none;
+}
+
+.dialog-panel[data-open] {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.dialog-close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  z-index: 1;
+}
+
+/* ---------- Quick Add ---------- */
+
+.quick-add-popover {
+  width: min(360px, 92vw);
+  padding: var(--space-6) var(--space-5) var(--space-5);
+}
+
+.quick-add-popover__title {
+  margin: 0 0 var(--space-1);
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-heading);
+  padding-right: var(--space-6);
+}
+
+.quick-add-popover__price {
+  margin: 0 0 var(--space-4);
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.quick-add-popover__sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.quick-add-popover__status {
+  margin: var(--space-4) 0 0;
+  font-size: var(--text-sm);
+  min-height: 1.5em;
+}
+
+.quick-add-popover__status[data-state='error'] {
+  color: var(--color-error);
+}
+
+.quick-add-popover__status[data-state='success'] {
+  color: var(--color-success);
+}
+
+.size-option {
+  min-width: 48px;
+  height: 44px;
+  padding-inline: var(--space-3);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.size-option:hover {
+  border-color: var(--color-ink);
+}
+
+.size-option[aria-pressed='true'] {
+  border-color: var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-surface);
+}
+
+.size-option:disabled {
+  color: var(--color-ink-muted);
+  border-color: var(--color-border);
+  background: repeating-linear-gradient(
+    45deg,
+    var(--color-surface-alt),
+    var(--color-surface-alt) 4px,
+    var(--color-surface) 4px,
+    var(--color-surface) 8px
+  );
+  cursor: not-allowed;
+}
+
+/* ---------- Quick View ---------- */
+
+.quick-view-modal {
+  width: min(880px, 94vw);
+}
+
+.quick-view-modal__body {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 750px) {
+  .quick-view-modal__body {
+    flex-direction: row;
+  }
+}
+
+.quick-view-modal__gallery {
+  flex: 1 1 55%;
+  min-width: 0;
+}
+
+.quick-view-modal__main-image {
+  background: var(--color-surface-alt);
+}
+
+.quick-view-modal__main-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.quick-view-modal__thumbs {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  overflow-x: auto;
+}
+
+.quick-view-modal__thumbs img {
+  width: 56px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+}
+
+.quick-view-modal__thumbs img[aria-current='true'] {
+  border-color: var(--color-ink);
+}
+
+.quick-view-modal__info {
+  flex: 1 1 45%;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.quick-view-modal__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-heading);
+  padding-right: var(--space-6);
+}
+
+.quick-view-modal__price {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+.quick-view-modal__sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.quick-view-modal__status {
+  margin: 0;
+  font-size: var(--text-sm);
+  min-height: 1.5em;
+}
+
+.quick-view-modal__status[data-state='error'] {
+  color: var(--color-error);
+}
+
+.quick-view-modal__status[data-state='success'] {
+  color: var(--color-success);
+}
+
+.quick-view-modal__link {
+  margin-top: var(--space-2);
+  align-self: flex-start;
+}

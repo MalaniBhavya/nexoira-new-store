@@ -11,10 +11,19 @@
                     homepage merchandising section)
     fetchpriority   (optional) pass 'high' for the single LCP card, if
                     this card is expected to be the page's LCP element
+    show_quick_add  (optional, default true)
+    show_quick_view (optional, default true)
+
+  Quick Add and Quick View are wired up globally (assets/quick-add.js,
+  assets/quick-view.js) via event delegation on [data-quick-add-trigger]
+  / [data-quick-view-trigger], so this snippet only needs to render the
+  trigger buttons - no section-specific JS required.
 {%- endcomment -%}
 
 {%- liquid
   assign loading = loading | default: 'lazy'
+  assign show_quick_add = show_quick_add | default: true
+  assign show_quick_view = show_quick_view | default: true
   assign primary_image = product.featured_image
   assign secondary_image = product.images[1]
   assign card_sizes = '(min-width: 990px) 23vw, (min-width: 750px) 31vw, 46vw'
@@ -64,6 +73,29 @@
     {%- endif -%}
 
     {%- render 'badge', product: product -%}
+
+    {%- if show_quick_view -%}
+      <button
+        type="button"
+        class="product-card__quick-view button--icon"
+        data-quick-view-trigger
+        data-product-handle="{{ product.handle }}"
+      >
+        {%- render 'icon', name: 'search', size: 16, title: 'general.product.quick_view' | t -%}
+      </button>
+    {%- endif -%}
+
+    {%- if show_quick_add and product.available -%}
+      <button
+        type="button"
+        class="product-card__quick-add"
+        data-quick-add-trigger
+        data-product-handle="{{ product.handle }}"
+      >
+        {%- render 'icon', name: 'plus', size: 14 -%}
+        {{ 'general.product.quick_add' | t }}
+      </button>
+    {%- endif -%}
   </div>
 
   <div class="product-card__info">

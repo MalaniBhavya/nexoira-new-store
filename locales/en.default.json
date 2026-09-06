@@ -10,7 +10,9 @@
       "previous": "Previous",
       "cart": "Cart",
       "wishlist": "Wishlist",
-      "account": "Account"
+      "account": "Account",
+      "pagination": "Pagination",
+      "filters": "Filters"
     },
     "navigation": {
       "shirts": "Shirts",
@@ -35,7 +37,8 @@
       "track_order": "Track Order",
       "faq": "FAQ",
       "contact_us": "Contact Us",
-      "whatsapp_us": "Chat on WhatsApp"
+      "whatsapp_us": "Chat on WhatsApp",
+      "view_cart": "View cart"
     },
     "product": {
       "badge_sold_out": "Sold Out",
@@ -48,7 +51,26 @@
       "price_regular": "Regular price",
       "price_savings": "Save {{ percent }}%",
       "color_options": "Color",
-      "this_color": "This color"
+      "this_color": "This color",
+      "quick_view": "Quick view",
+      "quick_add": "Quick add",
+      "select_size": "Select a size",
+      "add_to_cart": "Add to Cart",
+      "adding": "Adding…",
+      "added": "Added to cart",
+      "add_to_cart_error": "Couldn't add to cart. Please try again.",
+      "view_full_details": "View full details",
+      "sort_by": "Sort by",
+      "results_count": {
+        "one": "{{ count }} product",
+        "other": "{{ count }} products"
+      },
+      "clear_filters": "Clear all",
+      "apply_filters": "Apply",
+      "no_results_title": "No products found",
+      "no_results_body": "Try removing a filter or searching for something else.",
+      "price_min": "Minimum price",
+      "price_max": "Maximum price"
     },
     "footer": {
       "shop_heading": "Shop",

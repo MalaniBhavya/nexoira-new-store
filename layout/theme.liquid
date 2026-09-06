@@ -10,6 +10,29 @@
       <meta name="description" content="{{ page_description | escape }}">
     {%- endif -%}
 
+    {%- comment -%}
+      Faceted collection pages (any filter or non-default sort applied)
+      shouldn't compete with the clean collection URL in search results -
+      keep them crawlable (follow) but out of the index.
+    {%- endcomment -%}
+    {%- if template.name == 'collection' and collection -%}
+      {%- liquid
+        assign has_faceted_state = false
+        for filter in collection.filters
+          if filter.active_values.size > 0 or filter.min_value.value != nil or filter.max_value.value != nil
+            assign has_faceted_state = true
+            break
+          endif
+        endfor
+        if collection.sort_by != blank and collection.sort_by != collection.default_sort_by
+          assign has_faceted_state = true
+        endif
+      -%}
+      {%- if has_faceted_state -%}
+        <meta name="robots" content="noindex, follow">
+      {%- endif -%}
+    {%- endif -%}
+
     <title>
       {{ page_title }}
       {%- if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif -%}
@@ -29,6 +52,12 @@
     {{ 'base.css' | asset_url | stylesheet_tag }}
     {{ 'components.css' | asset_url | stylesheet_tag }}
     {{ 'product-card.css' | asset_url | stylesheet_tag }}
+    {{ 'quick-shop.css' | asset_url | stylesheet_tag }}
+
+    <script src="{{ 'global.js' | asset_url }}" defer></script>
+    <script src="{{ 'cart-store.js' | asset_url }}" defer></script>
+    <script src="{{ 'quick-add.js' | asset_url }}" defer></script>
+    <script src="{{ 'quick-view.js' | asset_url }}" defer></script>
 
     {{ content_for_header }}
   </head>
@@ -43,5 +72,8 @@
     </main>
 
     {% sections 'footer-group' %}
+
+    {%- render 'quick-add-popover' -%}
+    {%- render 'quick-view-modal' -%}
   </body>
 </html>
