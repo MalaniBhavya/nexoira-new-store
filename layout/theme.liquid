@@ -1,9 +1,14 @@
 <!doctype html>
-<html lang="{{ request.locale.iso_code }}" data-theme="nexoira">
+<html lang="{{ request.locale.iso_code }}">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="theme-color" content="{{ settings.color_background }}">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="canonical" href="{{ canonical_url }}">
+
+    {%- if page_description -%}
+      <meta name="description" content="{{ page_description | escape }}">
+    {%- endif -%}
 
     <title>
       {{ page_title }}
@@ -12,49 +17,30 @@
       {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
     </title>
 
-    {% if page_description %}
-      <meta name="description" content="{{ page_description | escape }}">
-    {% endif %}
-
-    <link rel="canonical" href="{{ canonical_url }}">
-
-    {% if settings.favicon %}
+    {%- if settings.favicon -%}
       <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
-    {% endif %}
+    {%- endif -%}
 
-    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap"
-    >
+    <link rel="preload" href="{{ 'inter-latin.woff2' | asset_url }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ 'playfair-display-latin.woff2' | asset_url }}" as="font" type="font/woff2" crossorigin>
 
-    {{ content_for_header }}
-
-    {%- render 'css-variables' -%}
+    {{ 'tokens.css' | asset_url | stylesheet_tag }}
+    {%- render 'theme-tokens' -%}
     {{ 'base.css' | asset_url | stylesheet_tag }}
 
-    <script>window.themeMoneyFormat = {{ shop.money_format | json }};</script>
-    <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
-    <noscript>
-      <style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style>
-    </noscript>
+    {{ content_for_header }}
   </head>
 
-  <body class="template-{{ request.page_type }}{% if request.page_type == 'index' %} has-transparent-header{% endif %}">
-    <a class="skip-to-content" href="#MainContent">
-      {{ 'accessibility.skip_to_content' | t }}
-    </a>
+  <body class="template-{{ template.name | handleize }}">
+    <a class="skip-link" href="#MainContent">{{ 'general.accessibility.skip_to_content' | t }}</a>
 
-    {% section 'announcement-bar' %}
-    {% section 'header' %}
+    {%- comment -%}
+      Announcement bar, header and footer sections land in Phase 3
+      (announcement bar, header, mobile drawer navigation).
+    {%- endcomment -%}
 
-    <main id="MainContent" class="main-content">
+    <main id="MainContent" tabindex="-1">
       {{ content_for_layout }}
     </main>
-
-    {% section 'footer' %}
-    {% section 'cart-drawer' %}
   </body>
 </html>

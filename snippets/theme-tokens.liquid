@@ -1,0 +1,83 @@
+{%- comment -%}
+  Renders merchant-controlled design tokens as CSS custom property overrides.
+  Loaded after assets/tokens.css in <head> so these declarations win the cascade.
+  Every value here traces back to a config/settings_schema.json control -
+  nothing here is freeform: colors are mixed from the curated accent, not
+  picked arbitrarily.
+{%- endcomment -%}
+
+{%- assign accent = settings.accent_color -%}
+{%- assign accent_50 = accent | color_mix: '#ffffff', 94 -%}
+{%- assign accent_200 = accent | color_mix: '#ffffff', 78 -%}
+{%- assign accent_300 = accent | color_mix: '#ffffff', 55 -%}
+{%- assign accent_600 = accent | color_darken: 15 -%}
+{%- assign accent_700 = accent | color_darken: 30 -%}
+{%- assign accent_900 = accent | color_darken: 45 -%}
+
+{%- case settings.surface_style -%}
+  {%- when 'pure' -%}
+    {%- assign surface_alt = '#ffffff' -%}
+  {%- else -%}
+    {%- assign surface_alt = '#f7f4ef' -%}
+{%- endcase -%}
+
+{%- case settings.text_contrast -%}
+  {%- when 'soft' -%}
+    {%- assign ink = '#1c1614' | color_lighten: 14 -%}
+  {%- else -%}
+    {%- assign ink = '#1c1614' -%}
+{%- endcase -%}
+
+{%- case settings.corner_radius -%}
+  {%- when 'sharp' -%}
+    {%- assign radius_sm = '0px' -%}
+    {%- assign radius_md = '0px' -%}
+    {%- assign radius_pill = '0px' -%}
+  {%- when 'pill' -%}
+    {%- assign radius_sm = '999px' -%}
+    {%- assign radius_md = '999px' -%}
+    {%- assign radius_pill = '999px' -%}
+  {%- else -%}
+    {%- assign radius_sm = '4px' -%}
+    {%- assign radius_md = '8px' -%}
+    {%- assign radius_pill = '999px' -%}
+{%- endcase -%}
+
+{%- case settings.section_spacing -%}
+  {%- when 'compact' -%}
+    {%- assign section_spacing_y = '3rem' -%}
+  {%- when 'spacious' -%}
+    {%- assign section_spacing_y = '7.5rem' -%}
+  {%- else -%}
+    {%- assign section_spacing_y = '4rem' -%}
+{%- endcase -%}
+
+{%- case settings.text_scale -%}
+  {%- when 'compact' -%}
+    {%- assign root_font_scale = '0.9375' -%}
+  {%- when 'spacious' -%}
+    {%- assign root_font_scale = '1.0625' -%}
+  {%- else -%}
+    {%- assign root_font_scale = '1' -%}
+{%- endcase -%}
+
+<style>
+  :root {
+    --color-accent-50: {{ accent_50 }};
+    --color-accent-200: {{ accent_200 }};
+    --color-accent-300: {{ accent_300 }};
+    --color-accent-500: {{ accent }};
+    --color-accent-600: {{ accent_600 }};
+    --color-accent-700: {{ accent_700 }};
+    --color-accent-900: {{ accent_900 }};
+    --color-surface-alt: {{ surface_alt }};
+    --color-ink: {{ ink }};
+    --radius-sm: {{ radius_sm }};
+    --radius-md: {{ radius_md }};
+    --radius-pill: {{ radius_pill }};
+    --content-max-width: {{ settings.page_width }}px;
+    --section-spacing-y: {{ section_spacing_y }};
+    --root-font-scale: {{ root_font_scale }};
+    --font-weight-heading: {{ settings.heading_weight }};
+  }
+</style>

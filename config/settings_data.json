@@ -2,31 +2,27 @@
   "current": "Default",
   "presets": {
     "Default": {
-      "color_background": "#F4F0E8",
-      "color_surface": "#FFFFFF",
-      "color_surface_alt": "#E8E1D7",
-      "color_dark": "#2B2926",
-      "color_text": "#2A1B1B",
-      "color_text_muted": "#7A6F63",
-      "color_dark_text": "#F4F0E8",
-      "color_accent_primary": "#6E2635",
-      "color_accent_secondary": "#B68A3A",
-      "color_border": "#DFD6C7",
-      "base_font_size": 16,
-      "page_width": 1440,
-      "grid_gap": 24,
-      "social_instagram_link": "",
-      "social_facebook_link": "",
-      "favicon": "shopify://shop_images/logowithoutbg.png"
-    }
-  },
-  "sections": {
-    "header": {
-      "type": "header",
-      "settings": {
-        "menu": "nexoira-shop-menu",
-        "logo": "shopify://shop_images/logowithoutbg.png"
-      }
+      "logo_width": 140,
+      "accent_color": "#D8A224",
+      "surface_style": "warm",
+      "text_contrast": "standard",
+      "text_scale": "default",
+      "heading_weight": "700",
+      "page_width": 1400,
+      "section_spacing": "default",
+      "corner_radius": "soft",
+      "badge_show_sale": true,
+      "badge_show_new": true,
+      "badge_new_days": 21,
+      "badge_show_bestseller": true,
+      "badge_show_low_stock": true,
+      "badge_low_stock_threshold": 5,
+      "free_shipping_threshold": 999,
+      "below_threshold_shipping_fee": 49,
+      "cod_enabled": true,
+      "cod_conditions": "COD available on eligible orders. A small COD fee may apply at checkout.",
+      "returns_window_days": "7",
+      "contact_email": "nexoira.supply@gmail.com"
     }
   }
 }

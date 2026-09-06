@@ -2,89 +2,75 @@
   {
     "name": "theme_info",
     "theme_name": "Nexoira",
-    "theme_version": "0.2.0",
+    "theme_version": "1.0.0",
     "theme_author": "Nexoira",
     "theme_documentation_url": "",
     "theme_support_url": ""
   },
   {
+    "name": "Logo & favicon",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo"
+      },
+      {
+        "type": "range",
+        "id": "logo_width",
+        "min": 80,
+        "max": 220,
+        "step": 5,
+        "unit": "px",
+        "label": "Logo width (desktop)",
+        "default": 140
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon",
+        "info": "Displayed at 32 x 32px"
+      }
+    ]
+  },
+  {
     "name": "Colors",
     "settings": [
       {
-        "type": "header",
-        "content": "Backgrounds"
+        "type": "paragraph",
+        "content": "Brand accent is deliberately restricted to a curated set of tones drawn from the Nexoira logo, to keep the storefront's minimal, sophisticated look consistent."
       },
       {
-        "type": "color",
-        "id": "color_background",
-        "label": "Background (ivory)",
-        "default": "#F4F0E8"
+        "type": "select",
+        "id": "accent_color",
+        "label": "Brand accent",
+        "options": [
+          { "value": "#D8A224", "label": "Nexoira Gold (default)" },
+          { "value": "#B68921", "label": "Antique Gold" },
+          { "value": "#E8C77C", "label": "Champagne" },
+          { "value": "#96711E", "label": "Bronze" }
+        ],
+        "default": "#D8A224"
       },
       {
-        "type": "color",
-        "id": "color_surface",
-        "label": "Surface (white)",
-        "default": "#FFFFFF"
+        "type": "select",
+        "id": "surface_style",
+        "label": "Background tone",
+        "options": [
+          { "value": "warm", "label": "Warm ivory (default)" },
+          { "value": "pure", "label": "Pure white" }
+        ],
+        "default": "warm"
       },
       {
-        "type": "color",
-        "id": "color_surface_alt",
-        "label": "Surface alt (warm neutral)",
-        "default": "#E8E1D7"
-      },
-      {
-        "type": "color",
-        "id": "color_dark",
-        "label": "Dark surface",
-        "default": "#2B2926"
-      },
-      {
-        "type": "header",
-        "content": "Text"
-      },
-      {
-        "type": "color",
-        "id": "color_text",
-        "label": "Primary text",
-        "default": "#2A1B1B"
-      },
-      {
-        "type": "color",
-        "id": "color_text_muted",
-        "label": "Muted text",
-        "default": "#7A6F63"
-      },
-      {
-        "type": "color",
-        "id": "color_dark_text",
-        "label": "Text on dark surfaces",
-        "default": "#F4F0E8"
-      },
-      {
-        "type": "header",
-        "content": "Accents"
-      },
-      {
-        "type": "color",
-        "id": "color_accent_primary",
-        "label": "Burgundy accent",
-        "default": "#6E2635"
-      },
-      {
-        "type": "color",
-        "id": "color_accent_secondary",
-        "label": "Gold accent",
-        "default": "#B68A3A"
-      },
-      {
-        "type": "header",
-        "content": "Borders"
-      },
-      {
-        "type": "color",
-        "id": "color_border",
-        "label": "Border",
-        "default": "#DFD6C7"
+        "type": "select",
+        "id": "text_contrast",
+        "label": "Text contrast",
+        "options": [
+          { "value": "standard", "label": "Standard (default)" },
+          { "value": "soft", "label": "Softer" }
+        ],
+        "default": "standard"
       }
     ]
   },
@@ -93,17 +79,28 @@
     "settings": [
       {
         "type": "paragraph",
-        "content": "Nexoira uses DM Serif Display for editorial headings and Manrope for body text and UI, loaded from Google Fonts."
+        "content": "Nexoira pairs an editorial serif (headings) with a humanist sans-serif (body and UI) for a premium, highly readable feel. Both are self-hosted for performance."
       },
       {
-        "type": "range",
-        "id": "base_font_size",
-        "label": "Base font size",
-        "min": 14,
-        "max": 18,
-        "step": 1,
-        "unit": "px",
-        "default": 16
+        "type": "select",
+        "id": "text_scale",
+        "label": "Type scale density",
+        "options": [
+          { "value": "compact", "label": "Compact" },
+          { "value": "default", "label": "Default" },
+          { "value": "spacious", "label": "Spacious" }
+        ],
+        "default": "default"
+      },
+      {
+        "type": "select",
+        "id": "heading_weight",
+        "label": "Heading weight",
+        "options": [
+          { "value": "400", "label": "Regular" },
+          { "value": "700", "label": "Bold (default)" }
+        ],
+        "default": "700"
       }
     ]
   },
@@ -113,51 +110,155 @@
       {
         "type": "range",
         "id": "page_width",
-        "label": "Page width",
         "min": 1200,
         "max": 1600,
         "step": 20,
         "unit": "px",
-        "default": 1440
+        "label": "Max content width",
+        "default": 1400
+      },
+      {
+        "type": "select",
+        "id": "section_spacing",
+        "label": "Section spacing",
+        "options": [
+          { "value": "compact", "label": "Compact" },
+          { "value": "default", "label": "Default" },
+          { "value": "spacious", "label": "Spacious" }
+        ],
+        "default": "default"
+      }
+    ]
+  },
+  {
+    "name": "Buttons & inputs",
+    "settings": [
+      {
+        "type": "select",
+        "id": "corner_radius",
+        "label": "Corner style",
+        "options": [
+          { "value": "sharp", "label": "Sharp" },
+          { "value": "soft", "label": "Soft (default)" },
+          { "value": "pill", "label": "Pill" }
+        ],
+        "default": "soft"
+      }
+    ]
+  },
+  {
+    "name": "Product badges",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "badge_show_sale",
+        "label": "Show Sale badge",
+        "default": true,
+        "info": "Shown automatically when a compare-at price exists"
+      },
+      {
+        "type": "checkbox",
+        "id": "badge_show_new",
+        "label": "Show New badge",
+        "default": true
       },
       {
         "type": "range",
-        "id": "grid_gap",
-        "label": "Grid gap",
-        "min": 8,
-        "max": 40,
-        "step": 4,
-        "unit": "px",
-        "default": 24
+        "id": "badge_new_days",
+        "min": 7,
+        "max": 60,
+        "step": 1,
+        "unit": "days",
+        "label": "Consider a product \"New\" for",
+        "default": 21
+      },
+      {
+        "type": "checkbox",
+        "id": "badge_show_bestseller",
+        "label": "Show Bestseller badge",
+        "default": true,
+        "info": "Shown on products tagged \"bestseller\" in the admin"
+      },
+      {
+        "type": "checkbox",
+        "id": "badge_show_low_stock",
+        "label": "Show low-stock badge",
+        "default": true,
+        "info": "Only shown for products with inventory tracking enabled"
+      },
+      {
+        "type": "range",
+        "id": "badge_low_stock_threshold",
+        "min": 1,
+        "max": 20,
+        "step": 1,
+        "unit": "units",
+        "label": "Low-stock threshold",
+        "default": 5
       }
     ]
   },
   {
-    "name": "Favicon",
+    "name": "Cart & shipping",
     "settings": [
       {
-        "type": "image_picker",
-        "id": "favicon",
-        "label": "Favicon image"
+        "type": "number",
+        "id": "free_shipping_threshold",
+        "label": "Free shipping threshold (INR)",
+        "default": 999
+      },
+      {
+        "type": "number",
+        "id": "below_threshold_shipping_fee",
+        "label": "Shipping fee below threshold (INR)",
+        "default": 49
+      },
+      {
+        "type": "checkbox",
+        "id": "cod_enabled",
+        "label": "Cash on Delivery available",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "cod_conditions",
+        "label": "COD conditions note",
+        "default": "COD available on eligible orders. A small COD fee may apply at checkout."
+      },
+      {
+        "type": "text",
+        "id": "returns_window_days",
+        "label": "Returns & exchange window (days)",
+        "default": "7"
       }
     ]
   },
   {
-    "name": "Social media",
+    "name": "Social & contact",
     "settings": [
       {
-        "type": "header",
-        "content": "Social accounts"
+        "type": "text",
+        "id": "contact_email",
+        "label": "Support email",
+        "default": "nexoira.supply@gmail.com"
       },
       {
         "type": "text",
-        "id": "social_instagram_link",
-        "label": "Instagram URL"
+        "id": "contact_phone",
+        "label": "Support phone",
+        "info": "Optional"
       },
       {
         "type": "text",
-        "id": "social_facebook_link",
-        "label": "Facebook URL"
+        "id": "social_instagram",
+        "label": "Instagram URL",
+        "info": "Optional"
+      },
+      {
+        "type": "text",
+        "id": "social_facebook",
+        "label": "Facebook URL",
+        "info": "Optional"
       }
     ]
   }
