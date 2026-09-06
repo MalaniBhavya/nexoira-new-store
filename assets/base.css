@@ -1,6 +1,17 @@
 /* Global reset and base typography only. Everything component-specific
-   (header, cards, drawers, grids, buttons...) lives in its own section or
-   snippet's {% stylesheet %} block, loaded per-page rather than globally. */
+   (header, cards, drawers, grids...) lives in its own section or snippet's
+   {% stylesheet %} block, loaded per-page rather than globally. Buttons,
+   form controls and icon sizing - also cross-cutting - live in
+   components.css, loaded alongside this file.
+
+   Standard breakpoints used across every stylesheet in this theme
+   (CSS custom properties can't be used inside @media conditions, so these
+   are documented here rather than tokenized):
+     480px  - small phones
+     750px  - phone / tablet-desktop switch (mobile nav <-> desktop nav)
+     990px  - tablet / desktop switch
+     1200px - wide desktop
+*/
 
 *,
 *::before,
@@ -52,6 +63,38 @@ p {
 
 a {
   color: inherit;
+}
+
+/* Heading-size utility classes, for when the visual scale needs to differ
+   from the semantic heading level (e.g. an <h2> styled as a hero <h1>). */
+.h1 { font-size: var(--text-5xl); }
+.h2 { font-size: var(--text-4xl); }
+.h3 { font-size: var(--text-3xl); }
+.h4 { font-size: var(--text-2xl); }
+.h5 { font-size: var(--text-xl); }
+
+.h1, .h2, .h3, .h4, .h5 {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading);
+  line-height: var(--leading-tight);
+}
+
+/* Small caps-style label above a heading, e.g. "New Arrivals" over a hero title */
+.text-eyebrow {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent-900);
+}
+
+/* Slightly larger intro paragraph, e.g. under a section heading */
+.text-lede {
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  color: var(--color-ink-muted);
 }
 
 button {
@@ -123,4 +166,41 @@ ol {
   .container {
     padding-inline: var(--space-6);
   }
+}
+
+/* Responsive visibility - purpose-named, not a generic utility system */
+.hide-mobile {
+  display: none;
+}
+
+@media (min-width: 750px) {
+  .hide-mobile {
+    display: revert;
+  }
+
+  .hide-desktop {
+    display: none;
+  }
+}
+
+/* Reserve media dimensions up front to avoid layout shift */
+.aspect-square { aspect-ratio: 1 / 1; }
+.aspect-portrait { aspect-ratio: 3 / 4; }
+.aspect-video { aspect-ratio: 16 / 9; }
+
+.aspect-square,
+.aspect-portrait,
+.aspect-video {
+  overflow: hidden;
+}
+
+.aspect-square > img,
+.aspect-portrait > img,
+.aspect-video > img,
+.aspect-square > svg,
+.aspect-portrait > svg,
+.aspect-video > svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
