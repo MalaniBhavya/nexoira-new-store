@@ -37,6 +37,19 @@
       "contact_us": "Contact Us",
       "whatsapp_us": "Chat on WhatsApp"
     },
+    "product": {
+      "badge_sold_out": "Sold Out",
+      "badge_sale": "Sale",
+      "badge_bestseller": "Bestseller",
+      "badge_new": "New",
+      "badge_low_stock": "Low Stock",
+      "price_from": "From",
+      "price_sale": "Sale price",
+      "price_regular": "Regular price",
+      "price_savings": "Save {{ percent }}%",
+      "color_options": "Color",
+      "this_color": "This color"
+    },
     "footer": {
       "shop_heading": "Shop",
       "support_heading": "Support",

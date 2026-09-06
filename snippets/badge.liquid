@@ -1,0 +1,45 @@
+{%- comment -%}
+  Computes and renders at most one truthful badge for a product, in
+  priority order: Sold Out > Sale > Bestseller > New > Low stock.
+  Deliberately shows only one at a time to keep the card restrained.
+  Sale/Bestseller/New/Low-stock are each individually toggleable in
+  Theme settings → Product badges; Sold Out is not (it's just a fact).
+
+  Accepts: product (required)
+{%- endcomment -%}
+
+{%- liquid
+  assign badge_text = blank
+  assign badge_modifier = blank
+
+  if product.available == false
+    assign badge_text = 'general.product.badge_sold_out' | t
+    assign badge_modifier = 'soldout'
+  elsif settings.badge_show_sale and product.compare_at_price_max > product.price_max
+    assign badge_text = 'general.product.badge_sale' | t
+    assign badge_modifier = 'sale'
+  elsif settings.badge_show_bestseller and product.tags contains 'bestseller'
+    assign badge_text = 'general.product.badge_bestseller' | t
+    assign badge_modifier = 'bestseller'
+  elsif settings.badge_show_new
+    assign created_epoch = product.created_at | date: '%s' | plus: 0
+    assign now_epoch = 'now' | date: '%s' | plus: 0
+    assign days_since_created = now_epoch | minus: created_epoch | divided_by: 86400
+    if days_since_created <= settings.badge_new_days
+      assign badge_text = 'general.product.badge_new' | t
+      assign badge_modifier = 'new'
+    endif
+  endif
+
+  if badge_text == blank and settings.badge_show_low_stock
+    assign variant = product.selected_or_first_available_variant
+    if variant.inventory_management == 'shopify' and variant.inventory_quantity > 0 and variant.inventory_quantity <= settings.badge_low_stock_threshold
+      assign badge_text = 'general.product.badge_low_stock' | t
+      assign badge_modifier = 'low-stock'
+    endif
+  endif
+-%}
+
+{%- if badge_text != blank -%}
+  <span class="badge badge--{{ badge_modifier }}">{{ badge_text }}</span>
+{%- endif -%}

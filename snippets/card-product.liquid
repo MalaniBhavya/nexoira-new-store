@@ -1,0 +1,78 @@
+{%- comment -%}
+  Product card: media (with desktop hover second-image), badge, sibling
+  colors, title, price. Used across the collection grid, homepage,
+  related products and search results, so its CSS lives globally in
+  assets/product-card.css rather than duplicated per section.
+
+  Accepts:
+    product         (required)
+    loading         (optional, default 'lazy') pass 'eager' for
+                    above-the-fold instances (e.g. the first row of a
+                    homepage merchandising section)
+    fetchpriority   (optional) pass 'high' for the single LCP card, if
+                    this card is expected to be the page's LCP element
+{%- endcomment -%}
+
+{%- liquid
+  assign loading = loading | default: 'lazy'
+  assign primary_image = product.featured_image
+  assign secondary_image = product.images[1]
+  assign card_sizes = '(min-width: 990px) 23vw, (min-width: 750px) 31vw, 46vw'
+-%}
+
+<article class="product-card{% unless product.available %} product-card--soldout{% endunless %}">
+  <div class="product-card__media aspect-portrait">
+    {%- if primary_image -%}
+      <img
+        class="product-card__image product-card__image--primary"
+        src="{{ primary_image | image_url: width: 480 }}"
+        srcset="
+          {{- primary_image | image_url: width: 180 }} 180w,
+          {{ primary_image | image_url: width: 240 }} 240w,
+          {{ primary_image | image_url: width: 320 }} 320w,
+          {{ primary_image | image_url: width: 400 }} 400w,
+          {{ primary_image | image_url: width: 480 }} 480w
+        "
+        sizes="{{ card_sizes }}"
+        width="{{ primary_image.width }}"
+        height="{{ primary_image.height }}"
+        alt="{{ primary_image.alt | default: product.title | escape }}"
+        loading="{{ loading }}"
+        {% if fetchpriority %}fetchpriority="{{ fetchpriority }}"{% endif %}
+      >
+    {%- else -%}
+      <div class="product-card__image product-card__image--placeholder"></div>
+    {%- endif -%}
+
+    {%- if secondary_image -%}
+      <img
+        class="product-card__image product-card__image--secondary"
+        src="{{ secondary_image | image_url: width: 480 }}"
+        srcset="
+          {{- secondary_image | image_url: width: 240 }} 240w,
+          {{ secondary_image | image_url: width: 320 }} 320w,
+          {{ secondary_image | image_url: width: 400 }} 400w,
+          {{ secondary_image | image_url: width: 480 }} 480w
+        "
+        sizes="{{ card_sizes }}"
+        width="{{ secondary_image.width }}"
+        height="{{ secondary_image.height }}"
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+      >
+    {%- endif -%}
+
+    {%- render 'badge', product: product -%}
+  </div>
+
+  <div class="product-card__info">
+    {%- render 'sibling-colors', product: product, limit: 5 -%}
+
+    <h3 class="product-card__title">
+      <a href="{{ product.url }}" class="product-card__link">{{ product.title }}</a>
+    </h3>
+
+    {%- render 'price', product: product -%}
+  </div>
+</article>
