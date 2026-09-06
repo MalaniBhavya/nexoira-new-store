@@ -53,6 +53,7 @@
     {{ 'components.css' | asset_url | stylesheet_tag }}
     {{ 'product-card.css' | asset_url | stylesheet_tag }}
     {{ 'quick-shop.css' | asset_url | stylesheet_tag }}
+    {{ 'cart-drawer.css' | asset_url | stylesheet_tag }}
 
     <script src="{{ 'global.js' | asset_url }}" defer></script>
     <script src="{{ 'cart-store.js' | asset_url }}" defer></script>
@@ -60,6 +61,7 @@
     <script src="{{ 'recently-viewed.js' | asset_url }}" defer></script>
     <script src="{{ 'quick-add.js' | asset_url }}" defer></script>
     <script src="{{ 'quick-view.js' | asset_url }}" defer></script>
+    <script src="{{ 'cart-drawer.js' | asset_url }}" defer></script>
 
     {{ content_for_header }}
   </head>
@@ -77,5 +79,6 @@
 
     {%- render 'quick-add-popover' -%}
     {%- render 'quick-view-modal' -%}
+    {%- render 'cart-drawer' -%}
   </body>
 </html>

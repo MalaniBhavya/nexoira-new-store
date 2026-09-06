@@ -221,3 +221,31 @@ input[type="radio"] {
   align-items: center;
   gap: var(--space-2);
 }
+
+/* ---------- Quantity stepper ---------- */
+/* Used on the PDP, cart page and the (globally-rendered) cart drawer. */
+
+.quantity-selector {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.quantity-selector__button {
+  width: 36px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quantity-selector__input {
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  border: 0;
+  border-left: 1.5px solid var(--color-border);
+  border-right: 1.5px solid var(--color-border);
+  -moz-appearance: textfield;
+}

@@ -6,24 +6,37 @@
   on a normal page load and JS immediately fetches+swaps in the real
   content. Progressive: if JS fails, the section just stays empty rather
   than broken.
+
+  Seed product: the global `product` object on a PDP, or the most
+  recently added cart line's product when placed on the cart page (there
+  is no global `product` there). Renders nothing if neither exists.
 {%- endcomment -%}
 
-<section
-  class="product-recommendations container"
-  id="ProductRecommendations-{{ section.id }}"
-  data-product-recommendations
-  data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ section.settings.max_products }}&intent=related"
-  hidden
->
-  {%- if recommendations.performed and recommendations.products_count > 0 -%}
-    <h2 class="product-recommendations__heading">{{ 'general.product.related_products_heading' | t }}</h2>
-    <div class="product-recommendations__grid">
-      {%- for product in recommendations.products -%}
-        {%- render 'card-product', product: product, loading: 'lazy' -%}
-      {%- endfor -%}
-    </div>
-  {%- endif -%}
-</section>
+{%- liquid
+  assign seed_product = product
+  if seed_product == blank and cart.item_count > 0
+    assign seed_product = cart.items.last.product
+  endif
+-%}
+
+{%- if seed_product != blank -%}
+  <section
+    class="product-recommendations container"
+    id="ProductRecommendations-{{ section.id }}"
+    data-product-recommendations
+    data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ seed_product.id }}&limit={{ section.settings.max_products }}&intent=related"
+    hidden
+  >
+    {%- if recommendations.performed and recommendations.products_count > 0 -%}
+      <h2 class="product-recommendations__heading">{{ 'general.product.related_products_heading' | t }}</h2>
+      <div class="product-recommendations__grid">
+        {%- for recommended_product in recommendations.products -%}
+          {%- render 'card-product', product: recommended_product, loading: 'lazy' -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </section>
+{%- endif -%}
 
 {% stylesheet %}
   .product-recommendations {

@@ -120,6 +120,22 @@
       "decrease_quantity": "Decrease quantity",
       "increase_quantity": "Increase quantity"
     },
+    "cart": {
+      "title": "Your Cart",
+      "empty": "Your cart is empty.",
+      "continue_shopping": "Continue Shopping",
+      "remove": "Remove",
+      "line_unavailable": "This item is no longer available",
+      "subtotal": "Subtotal",
+      "taxes_shipping_note": "Taxes and shipping calculated at checkout",
+      "checkout": "Checkout",
+      "view_full_cart": "View full cart",
+      "free_shipping_met": "You've unlocked free shipping!",
+      "free_shipping_remaining": "You're {{ amount }} away from free shipping",
+      "discount_label": "Discount code",
+      "discount_placeholder": "Enter code",
+      "discount_apply": "Apply at checkout"
+    },
     "footer": {
       "shop_heading": "Shop",
       "support_heading": "Support",

@@ -1,0 +1,65 @@
+{%- comment -%}
+  Global cart drawer shell, rendered once in theme.liquid. Content is
+  entirely populated client-side by assets/cart-drawer.js from the
+  cart.js JSON response (consistent with how Quick Add/Quick View work) -
+  avoids a second Liquid rendering path for line items just for the
+  drawer. The header's cart link stays a real <a href="/cart"> so
+  clicking it without JS still reaches a fully working cart page.
+
+  Translated strings are passed as data attributes since the JS that
+  builds line-item markup can't call the `t` filter itself.
+{%- endcomment -%}
+
+<div class="dialog-backdrop" id="CartDrawerBackdrop" data-cart-drawer-backdrop hidden></div>
+
+<div
+  class="cart-drawer"
+  id="CartDrawer"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="CartDrawerTitle"
+  data-cart-drawer
+  data-free-shipping-threshold="{{ settings.free_shipping_threshold | times: 100 }}"
+  data-i18n-free-shipping-met="{{ 'general.cart.free_shipping_met' | t }}"
+  data-i18n-free-shipping-remaining="{{ 'general.cart.free_shipping_remaining' | t: amount: '%AMOUNT%' }}"
+  data-i18n-empty="{{ 'general.cart.empty' | t }}"
+  data-i18n-remove="{{ 'general.cart.remove' | t }}"
+  data-i18n-subtotal="{{ 'general.cart.subtotal' | t }}"
+  data-i18n-checkout="{{ 'general.cart.checkout' | t }}"
+  data-i18n-continue-shopping="{{ 'general.cart.continue_shopping' | t }}"
+  data-i18n-decrease="{{ 'general.product.decrease_quantity' | t }}"
+  data-i18n-increase="{{ 'general.product.increase_quantity' | t }}"
+  data-i18n-line-unavailable="{{ 'general.cart.line_unavailable' | t }}"
+  data-continue-shopping-url="{{ routes.all_products_collection_url }}"
+  hidden
+>
+  <div class="cart-drawer__header">
+    <h2 id="CartDrawerTitle" class="cart-drawer__title">{{ 'general.cart.title' | t }}</h2>
+    <button type="button" class="button--icon" data-cart-drawer-close>
+      {%- render 'icon', name: 'close', size: 20, title: 'general.accessibility.close' | t -%}
+    </button>
+  </div>
+
+  <div class="cart-drawer__free-shipping" data-cart-drawer-shipping></div>
+
+  <div class="cart-drawer__items" data-cart-drawer-items></div>
+
+  <div class="cart-drawer__footer" data-cart-drawer-footer hidden>
+    {%- if settings.cod_enabled -%}
+      <p class="cart-drawer__cod">
+        {%- render 'icon', name: 'shield-check', size: 14 -%}
+        {{ settings.cod_conditions }}
+      </p>
+    {%- endif -%}
+    <div class="cart-drawer__subtotal">
+      <span>{{ 'general.cart.subtotal' | t }}</span>
+      <span data-cart-drawer-subtotal></span>
+    </div>
+    <a href="{{ routes.cart_url }}" class="button--primary button--full" data-cart-drawer-checkout>
+      {{ 'general.cart.checkout' | t }}
+    </a>
+    <a href="{{ routes.cart_url }}" class="button--tertiary cart-drawer__view-cart">
+      {{ 'general.cart.view_full_cart' | t }}
+    </a>
+  </div>
+</div>
