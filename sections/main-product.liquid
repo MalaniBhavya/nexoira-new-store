@@ -50,7 +50,11 @@
   }
 </script>
 
-<div class="product-page container">
+<div class="container">
+  {%- render 'breadcrumbs', product: product, collection: collection -%}
+</div>
+
+<div class="product-page container" data-product-page-handle="{{ product.handle }}">
   <div class="product-page__gallery">
     {%- render 'media-gallery', product: product -%}
   </div>
@@ -980,8 +984,9 @@
     }
 
     function recordRecentlyViewed() {
-      if (window.Nexoira && Nexoira.recentlyViewed) {
-        Nexoira.recentlyViewed.record({{ product.handle | json }});
+      var page = document.querySelector('[data-product-page-handle]');
+      if (page && window.Nexoira && Nexoira.recentlyViewed) {
+        Nexoira.recentlyViewed.record(page.getAttribute('data-product-page-handle'));
       }
     }
 

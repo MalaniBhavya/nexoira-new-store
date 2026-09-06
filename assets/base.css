@@ -219,6 +219,61 @@ ol {
   margin-bottom: var(--space-5);
 }
 
+/* Shared shell for the customer-account templates (login, register, account,
+   addresses, order, activate/reset password) - each of those is a separate
+   section file so this can't live scoped in just one of them. */
+.account-page {
+  padding-block: var(--space-8) var(--section-spacing-y);
+  display: flex;
+  justify-content: center;
+}
+
+.account-page__heading {
+  font-size: var(--text-2xl);
+  margin-bottom: var(--space-5);
+  text-align: center;
+}
+
+/* Breadcrumb trail - shared by the product and collection templates. */
+.breadcrumbs {
+  padding-block: var(--space-4) 0;
+}
+
+.breadcrumbs__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  list-style: none;
+  font-size: var(--text-xs);
+  color: var(--color-ink-muted);
+}
+
+.breadcrumbs__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.breadcrumbs__item + .breadcrumbs__item::before {
+  content: "/";
+  color: var(--color-border);
+}
+
+.breadcrumbs__item a {
+  color: var(--color-ink-muted);
+  text-decoration: none;
+}
+
+.breadcrumbs__item a:hover {
+  color: var(--color-ink);
+  text-decoration: underline;
+}
+
+.breadcrumbs__item[aria-current="page"] {
+  color: var(--color-ink);
+}
+
 /* Responsive visibility - purpose-named, not a generic utility system */
 .hide-mobile {
   display: none;

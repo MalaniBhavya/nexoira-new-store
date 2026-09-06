@@ -249,3 +249,37 @@ input[type="radio"] {
   border-right: 1.5px solid var(--color-border);
   -moz-appearance: textfield;
 }
+
+/* FAQ accordion - shared by sections/faq-page.liquid and snippets/faq-accordion.liquid
+   (rendered from the PDP's product-FAQ block), which never share a page. */
+.faq-accordion__item {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.faq-accordion__question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: var(--space-4);
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq-accordion__question::-webkit-details-marker {
+  display: none;
+}
+
+.faq-accordion__item[open] .faq-accordion__icon {
+  transform: rotate(45deg);
+}
+
+.faq-accordion__icon {
+  transition: transform var(--duration-fast) var(--ease-standard);
+  flex-shrink: 0;
+}
+
+.faq-accordion__answer {
+  padding-bottom: var(--space-4);
+  color: var(--color-ink-muted);
+}

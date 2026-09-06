@@ -82,7 +82,8 @@
           data-quick-view-trigger
           data-product-handle="{{ product.handle }}"
         >
-          {%- render 'icon', name: 'search', size: 16, title: 'general.product.quick_view' | t -%}
+          {%- assign quick_view_label = 'general.product.quick_view' | t -%}
+          {%- render 'icon', name: 'search', size: 16, title: quick_view_label -%}
         </button>
       {%- endif -%}
       {%- render 'wishlist-button', product: product -%}
@@ -104,9 +105,9 @@
   <div class="product-card__info">
     {%- render 'sibling-colors', product: product, limit: 5 -%}
 
-    <h3 class="product-card__title">
+    <p class="product-card__title">
       <a href="{{ product.url }}" class="product-card__link">{{ product.title }}</a>
-    </h3>
+    </p>
 
     {%- render 'price', product: product -%}
   </div>

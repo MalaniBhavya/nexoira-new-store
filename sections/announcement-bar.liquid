@@ -1,5 +1,8 @@
 {%- liquid
   assign message_count = section.blocks.size
+  assign icon_label_previous = 'general.accessibility.previous' | t
+  assign icon_label_next = 'general.accessibility.next' | t
+  assign icon_label_close = 'general.accessibility.close' | t
 -%}
 
 {%- if message_count > 0 -%}
@@ -31,17 +34,17 @@
       {%- if message_count > 1 -%}
         <div class="announcement-bar__controls">
           <button type="button" class="button--icon announcement-bar__prev" data-announcement-prev>
-            {%- render 'icon', name: 'chevron-left', size: 16, title: 'general.accessibility.previous' | t -%}
+            {%- render 'icon', name: 'chevron-left', size: 16, title: icon_label_previous -%}
           </button>
           <button type="button" class="button--icon announcement-bar__next" data-announcement-next>
-            {%- render 'icon', name: 'chevron-right', size: 16, title: 'general.accessibility.next' | t -%}
+            {%- render 'icon', name: 'chevron-right', size: 16, title: icon_label_next -%}
           </button>
         </div>
       {%- endif -%}
 
       {%- if section.settings.show_close -%}
         <button type="button" class="button--icon announcement-bar__close" data-announcement-close>
-          {%- render 'icon', name: 'close', size: 16, title: 'general.accessibility.close' | t -%}
+          {%- render 'icon', name: 'close', size: 16, title: icon_label_close -%}
         </button>
       {%- endif -%}
     </div>

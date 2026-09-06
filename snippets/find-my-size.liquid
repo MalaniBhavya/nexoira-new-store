@@ -25,7 +25,8 @@
   hidden
 >
   <button type="button" class="button--icon dialog-close" data-find-my-size-close>
-    {%- render 'icon', name: 'close', size: 18, title: 'general.accessibility.close' | t -%}
+    {%- assign close_label = 'general.accessibility.close' | t -%}
+    {%- render 'icon', name: 'close', size: 18, title: close_label -%}
   </button>
   <h2 id="FindMySizeTitle" class="find-my-size-modal__title">{{ 'general.product.find_my_size' | t }}</h2>
 

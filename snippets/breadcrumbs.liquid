@@ -1,0 +1,77 @@
+{%- comment -%}
+  Visible breadcrumb trail + matching BreadcrumbList JSON-LD, kept in the
+  same snippet so the two never drift out of sync.
+
+  Accepts:
+    product     (optional) - renders Home > Collection > Product
+    collection  (optional) - renders Home > Collection
+                              (used as the product's category when both
+                              product and collection are given, e.g. when
+                              viewing a product through a collection URL)
+{%- endcomment -%}
+
+{%- liquid
+  assign crumb2_title = blank
+  assign crumb2_url = blank
+  assign crumb3_title = blank
+
+  if product
+    assign context_collection = collection | default: product.collections.first
+    if context_collection
+      assign crumb2_title = context_collection.title
+      assign crumb2_url = context_collection.url
+    endif
+    assign crumb3_title = product.title
+  elsif collection
+    assign crumb3_title = collection.title
+  endif
+
+  assign crumb3_position = 3
+  if crumb3_title != blank and crumb2_title == blank
+    assign crumb3_position = 2
+  endif
+-%}
+
+<nav class="breadcrumbs" aria-label="{{ 'general.accessibility.breadcrumb' | t }}">
+  <ol class="breadcrumbs__list">
+    <li class="breadcrumbs__item"><a href="{{ routes.root_url }}">{{ 'general.navigation.home' | t }}</a></li>
+    {%- if crumb2_title != blank -%}
+      <li class="breadcrumbs__item"><a href="{{ crumb2_url }}">{{ crumb2_title }}</a></li>
+    {%- endif -%}
+    {%- if crumb3_title != blank -%}
+      <li class="breadcrumbs__item" aria-current="page">{{ crumb3_title }}</li>
+    {%- endif -%}
+  </ol>
+</nav>
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": {{ 'general.navigation.home' | t | json }},
+        "item": {{ request.origin | append: routes.root_url | json }}
+      }
+      {%- if crumb2_title != blank -%}
+        ,
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": {{ crumb2_title | json }},
+          "item": {{ request.origin | append: crumb2_url | json }}
+        }
+      {%- endif -%}
+      {%- if crumb3_title != blank -%}
+        ,
+        {
+          "@type": "ListItem",
+          "position": {{ crumb3_position }},
+          "name": {{ crumb3_title | json }}
+        }
+      {%- endif -%}
+    ]
+  }
+</script>

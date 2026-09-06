@@ -12,9 +12,11 @@
       "wishlist": "Wishlist",
       "account": "Account",
       "pagination": "Pagination",
-      "filters": "Filters"
+      "filters": "Filters",
+      "breadcrumb": "Breadcrumb"
     },
     "navigation": {
+      "home": "Home",
       "shirts": "Shirts",
       "kurtas": "Kurtas",
       "pants": "Pants",

@@ -4,6 +4,11 @@
   assign pants_label = 'general.navigation.pants' | t
   assign about_label = 'general.navigation.about' | t
   assign logo_style = 'width:' | append: settings.logo_width | append: 'px'
+  assign icon_label_menu = 'general.accessibility.menu' | t
+  assign icon_label_search = 'general.accessibility.search' | t
+  assign icon_label_account = 'general.accessibility.account' | t
+  assign icon_label_cart = 'general.accessibility.cart' | t
+  assign icon_label_close = 'general.accessibility.close' | t
 -%}
 
 <header class="site-header" data-sticky="{{ section.settings.sticky_header }}">
@@ -15,7 +20,7 @@
       aria-controls="MobileDrawer"
       aria-expanded="false"
     >
-      {%- render 'icon', name: 'menu', size: 22, title: 'general.accessibility.menu' | t -%}
+      {%- render 'icon', name: 'menu', size: 22, title: icon_label_menu -%}
     </button>
 
     <a href="{{ routes.root_url }}" class="site-header__logo" aria-label="{{ shop.name }}">
@@ -67,15 +72,15 @@
 
     <div class="site-header__utilities">
       <button type="button" class="button--icon" data-search-toggle aria-controls="HeaderSearchPanel" aria-expanded="false">
-        {%- render 'icon', name: 'search', size: 20, title: 'general.accessibility.search' | t -%}
+        {%- render 'icon', name: 'search', size: 20, title: icon_label_search -%}
       </button>
 
       <a href="{{ routes.account_url }}" class="button--icon hide-mobile">
-        {%- render 'icon', name: 'account', size: 20, title: 'general.accessibility.account' | t -%}
+        {%- render 'icon', name: 'account', size: 20, title: icon_label_account -%}
       </a>
 
       <a href="{{ routes.cart_url }}" class="button--icon site-header__cart" data-cart-link>
-        {%- render 'icon', name: 'cart', size: 20, title: 'general.accessibility.cart' | t -%}
+        {%- render 'icon', name: 'cart', size: 20, title: icon_label_cart -%}
         <span class="site-header__cart-count" aria-hidden="true" data-cart-count {% if cart.item_count == 0 %}hidden{% endif %}>{{ cart.item_count }}</span>
       </a>
     </div>
@@ -95,10 +100,17 @@
         <input type="hidden" name="type" value="product">
         <button type="submit" class="button--primary">{{ 'general.accessibility.search' | t }}</button>
         <button type="button" class="button--icon" data-search-close>
-          {%- render 'icon', name: 'close', size: 18, title: 'general.accessibility.close' | t -%}
+          {%- render 'icon', name: 'close', size: 18, title: icon_label_close -%}
         </button>
       </form>
-      <div class="predictive-search" id="PredictiveSearchResults" data-predictive-results hidden></div>
+      <div
+        class="predictive-search"
+        id="PredictiveSearchResults"
+        data-predictive-results
+        data-i18n-no-results="{{ 'general.search.no_results_title' | t }}"
+        data-i18n-view-all-results="{{ 'general.search.view_all_results' | t }}"
+        hidden
+      ></div>
     </div>
   </div>
 </header>
@@ -594,7 +606,7 @@
         if (!products.length) {
           var empty = document.createElement('p');
           empty.className = 'predictive-search__empty';
-          empty.textContent = {{ 'general.search.no_results_title' | t | json }};
+          empty.textContent = resultsEl.getAttribute('data-i18n-no-results');
           resultsEl.appendChild(empty);
           resultsEl.hidden = false;
           return;
@@ -634,7 +646,7 @@
         var viewAll = document.createElement('a');
         viewAll.className = 'button--tertiary predictive-search__view-all';
         viewAll.href = '/search?q=' + encodeURIComponent(query) + '&type=product';
-        viewAll.textContent = {{ 'general.search.view_all_results' | t | json }};
+        viewAll.textContent = resultsEl.getAttribute('data-i18n-view-all-results');
         resultsEl.appendChild(viewAll);
         resultsEl.hidden = false;
       }
@@ -651,6 +663,12 @@
           })
           .then(function (data) {
             renderResults(data, query);
+            if (window.Nexoira && Nexoira.analytics) {
+              Nexoira.analytics.track('predictive_search', {
+                query: query,
+                result_count: (data.resources && data.resources.results && data.resources.results.products || []).length,
+              });
+            }
           })
           .catch(function () {});
       }

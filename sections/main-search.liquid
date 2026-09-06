@@ -60,7 +60,8 @@
           <div class="collection-filters-drawer__header">
             <p class="collection-filters-drawer__title">{{ 'general.accessibility.filters' | t }}</p>
             <button type="button" class="button--icon" data-filters-close>
-              {%- render 'icon', name: 'close', size: 20, title: 'general.accessibility.close' | t -%}
+              {%- assign close_label = 'general.accessibility.close' | t -%}
+              {%- render 'icon', name: 'close', size: 20, title: close_label -%}
             </button>
           </div>
           {%- render 'collection-filters', results: search, results_url: routes.search_url -%}
@@ -159,6 +160,9 @@
       if (!form) return;
       Array.prototype.forEach.call(form.querySelectorAll('input[type="checkbox"], select'), function (el) {
         el.addEventListener('change', function () {
+          if (window.Nexoira && Nexoira.analytics) {
+            Nexoira.analytics.track('filter_applied', { name: el.name, value: el.value });
+          }
           form.requestSubmit ? form.requestSubmit() : form.submit();
         });
       });

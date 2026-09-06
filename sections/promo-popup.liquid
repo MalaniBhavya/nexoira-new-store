@@ -22,7 +22,8 @@
     hidden
   >
     <button type="button" class="button--icon dialog-close" data-promo-popup-close>
-      {%- render 'icon', name: 'close', size: 18, title: 'general.accessibility.close' | t -%}
+      {%- assign close_label = 'general.accessibility.close' | t -%}
+      {%- render 'icon', name: 'close', size: 18, title: close_label -%}
     </button>
 
     {%- if section.settings.image -%}
@@ -53,13 +54,13 @@
               <label class="visually-hidden" for="PromoPopupEmail">{{ 'general.footer.newsletter_placeholder' | t }}</label>
               <div class="promo-popup__form-row">
                 <input type="email" id="PromoPopupEmail" name="contact[email]" class="input" placeholder="{{ 'general.footer.newsletter_placeholder' | t }}" required>
-                <button type="submit" class="button--primary">{{ 'general.footer.newsletter_cta' | t }}</button>
+                <button type="submit" class="button--primary" data-analytics-event="promo_popup_submitted">{{ 'general.footer.newsletter_cta' | t }}</button>
               </div>
             </div>
           {%- endif -%}
         {%- endform -%}
       {%- elsif section.settings.cta_label != blank and section.settings.cta_url != blank -%}
-        <a href="{{ section.settings.cta_url }}" class="button--primary">{{ section.settings.cta_label }}</a>
+        <a href="{{ section.settings.cta_url }}" class="button--primary" data-analytics-event="promo_popup_cta_click">{{ section.settings.cta_label }}</a>
       {%- endif -%}
     </div>
   </div>
@@ -146,6 +147,9 @@
         backdrop.setAttribute('data-open', '');
       });
       releaseFocusTrap = Nexoira.trapFocus(popup, { onEscape: close });
+      if (Nexoira.analytics) {
+        Nexoira.analytics.track('promo_popup_shown', { trigger: popup.getAttribute('data-trigger') });
+      }
     }
 
     function close() {
@@ -160,6 +164,9 @@
       try {
         window.localStorage.setItem(STORAGE_KEY, String(Date.now()));
       } catch (e) {}
+      if (Nexoira.analytics) {
+        Nexoira.analytics.track('promo_popup_dismissed', {});
+      }
     }
 
     if (closeBtn) closeBtn.addEventListener('click', close);

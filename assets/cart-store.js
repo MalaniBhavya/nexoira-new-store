@@ -34,6 +34,14 @@ Nexoira.cart = {
       .then(function (item) {
         return Nexoira.cart.refresh().then(function (cart) {
           document.dispatchEvent(new CustomEvent('cart:item-added', { detail: cart }));
+          if (Nexoira.analytics) {
+            Nexoira.analytics.track('add_to_cart', {
+              variant_id: item.variant_id,
+              product_id: item.product_id,
+              quantity: item.quantity,
+              price: item.price,
+            });
+          }
           return item;
         });
       });
@@ -60,6 +68,9 @@ Nexoira.cart = {
       })
       .then(function (cart) {
         document.dispatchEvent(new CustomEvent('cart:updated', { detail: cart }));
+        if (Nexoira.analytics && quantity === 0) {
+          Nexoira.analytics.track('remove_from_cart', { line_key: lineKey });
+        }
         return cart;
       });
   },

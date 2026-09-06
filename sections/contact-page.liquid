@@ -40,19 +40,19 @@
 
     <div class="contact-page__info">
       {%- if settings.contact_email != blank -%}
-        <a href="mailto:{{ settings.contact_email }}" class="contact-page__info-item">
+        <a href="mailto:{{ settings.contact_email }}" class="contact-page__info-item" data-analytics-event="support_link_click" data-analytics-payload='{"channel":"email","source":"contact_page"}'>
           {%- render 'icon', name: 'account', size: 18 -%}
           {{ settings.contact_email }}
         </a>
       {%- endif -%}
       {%- if settings.contact_phone != blank -%}
-        <a href="tel:{{ settings.contact_phone }}" class="contact-page__info-item">
+        <a href="tel:{{ settings.contact_phone }}" class="contact-page__info-item" data-analytics-event="support_link_click" data-analytics-payload='{"channel":"phone","source":"contact_page"}'>
           {%- render 'icon', name: 'account', size: 18 -%}
           {{ settings.contact_phone }}
         </a>
       {%- endif -%}
       {%- if settings.contact_whatsapp != blank -%}
-        <a href="https://wa.me/{{ settings.contact_whatsapp }}" target="_blank" rel="noopener" class="contact-page__info-item">
+        <a href="https://wa.me/{{ settings.contact_whatsapp }}" target="_blank" rel="noopener" class="contact-page__info-item" data-analytics-event="support_link_click" data-analytics-payload='{"channel":"whatsapp","source":"contact_page"}'>
           {%- render 'icon', name: 'whatsapp', size: 18 -%}
           {{ 'general.navigation.whatsapp_us' | t }}
         </a>

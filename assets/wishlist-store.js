@@ -74,6 +74,9 @@ window.Nexoira = window.Nexoira || {};
     document.querySelectorAll('[data-wishlist-toggle][data-product-id="' + id + '"]').forEach(function (el) {
       applyState(el, isWished);
     });
+    if (window.Nexoira.analytics) {
+      window.Nexoira.analytics.track(isWished ? 'wishlist_add' : 'wishlist_remove', { product_id: id });
+    }
   });
 
   document.addEventListener('DOMContentLoaded', function () {

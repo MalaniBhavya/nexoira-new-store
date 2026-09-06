@@ -26,7 +26,8 @@
     hidden
   >
     <button type="button" class="button--icon dialog-close" data-size-chart-close>
-      {%- render 'icon', name: 'close', size: 18, title: 'general.accessibility.close' | t -%}
+      {%- assign close_label = 'general.accessibility.close' | t -%}
+      {%- render 'icon', name: 'close', size: 18, title: close_label -%}
     </button>
     <h2 id="SizeChartTitle" class="size-chart-modal__title">{{ 'general.product.size_chart' | t }}</h2>
     <div class="size-chart-modal__table rte">{{ chart.table.value }}</div>

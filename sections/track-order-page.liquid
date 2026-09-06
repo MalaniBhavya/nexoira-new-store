@@ -40,12 +40,12 @@
         <p>{{ 'general.track_order.support_body' | t }}</p>
         <div class="track-order-page__support-links">
           {%- if settings.contact_whatsapp != blank -%}
-            <a href="https://wa.me/{{ settings.contact_whatsapp }}" target="_blank" rel="noopener" class="button--secondary">
+            <a href="https://wa.me/{{ settings.contact_whatsapp }}" target="_blank" rel="noopener" class="button--secondary" data-analytics-event="support_link_click" data-analytics-payload='{"channel":"whatsapp","source":"track_order_page"}'>
               {{ 'general.navigation.whatsapp_us' | t }}
             </a>
           {%- endif -%}
           {%- if settings.contact_email != blank -%}
-            <a href="mailto:{{ settings.contact_email }}" class="button--secondary">{{ 'general.navigation.contact_us' | t }}</a>
+            <a href="mailto:{{ settings.contact_email }}" class="button--secondary" data-analytics-event="support_link_click" data-analytics-payload='{"channel":"email","source":"track_order_page"}'>{{ 'general.navigation.contact_us' | t }}</a>
           {%- endif -%}
         </div>
       </div>

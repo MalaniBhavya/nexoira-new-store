@@ -56,13 +56,13 @@
       <p class="site-footer__heading">{{ 'general.footer.connect_heading' | t }}</p>
       <ul>
         {%- if settings.contact_email != blank -%}
-          <li><a href="mailto:{{ settings.contact_email }}">{{ settings.contact_email }}</a></li>
+          <li><a href="mailto:{{ settings.contact_email }}" data-analytics-event="support_link_click" data-analytics-payload='{"channel":"email","source":"footer"}'>{{ settings.contact_email }}</a></li>
         {%- endif -%}
         {%- if settings.contact_phone != blank -%}
-          <li><a href="tel:{{ settings.contact_phone }}">{{ settings.contact_phone }}</a></li>
+          <li><a href="tel:{{ settings.contact_phone }}" data-analytics-event="support_link_click" data-analytics-payload='{"channel":"phone","source":"footer"}'>{{ settings.contact_phone }}</a></li>
         {%- endif -%}
         {%- if settings.contact_whatsapp != blank -%}
-          <li><a href="https://wa.me/{{ settings.contact_whatsapp }}" target="_blank" rel="noopener">{{ 'general.navigation.whatsapp_us' | t }}</a></li>
+          <li><a href="https://wa.me/{{ settings.contact_whatsapp }}" target="_blank" rel="noopener" data-analytics-event="support_link_click" data-analytics-payload='{"channel":"whatsapp","source":"footer"}'>{{ 'general.navigation.whatsapp_us' | t }}</a></li>
         {%- endif -%}
       </ul>
     </div>

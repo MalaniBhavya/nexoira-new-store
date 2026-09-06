@@ -64,7 +64,7 @@
 
 {% javascript %}
   (function () {
-    var container = document.getElementById('ProductRecommendations-{{ section.id }}');
+    var container = document.querySelector('[data-product-recommendations]');
     if (!container) return;
 
     fetch(container.getAttribute('data-url'))

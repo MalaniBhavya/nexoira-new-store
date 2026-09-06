@@ -146,6 +146,9 @@
 
   function open(handle, trigger) {
     lastFocused = trigger;
+    if (window.Nexoira.analytics) {
+      window.Nexoira.analytics.track('quick_view_open', { product_handle: handle });
+    }
     setStatus('');
     titleEl.textContent = '';
     priceEl.textContent = '';

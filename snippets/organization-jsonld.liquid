@@ -1,0 +1,40 @@
+{%- comment -%}
+  Site-wide Organization structured data. Rendered once from theme.liquid.
+  Only includes fields that have real values - no placeholder social URLs
+  or invented contact points.
+{%- endcomment -%}
+
+{%- liquid
+  assign same_as = ''
+  if settings.social_instagram != blank
+    assign same_as = same_as | append: settings.social_instagram | append: ','
+  endif
+  if settings.social_facebook != blank
+    assign same_as = same_as | append: settings.social_facebook | append: ','
+  endif
+  assign same_as = same_as | split: ','
+-%}
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": {{ shop.name | json }},
+    "url": {{ request.origin | append: routes.root_url | json }}
+    {%- if settings.logo -%}
+      , "logo": {{ settings.logo | image_url: width: 512 | json }}
+    {%- endif -%}
+    {%- if same_as.size > 0 -%}
+      , "sameAs": {{ same_as | json }}
+    {%- endif -%}
+    {%- if settings.contact_email != blank -%}
+      , "contactPoint": {
+        "@type": "ContactPoint",
+        "email": {{ settings.contact_email | json }},
+        "contactType": "customer service"
+        {%- if settings.contact_phone != blank -%}
+          , "telephone": {{ settings.contact_phone | json }}
+        {%- endif -%}
+      }
+    {%- endif -%}
+  }
+</script>
