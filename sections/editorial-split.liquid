@@ -8,7 +8,7 @@
   data-section-id="{{ section.id }}"
   data-section-type="editorial-split"
 >
-  <div class="editorial-split__media">
+  <div class="editorial-split__media" data-reveal="image">
     {%- if section.settings.image != blank -%}
       <img
         src="{{ section.settings.image | image_url: width: 1400 }}"
@@ -30,7 +30,7 @@
   </div>
 
   <div class="editorial-split__content">
-    <div class="editorial-split__text">
+    <div class="editorial-split__text" data-reveal>
       {%- if section.settings.heading != blank -%}
         <h2 class="editorial-split__heading">{{ section.settings.heading }}</h2>
       {%- endif -%}

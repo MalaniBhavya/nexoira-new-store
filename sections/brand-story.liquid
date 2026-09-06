@@ -5,7 +5,7 @@
 
 <section class="brand-story" data-section-id="{{ section.id }}" data-section-type="brand-story">
   <div class="container brand-story__inner">
-    <div class="brand-story__content">
+    <div class="brand-story__content" data-reveal>
       {%- if section.settings.eyebrow != blank -%}
         <p class="brand-story__eyebrow">{{ section.settings.eyebrow }}</p>
       {%- endif -%}
@@ -23,7 +23,7 @@
     </div>
 
     {%- if section.settings.image != blank -%}
-      <div class="brand-story__media">
+      <div class="brand-story__media" data-reveal="image">
         <img
           src="{{ section.settings.image | image_url: width: 1000 }}"
           srcset="

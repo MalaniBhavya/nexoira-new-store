@@ -3,15 +3,22 @@
   badges and a quick-add action.
 
   @param product {product} - the product to render
+  @param reveal_index {number} - optional grid position, used to stagger
+    the card's scroll-reveal entrance. Only pass this from static
+    (non-AJAX-refreshed) grids.
 {%- enddoc -%}
 
 {%- liquid
   assign card_product = product
   assign featured_image = card_product.featured_media.preview_image
   assign selected_variant = card_product.selected_or_first_available_variant
+
+  if reveal_index != blank
+    assign reveal_delay = reveal_index | at_most: 5 | times: 90
+  endif
 -%}
 
-<div class="product-card">
+<div class="product-card"{% if reveal_delay %} data-reveal style="--reveal-delay: {{ reveal_delay }}ms;"{% endif %}>
   <a href="{{ card_product.url }}" class="product-card__media-link" aria-hidden="true" tabindex="-1">
     <div class="product-card__media">
       {%- if featured_image -%}

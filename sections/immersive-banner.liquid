@@ -9,7 +9,7 @@
   data-section-id="{{ section.id }}"
   data-section-type="immersive-banner"
 >
-  <div class="immersive-banner__media">
+  <div class="immersive-banner__media" data-reveal="image">
     {%- if section.settings.image != blank -%}
       <img
         src="{{ section.settings.image | image_url: width: 2000 }}"
@@ -31,7 +31,7 @@
     <div class="immersive-banner__scrim" aria-hidden="true"></div>
   </div>
 
-  <div class="immersive-banner__content container">
+  <div class="immersive-banner__content container" data-reveal>
     {%- if section.settings.heading != blank -%}
       <h2 class="immersive-banner__heading">{{ section.settings.heading | newline_to_br }}</h2>
     {%- endif -%}

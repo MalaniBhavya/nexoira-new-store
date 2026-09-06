@@ -4,7 +4,7 @@
 
 <section class="style-gallery" data-section-id="{{ section.id }}" data-section-type="style-gallery">
   <div class="container">
-    <div class="section-heading section-heading--center">
+    <div class="section-heading section-heading--center" data-reveal>
       {%- if section.settings.heading != blank -%}
         <h2 class="section-heading__title">{{ section.settings.heading }}</h2>
       {%- endif -%}
@@ -22,10 +22,11 @@
     {%- if section.blocks.size > 0 -%}
       <div class="style-gallery__grid">
         {%- for block in section.blocks -%}
+          {%- assign reveal_delay = forloop.index0 | at_most: 5 | times: 90 -%}
           {%- if block.settings.link != blank -%}
-            <a href="{{ block.settings.link }}" class="style-gallery__item" {{ block.shopify_attributes }}>
+            <a href="{{ block.settings.link }}" class="style-gallery__item" data-reveal style="--reveal-delay: {{ reveal_delay }}ms;" {{ block.shopify_attributes }}>
           {%- else -%}
-            <div class="style-gallery__item" {{ block.shopify_attributes }}>
+            <div class="style-gallery__item" data-reveal style="--reveal-delay: {{ reveal_delay }}ms;" {{ block.shopify_attributes }}>
           {%- endif -%}
 
             {%- if block.settings.image != blank -%}

@@ -5,7 +5,7 @@
 
 <section class="featured-collection" data-section-id="{{ section.id }}" data-section-type="featured-collection">
   <div class="container">
-    <div class="section-heading">
+    <div class="section-heading" data-reveal>
       {%- if section.settings.heading != blank -%}
         <h2 class="section-heading__title">{{ section.settings.heading }}</h2>
       {%- endif -%}
@@ -17,7 +17,7 @@
     {%- if section.settings.collection != blank and section.settings.collection.products.size > 0 -%}
       <div class="product-grid" style="--grid-columns: {{ section.settings.columns_desktop }};">
         {%- for product in section.settings.collection.products limit: section.settings.products_to_show -%}
-          {%- render 'card-product', product: product -%}
+          {%- render 'card-product', product: product, reveal_index: forloop.index0 -%}
         {%- endfor -%}
       </div>
     {%- else -%}

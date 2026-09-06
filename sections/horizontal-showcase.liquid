@@ -5,7 +5,7 @@
 
 <section class="horizontal-showcase" data-section-id="{{ section.id }}" data-section-type="horizontal-showcase">
   <div class="container">
-    <div class="section-heading">
+    <div class="section-heading" data-reveal>
       {%- if section.settings.heading != blank -%}
         <h2 class="section-heading__title">{{ section.settings.heading }}</h2>
       {%- endif -%}
@@ -19,7 +19,8 @@
     <div class="horizontal-showcase__scroller" data-horizontal-scroller>
       <div class="horizontal-showcase__track">
         {%- for product in section.settings.collection.products limit: section.settings.products_to_show -%}
-          <div class="horizontal-showcase__item">
+          {%- assign reveal_delay = forloop.index0 | at_most: 5 | times: 90 -%}
+          <div class="horizontal-showcase__item" data-reveal style="--reveal-delay: {{ reveal_delay }}ms;">
             {%- render 'card-product', product: product -%}
           </div>
         {%- endfor -%}

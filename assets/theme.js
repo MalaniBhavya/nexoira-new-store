@@ -999,6 +999,58 @@
   }
 
   /* ---------------------------------------------------------------------
+     Scroll reveal: single shared IntersectionObserver driving every
+     [data-reveal] element (see base.css "Motion system"). Elements are
+     marked data-reveal-bound once observed so repeated initAll() calls
+     (theme editor section reloads) never re-observe the same node.
+     Falls back to revealing everything immediately if IntersectionObserver
+     is unavailable or anything here throws, so content is never stuck
+     invisible.
+     ------------------------------------------------------------------ */
+
+  var revealObserver = null;
+
+  function initScrollReveal() {
+    try {
+      var items = Array.prototype.slice.call(
+        document.querySelectorAll('[data-reveal]:not([data-reveal-bound])')
+      );
+      if (!items.length) return;
+
+      if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+        items.forEach(function (el) {
+          el.dataset.revealBound = 'true';
+          el.classList.add('is-revealed');
+        });
+        return;
+      }
+
+      if (!revealObserver) {
+        revealObserver = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-revealed');
+                revealObserver.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.15, rootMargin: '0px 0px -8% 0px' }
+        );
+      }
+
+      items.forEach(function (el) {
+        el.dataset.revealBound = 'true';
+        revealObserver.observe(el);
+      });
+    } catch (err) {
+      document.querySelectorAll('[data-reveal]').forEach(function (el) {
+        el.classList.add('is-revealed');
+      });
+    }
+  }
+
+  /* ---------------------------------------------------------------------
      Init
      ------------------------------------------------------------------ */
 
@@ -1018,6 +1070,7 @@
     initRecentlyViewed();
     initSizeGuide();
     initAuthForms();
+    initScrollReveal();
   }
 
   document.addEventListener('DOMContentLoaded', function () {

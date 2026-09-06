@@ -37,6 +37,9 @@
 
     <script>window.themeMoneyFormat = {{ shop.money_format | json }};</script>
     <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
+    <noscript>
+      <style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style>
+    </noscript>
   </head>
 
   <body class="template-{{ request.page_type }}{% if request.page_type == 'index' %} has-transparent-header{% endif %}">
