@@ -204,6 +204,21 @@ ol {
   text-align: left;
 }
 
+/* Simple content-page layout: used by sections/main-page.liquid and by
+   templates/policy.liquid directly (policy pages use a plain Liquid
+   template, not a section, so they can't carry their own scoped CSS -
+   this has to live globally). */
+.page-content {
+  padding-block: var(--space-6) var(--section-spacing-y);
+  max-width: 760px;
+  margin-inline: auto;
+}
+
+.page-content__title {
+  font-size: var(--text-3xl);
+  margin-bottom: var(--space-5);
+}
+
 /* Responsive visibility - purpose-named, not a generic utility system */
 .hide-mobile {
   display: none;

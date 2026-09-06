@@ -1,0 +1,56 @@
+<div class="error-page container">
+  <h1 class="error-page__heading">{{ 'general.error_page.heading' | t }}</h1>
+  <p class="error-page__body">{{ 'general.error_page.body' | t }}</p>
+
+  <form action="{{ routes.search_url }}" method="get" role="search" class="error-page__search">
+    <input type="hidden" name="type" value="product">
+    <input
+      type="search"
+      name="q"
+      class="input"
+      placeholder="{{ 'general.navigation.search_placeholder' | t }}"
+      aria-label="{{ 'general.accessibility.search' | t }}"
+    >
+    <button type="submit" class="button--primary">{{ 'general.accessibility.search' | t }}</button>
+  </form>
+
+  <a href="{{ routes.root_url }}" class="button--secondary">{{ 'general.error_page.cta' | t }}</a>
+</div>
+
+{% stylesheet %}
+  .error-page {
+    padding-block: var(--space-9);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .error-page__heading {
+    font-size: var(--text-3xl);
+  }
+
+  .error-page__body {
+    color: var(--color-ink-muted);
+    max-width: 50ch;
+  }
+
+  .error-page__search {
+    display: flex;
+    gap: var(--space-2);
+    width: 100%;
+    max-width: 400px;
+    margin-top: var(--space-2);
+  }
+
+  .error-page__search .input {
+    flex: 1;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "404 page"
+}
+{% endschema %}

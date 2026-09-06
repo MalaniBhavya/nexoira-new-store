@@ -1,0 +1,92 @@
+{%- comment -%}
+  Global size guide: merchant picks the same size_chart metaobjects used
+  on PDPs (one per category), via native metaobject picker blocks - one
+  source of truth, no content duplicated/retyped.
+{%- endcomment -%}
+
+{%- liquid
+  assign size_guide_title = page.title
+  if size_guide_title == blank
+    assign size_guide_title = 'general.navigation.size_guide' | t
+  endif
+-%}
+
+<div class="size-guide-page container">
+  <h1 class="size-guide-page__title">{{ size_guide_title }}</h1>
+  {%- if page.content != blank -%}
+    <div class="size-guide-page__intro rte">{{ page.content }}</div>
+  {%- endif -%}
+
+  {%- for block in section.blocks -%}
+    {%- assign chart = block.settings.size_chart.value -%}
+    {%- if chart -%}
+      <div class="size-guide-page__category" {{ block.shopify_attributes }}>
+        {%- if chart.category.value != blank -%}
+          <h2 class="size-guide-page__category-title">{{ chart.category.value }}</h2>
+        {%- endif -%}
+        <div class="size-guide-page__table rte">{{ chart.table.value }}</div>
+        {%- if chart.measurement_instructions.value != blank -%}
+          <div class="size-guide-page__instructions rte">{{ chart.measurement_instructions.value }}</div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  {%- endfor -%}
+</div>
+
+{% stylesheet %}
+  .size-guide-page {
+    padding-block: var(--space-6) var(--section-spacing-y);
+    max-width: 760px;
+    margin-inline: auto;
+  }
+
+  .size-guide-page__title {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-3);
+  }
+
+  .size-guide-page__intro {
+    color: var(--color-ink-muted);
+    margin-bottom: var(--space-6);
+  }
+
+  .size-guide-page__category {
+    padding-block: var(--space-6);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .size-guide-page__category-title {
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-4);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Size guide page",
+  "blocks": [
+    {
+      "type": "category",
+      "name": "Category size chart",
+      "settings": [
+        {
+          "type": "metaobject",
+          "id": "size_chart",
+          "label": "Size chart",
+          "metaobject_type": "size_chart"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Size guide page",
+      "blocks": [
+        { "type": "category" },
+        { "type": "category" },
+        { "type": "category" }
+      ]
+    }
+  ]
+}
+{% endschema %}

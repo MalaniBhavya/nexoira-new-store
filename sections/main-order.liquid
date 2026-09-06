@@ -1,0 +1,168 @@
+<div class="order-page container">
+  <a href="{{ routes.account_url }}" class="button--tertiary order-page__back">{{ 'general.customer.back_to_account' | t }}</a>
+
+  <div class="order-page__header">
+    <h1 class="order-page__heading">{{ 'general.customer.order_number' | t }} {{ order.name }}</h1>
+    <p class="order-page__date">{{ order.created_at | date: '%d %B %Y' }}</p>
+  </div>
+
+  <div class="order-page__status">
+    <span class="badge">{{ order.financial_status_label }}</span>
+    <span class="badge">{{ order.fulfillment_status_label }}</span>
+  </div>
+
+  <table class="order-page__table">
+    <thead>
+      <tr>
+        <th>{{ 'general.customer.order_item' | t }}</th>
+        <th>{{ 'general.product.quantity_label' | t }}</th>
+        <th>{{ 'general.customer.order_total' | t }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {%- for line_item in order.line_items -%}
+        <tr>
+          <td class="order-page__line-item">
+            {%- if line_item.image -%}
+              <img src="{{ line_item.image | image_url: width: 120 }}" width="60" height="75" alt="" loading="lazy">
+            {%- endif -%}
+            <span>
+              <a href="{{ line_item.product.url }}">{{ line_item.title }}</a>
+              {%- unless line_item.variant.title == 'Default Title' -%}
+                <br><small>{{ line_item.variant.title }}</small>
+              {%- endunless -%}
+            </span>
+          </td>
+          <td>{{ line_item.quantity }}</td>
+          <td>{{ line_item.final_line_price | money }}</td>
+        </tr>
+      {%- endfor -%}
+    </tbody>
+  </table>
+
+  <div class="order-page__totals">
+    <div><span>{{ 'general.cart.subtotal' | t }}</span><span>{{ order.subtotal_price | money }}</span></div>
+    {%- for shipping_line in order.shipping_methods -%}
+      <div><span>{{ shipping_line.title }}</span><span>{{ shipping_line.price | money }}</span></div>
+    {%- endfor -%}
+    {%- for tax_line in order.tax_lines -%}
+      <div><span>{{ tax_line.title }} ({{ tax_line.rate | times: 100 }}%)</span><span>{{ tax_line.price | money }}</span></div>
+    {%- endfor -%}
+    <div class="order-page__total"><span>{{ 'general.customer.order_total' | t }}</span><span>{{ order.total_price | money }}</span></div>
+  </div>
+
+  {%- if order.shipping_address -%}
+    <div class="order-page__address">
+      <h2>{{ 'general.customer.addresses' | t }}</h2>
+      <address>{{ order.shipping_address | format_address }}</address>
+    </div>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .order-page {
+    padding-block: var(--space-6) var(--section-spacing-y);
+    max-width: 720px;
+  }
+
+  .order-page__back {
+    margin-bottom: var(--space-4);
+    display: inline-block;
+  }
+
+  .order-page__header {
+    margin-bottom: var(--space-3);
+  }
+
+  .order-page__heading {
+    font-size: var(--text-2xl);
+  }
+
+  .order-page__date {
+    color: var(--color-ink-muted);
+    font-size: var(--text-sm);
+  }
+
+  .order-page__status {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-6);
+  }
+
+  .order-page__status .badge {
+    position: static;
+  }
+
+  .order-page__table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--space-6);
+  }
+
+  .order-page__table th {
+    text-align: left;
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .order-page__table td {
+    padding-block: var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--text-sm);
+    vertical-align: top;
+  }
+
+  .order-page__line-item {
+    display: flex;
+    gap: var(--space-3);
+  }
+
+  .order-page__line-item img {
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+  }
+
+  .order-page__totals {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-width: 320px;
+    margin-left: auto;
+    font-size: var(--text-sm);
+  }
+
+  .order-page__totals > div {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .order-page__total {
+    font-weight: 700;
+    font-size: var(--text-lg);
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--space-2);
+    margin-top: var(--space-2);
+  }
+
+  .order-page__address {
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .order-page__address address {
+    font-style: normal;
+    font-size: var(--text-sm);
+    color: var(--color-ink-muted);
+    line-height: var(--leading-relaxed);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Order page"
+}
+{% endschema %}

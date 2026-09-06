@@ -1,0 +1,176 @@
+{%- liquid
+  assign active_filter_count = 0
+  for filter in search.filters
+    assign active_filter_count = active_filter_count | plus: filter.active_values.size
+    if filter.min_value.value != nil or filter.max_value.value != nil
+      assign active_filter_count = active_filter_count | plus: 1
+    endif
+  endfor
+-%}
+
+<div class="collection-page container">
+  <h1 class="collection-page__title">
+    {%- if search.performed -%}
+      {{ 'general.search.results_for' | t: terms: search.terms }}
+    {%- else -%}
+      {{ 'general.search.title' | t }}
+    {%- endif -%}
+  </h1>
+</div>
+
+{%- if search.performed -%}
+  {%- if search.results_count > 0 -%}
+    <div class="container collection-page__toolbar">
+      {%- if search.filters.size > 0 -%}
+        <button
+          type="button"
+          class="button--secondary collection-page__filter-toggle"
+          data-filters-toggle
+          aria-controls="SearchFiltersDrawer"
+          aria-expanded="false"
+        >
+          {%- render 'icon', name: 'filter', size: 16 -%}
+          {{ 'general.accessibility.filters' | t }}
+          {%- if active_filter_count > 0 -%}
+            <span class="collection-page__filter-count">{{ active_filter_count }}</span>
+          {%- endif -%}
+        </button>
+      {%- endif -%}
+
+      <p class="collection-page__count">{{ 'general.product.results_count' | t: count: search.results_count }}</p>
+
+      {%- if search.sort_options.size > 1 -%}
+        <div class="collection-page__sort">
+          <label class="visually-hidden" for="SearchSortBy">{{ 'general.product.sort_by' | t }}</label>
+          <select id="SearchSortBy" name="sort_by" class="input" form="FacetFiltersForm">
+            {%- for option in search.sort_options -%}
+              <option value="{{ option.value }}" {% if option.value == search.sort_by %}selected{% endif %}>
+                {{ option.name }}
+              </option>
+            {%- endfor -%}
+          </select>
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- if search.filters.size > 0 -%}
+      <div class="collection-filters-drawer" id="SearchFiltersDrawer" data-filters-drawer hidden>
+        <div class="collection-filters-drawer__backdrop" data-filters-backdrop></div>
+        <div class="collection-filters-drawer__panel" role="dialog" aria-modal="true" aria-label="{{ 'general.accessibility.filters' | t }}" data-filters-panel>
+          <div class="collection-filters-drawer__header">
+            <p class="collection-filters-drawer__title">{{ 'general.accessibility.filters' | t }}</p>
+            <button type="button" class="button--icon" data-filters-close>
+              {%- render 'icon', name: 'close', size: 20, title: 'general.accessibility.close' | t -%}
+            </button>
+          </div>
+          {%- render 'collection-filters', results: search, results_url: routes.search_url -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    <div class="container">
+      <div class="collection-grid" data-product-grid style="--columns-desktop: 4;">
+        {%- for item in search.results -%}
+          {%- render 'card-product', product: item, loading: 'lazy' -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- else -%}
+    <div class="container collection-page__empty">
+      <h2>{{ 'general.search.no_results_title' | t }}</h2>
+      <p>{{ 'general.search.no_results_body' | t: terms: search.terms }}</p>
+      <a href="{{ routes.all_products_collection_url }}" class="button--secondary">{{ 'general.navigation.all_collections' | t }}</a>
+    </div>
+  {%- endif -%}
+{%- else -%}
+  <div class="container search-page__prompt">
+    <form action="{{ routes.search_url }}" method="get" role="search" class="search-page__form">
+      <input type="hidden" name="type" value="product">
+      <input
+        type="search"
+        name="q"
+        class="input"
+        placeholder="{{ 'general.navigation.search_placeholder' | t }}"
+        aria-label="{{ 'general.accessibility.search' | t }}"
+        autofocus
+      >
+      <button type="submit" class="button--primary">{{ 'general.accessibility.search' | t }}</button>
+    </form>
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .search-page__prompt {
+    padding-block: var(--space-8);
+  }
+
+  .search-page__form {
+    display: flex;
+    gap: var(--space-2);
+    max-width: 480px;
+  }
+
+  .search-page__form .input {
+    flex: 1;
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    function initFiltersDrawer() {
+      var toggle = document.querySelector('[data-filters-toggle]');
+      var drawer = document.querySelector('[data-filters-drawer]');
+      if (!toggle || !drawer) return;
+
+      var panel = drawer.querySelector('[data-filters-panel]');
+      var backdrop = drawer.querySelector('[data-filters-backdrop]');
+      var closeBtn = drawer.querySelector('[data-filters-close]');
+      var releaseFocusTrap = null;
+      var unlockScroll = null;
+
+      function open() {
+        drawer.hidden = false;
+        unlockScroll = Nexoira.lockScroll();
+        toggle.setAttribute('aria-expanded', 'true');
+        window.requestAnimationFrame(function () {
+          drawer.setAttribute('data-open', '');
+        });
+        releaseFocusTrap = Nexoira.trapFocus(panel, { onEscape: close });
+      }
+
+      function close() {
+        drawer.removeAttribute('data-open');
+        toggle.setAttribute('aria-expanded', 'false');
+        if (unlockScroll) unlockScroll();
+        if (releaseFocusTrap) releaseFocusTrap();
+        window.setTimeout(function () {
+          drawer.hidden = true;
+        }, 250);
+        toggle.focus();
+      }
+
+      toggle.addEventListener('click', open);
+      if (closeBtn) closeBtn.addEventListener('click', close);
+      if (backdrop) backdrop.addEventListener('click', close);
+    }
+
+    function initAutoSubmit() {
+      var form = document.getElementById('FacetFiltersForm');
+      if (!form) return;
+      Array.prototype.forEach.call(form.querySelectorAll('input[type="checkbox"], select'), function (el) {
+        el.addEventListener('change', function () {
+          form.requestSubmit ? form.requestSubmit() : form.submit();
+        });
+      });
+    }
+
+    initFiltersDrawer();
+    initAutoSubmit();
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Search results"
+}
+{% endschema %}

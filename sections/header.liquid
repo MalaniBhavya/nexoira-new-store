@@ -98,6 +98,7 @@
           {%- render 'icon', name: 'close', size: 18, title: 'general.accessibility.close' | t -%}
         </button>
       </form>
+      <div class="predictive-search" id="PredictiveSearchResults" data-predictive-results hidden></div>
     </div>
   </div>
 </header>
@@ -318,6 +319,55 @@
     flex: 1;
   }
 
+  .predictive-search {
+    margin-top: var(--space-4);
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  .predictive-search[hidden] {
+    display: none;
+  }
+
+  .predictive-search__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding-block: var(--space-2);
+    text-decoration: none;
+    color: var(--color-ink);
+  }
+
+  .predictive-search__item img {
+    width: 48px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-alt);
+    flex-shrink: 0;
+  }
+
+  .predictive-search__item-title {
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  .predictive-search__item-price {
+    font-size: var(--text-sm);
+    color: var(--color-ink-muted);
+  }
+
+  .predictive-search__view-all {
+    display: block;
+    margin-top: var(--space-2);
+  }
+
+  .predictive-search__empty {
+    font-size: var(--text-sm);
+    color: var(--color-ink-muted);
+    padding-block: var(--space-2);
+  }
+
   /* Mobile drawer */
 
   .mobile-drawer[hidden] {
@@ -534,6 +584,86 @@
 
       var closeBtn = panel.querySelector('[data-search-close]');
       var input = panel.querySelector('input[type="search"]');
+      var resultsEl = panel.querySelector('[data-predictive-results]');
+      var debounceTimer = null;
+
+      function renderResults(data, query) {
+        var products = (data.resources && data.resources.results && data.resources.results.products) || [];
+        resultsEl.innerHTML = '';
+
+        if (!products.length) {
+          var empty = document.createElement('p');
+          empty.className = 'predictive-search__empty';
+          empty.textContent = {{ 'general.search.no_results_title' | t | json }};
+          resultsEl.appendChild(empty);
+          resultsEl.hidden = false;
+          return;
+        }
+
+        products.forEach(function (product) {
+          var item = document.createElement('a');
+          item.className = 'predictive-search__item';
+          item.href = product.url;
+
+          if (product.image) {
+            var img = document.createElement('img');
+            img.src = product.image;
+            img.alt = '';
+            img.loading = 'lazy';
+            item.appendChild(img);
+          }
+
+          var textWrap = document.createElement('span');
+          var title = document.createElement('span');
+          title.className = 'predictive-search__item-title';
+          title.textContent = product.title;
+          textWrap.appendChild(title);
+
+          if (product.price) {
+            var price = document.createElement('span');
+            price.className = 'predictive-search__item-price';
+            price.style.display = 'block';
+            price.textContent = product.price;
+            textWrap.appendChild(price);
+          }
+
+          item.appendChild(textWrap);
+          resultsEl.appendChild(item);
+        });
+
+        var viewAll = document.createElement('a');
+        viewAll.className = 'button--tertiary predictive-search__view-all';
+        viewAll.href = '/search?q=' + encodeURIComponent(query) + '&type=product';
+        viewAll.textContent = {{ 'general.search.view_all_results' | t | json }};
+        resultsEl.appendChild(viewAll);
+        resultsEl.hidden = false;
+      }
+
+      function fetchPredictions(query) {
+        if (!query) {
+          resultsEl.hidden = true;
+          resultsEl.innerHTML = '';
+          return;
+        }
+        fetch('/search/suggest.json?q=' + encodeURIComponent(query) + '&resources[type]=product&resources[limit]=6&resources[options][unavailable_products]=last')
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (data) {
+            renderResults(data, query);
+          })
+          .catch(function () {});
+      }
+
+      if (input && resultsEl) {
+        input.addEventListener('input', function () {
+          window.clearTimeout(debounceTimer);
+          var query = input.value.trim();
+          debounceTimer = window.setTimeout(function () {
+            fetchPredictions(query);
+          }, 250);
+        });
+      }
 
       function open() {
         panel.hidden = false;

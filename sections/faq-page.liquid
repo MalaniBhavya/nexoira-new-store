@@ -1,0 +1,113 @@
+{%- comment -%}
+  Global FAQ page. Block-based (question/answer text directly) rather
+  than requiring the merchant to set up faq_item metaobjects just for
+  this one page - simpler for site-wide FAQs that aren't tied to a
+  specific product.
+{%- endcomment -%}
+
+{%- liquid
+  assign faq_title = page.title
+  if faq_title == blank
+    assign faq_title = 'general.navigation.faq' | t
+  endif
+-%}
+<div class="faq-page container">
+  <h1 class="faq-page__title">{{ faq_title }}</h1>
+  {%- if page.content != blank -%}
+    <div class="faq-page__intro rte">{{ page.content }}</div>
+  {%- endif -%}
+
+  {%- if section.blocks.size > 0 -%}
+    <div class="faq-accordion">
+      {%- for block in section.blocks -%}
+        <details class="faq-accordion__item" {{ block.shopify_attributes }}>
+          <summary class="faq-accordion__question">
+            <span>{{ block.settings.question }}</span>
+            {%- render 'icon', name: 'plus', size: 14, class: 'faq-accordion__icon' -%}
+          </summary>
+          <div class="faq-accordion__answer rte">{{ block.settings.answer }}</div>
+        </details>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .faq-page {
+    padding-block: var(--space-6) var(--section-spacing-y);
+    max-width: 760px;
+    margin-inline: auto;
+  }
+
+  .faq-page__title {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-3);
+  }
+
+  .faq-page__intro {
+    color: var(--color-ink-muted);
+    margin-bottom: var(--space-6);
+  }
+
+  .faq-accordion__item {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .faq-accordion__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: var(--space-4);
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .faq-accordion__question::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-accordion__item[open] .faq-accordion__icon {
+    transform: rotate(45deg);
+  }
+
+  .faq-accordion__icon {
+    transition: transform var(--duration-fast) var(--ease-standard);
+    flex-shrink: 0;
+  }
+
+  .faq-accordion__answer {
+    padding-bottom: var(--space-4);
+    color: var(--color-ink-muted);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "FAQ page",
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ page",
+      "blocks": [{ "type": "question" }]
+    }
+  ]
+}
+{% endschema %}
