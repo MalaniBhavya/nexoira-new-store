@@ -95,7 +95,10 @@
       }
     },
     "brand-story": {
-      "type": "brand-story"
+      "type": "brand-story",
+      "settings": {
+        "image": "shopify://shop_images/SHTHKCR2DEMFHGAP_1781343025053_3z9x2fa9ojewfir.jpg"
+      }
     },
     "kurta-editorial": {
       "type": "immersive-banner",
