@@ -1,0 +1,291 @@
+{%- comment -%}
+  Homepage hero. Image-first (always required per slide); video is
+  optional and never autoplays (no autoplay video unless explicitly
+  asked - PRD hard constraint), so it renders with native controls and
+  the image as poster. Multiple slide blocks rotate; a single slide
+  needs no JS at all.
+{%- endcomment -%}
+
+{%- if section.blocks.size > 0 -%}
+  <section class="hero" data-hero {% if section.blocks.size == 1 %}data-single{% endif %}>
+    {%- for block in section.blocks -%}
+      <div class="hero__slide{% if forloop.first %} hero__slide--active{% endif %}" data-hero-slide {% unless forloop.first %}hidden{% endunless %} {{ block.shopify_attributes }}>
+        <div class="hero__media">
+          {%- if block.settings.video -%}
+            {{ block.settings.video | media_tag: image_size: '1600x', controls: true }}
+          {%- elsif block.settings.image -%}
+            <img
+              src="{{ block.settings.image | image_url: width: 1600 }}"
+              srcset="
+                {{- block.settings.image | image_url: width: 750 }} 750w,
+                {{ block.settings.image | image_url: width: 1100 }} 1100w,
+                {{ block.settings.image | image_url: width: 1600 }} 1600w,
+                {{ block.settings.image | image_url: width: 2000 }} 2000w
+              "
+              sizes="100vw"
+              width="{{ block.settings.image.width }}"
+              height="{{ block.settings.image.height }}"
+              alt="{{ block.settings.image.alt | escape }}"
+              loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+              {% if forloop.first %}fetchpriority="high"{% endif %}
+            >
+          {%- else -%}
+            <div class="hero__media-placeholder"></div>
+          {%- endif -%}
+        </div>
+
+        <div class="hero__content hero__content--{{ block.settings.text_color }} hero__content--{{ block.settings.position }}">
+          {%- if block.settings.eyebrow != blank -%}
+            <span class="text-eyebrow">{{ block.settings.eyebrow }}</span>
+          {%- endif -%}
+          {%- if block.settings.heading != blank -%}
+            <h1 class="hero__heading">{{ block.settings.heading }}</h1>
+          {%- endif -%}
+          {%- if block.settings.subheading != blank -%}
+            <p class="hero__subheading">{{ block.settings.subheading }}</p>
+          {%- endif -%}
+          {%- if block.settings.cta_label != blank and block.settings.cta_url != blank -%}
+            <a href="{{ block.settings.cta_url }}" class="button--primary hero__cta">{{ block.settings.cta_label }}</a>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endfor -%}
+
+    {%- if section.blocks.size > 1 -%}
+      <div class="hero__dots" data-hero-dots>
+        {%- for block in section.blocks -%}
+          <button type="button" class="hero__dot{% if forloop.first %} hero__dot--active{% endif %}" data-hero-dot data-index="{{ forloop.index0 }}">
+            <span class="visually-hidden">{{ 'general.accessibility.pagination' | t }} {{ forloop.index }}</span>
+          </button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </section>
+{%- endif -%}
+
+{% stylesheet %}
+  .hero {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero__slide {
+    position: relative;
+  }
+
+  .hero__slide[hidden] {
+    display: none;
+  }
+
+  .hero__media {
+    position: relative;
+  }
+
+  .hero__media img,
+  .hero__media video,
+  .hero__media-placeholder {
+    width: 100%;
+    height: 70vh;
+    min-height: 420px;
+    max-height: 780px;
+    object-fit: cover;
+    background: var(--color-surface-alt);
+  }
+
+  .hero__content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding: var(--space-6) var(--space-5) var(--space-8);
+    max-width: 640px;
+  }
+
+  .hero__content--center {
+    align-items: center;
+    text-align: center;
+    max-width: 100%;
+    justify-content: center;
+  }
+
+  .hero__content--light {
+    color: #fff;
+  }
+
+  .hero__content--light .text-eyebrow {
+    color: #fff;
+  }
+
+  .hero__content--dark {
+    color: var(--color-ink);
+  }
+
+  .hero__heading {
+    font-size: var(--text-4xl);
+    line-height: var(--leading-tight);
+  }
+
+  @media (min-width: 750px) {
+    .hero__heading {
+      font-size: var(--text-5xl);
+    }
+  }
+
+  .hero__subheading {
+    font-size: var(--text-md);
+    max-width: 48ch;
+  }
+
+  .hero__cta {
+    margin-top: var(--space-2);
+  }
+
+  .hero__dots {
+    position: absolute;
+    bottom: var(--space-4);
+    right: var(--space-5);
+    display: flex;
+    gap: var(--space-2);
+    z-index: 2;
+  }
+
+  .hero__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  .hero__dot--active {
+    background: #fff;
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    var hero = document.querySelector('[data-hero]');
+    if (!hero || hero.hasAttribute('data-single')) return;
+
+    var slides = Array.prototype.slice.call(hero.querySelectorAll('[data-hero-slide]'));
+    var dots = Array.prototype.slice.call(hero.querySelectorAll('[data-hero-dot]'));
+    var index = 0;
+    var timer = null;
+
+    function show(nextIndex) {
+      slides[index].hidden = true;
+      slides[index].classList.remove('hero__slide--active');
+      dots[index] && dots[index].classList.remove('hero__dot--active');
+      index = (nextIndex + slides.length) % slides.length;
+      slides[index].hidden = false;
+      slides[index].classList.add('hero__slide--active');
+      dots[index] && dots[index].classList.add('hero__dot--active');
+    }
+
+    function play() {
+      if (Nexoira.prefersReducedMotion()) return;
+      stop();
+      timer = window.setInterval(function () {
+        show(index + 1);
+      }, 6000);
+    }
+
+    function stop() {
+      if (timer) window.clearInterval(timer);
+      timer = null;
+    }
+
+    dots.forEach(function (dot) {
+      dot.addEventListener('click', function () {
+        show(parseInt(dot.getAttribute('data-index'), 10));
+        play();
+      });
+    });
+
+    hero.addEventListener('mouseenter', stop);
+    hero.addEventListener('mouseleave', play);
+    hero.addEventListener('focusin', stop);
+    hero.addEventListener('focusout', play);
+
+    play();
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Hero",
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Required - used as the video poster too"
+        },
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video",
+          "info": "Optional. Renders with controls, never autoplays."
+        },
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "Eyebrow text"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Nexoira"
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "type": "text",
+          "id": "cta_label",
+          "label": "Button label"
+        },
+        {
+          "type": "url",
+          "id": "cta_url",
+          "label": "Button link"
+        },
+        {
+          "type": "select",
+          "id": "position",
+          "label": "Text position",
+          "options": [
+            { "value": "start", "label": "Bottom left" },
+            { "value": "center", "label": "Center" }
+          ],
+          "default": "start"
+        },
+        {
+          "type": "select",
+          "id": "text_color",
+          "label": "Text color",
+          "options": [
+            { "value": "light", "label": "Light (for dark images)" },
+            { "value": "dark", "label": "Dark (for light images)" }
+          ],
+          "default": "light"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero",
+      "blocks": [{ "type": "slide" }]
+    }
+  ]
+}
+{% endschema %}

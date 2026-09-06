@@ -1,0 +1,284 @@
+{%- comment -%}
+  Behavior-triggered popup with a frequency cap (PRD §5). Off by default
+  (enable_popup) so it never appears unless the merchant deliberately
+  turns it on and fills in content. Dismissal is remembered in
+  localStorage for the configured number of days - never nags on every
+  page view.
+{%- endcomment -%}
+
+{%- if section.settings.enable_popup and section.settings.heading != blank -%}
+  <div class="dialog-backdrop" id="PromoPopupBackdrop" data-promo-popup-backdrop hidden></div>
+  <div
+    class="dialog-panel promo-popup"
+    id="PromoPopup"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="PromoPopupTitle"
+    data-promo-popup
+    data-trigger="{{ section.settings.trigger }}"
+    data-delay="{{ section.settings.delay_seconds }}"
+    data-scroll-depth="{{ section.settings.scroll_depth }}"
+    data-frequency-days="{{ section.settings.frequency_days }}"
+    hidden
+  >
+    <button type="button" class="button--icon dialog-close" data-promo-popup-close>
+      {%- render 'icon', name: 'close', size: 18, title: 'general.accessibility.close' | t -%}
+    </button>
+
+    {%- if section.settings.image -%}
+      <div class="promo-popup__media">
+        <img
+          src="{{ section.settings.image | image_url: width: 500 }}"
+          width="{{ section.settings.image.width }}"
+          height="{{ section.settings.image.height }}"
+          alt=""
+          loading="lazy"
+        >
+      </div>
+    {%- endif -%}
+
+    <div class="promo-popup__content">
+      <h2 id="PromoPopupTitle" class="promo-popup__heading">{{ section.settings.heading }}</h2>
+      {%- if section.settings.body != blank -%}
+        <p class="promo-popup__body">{{ section.settings.body }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.show_email_capture -%}
+        {%- form 'customer', id: 'PromoPopupForm' -%}
+          <input type="hidden" name="contact[tags]" value="newsletter,popup">
+          {%- if form.posted_successfully? -%}
+            <p class="promo-popup__success" role="status">{{ 'general.footer.newsletter_success' | t }}</p>
+          {%- else -%}
+            <div class="field">
+              <label class="visually-hidden" for="PromoPopupEmail">{{ 'general.footer.newsletter_placeholder' | t }}</label>
+              <div class="promo-popup__form-row">
+                <input type="email" id="PromoPopupEmail" name="contact[email]" class="input" placeholder="{{ 'general.footer.newsletter_placeholder' | t }}" required>
+                <button type="submit" class="button--primary">{{ 'general.footer.newsletter_cta' | t }}</button>
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endform -%}
+      {%- elsif section.settings.cta_label != blank and section.settings.cta_url != blank -%}
+        <a href="{{ section.settings.cta_url }}" class="button--primary">{{ section.settings.cta_label }}</a>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .promo-popup {
+    width: min(420px, 92vw);
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .promo-popup__media img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .promo-popup__content {
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .promo-popup__heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    padding-right: var(--space-6);
+  }
+
+  .promo-popup__body {
+    color: var(--color-ink-muted);
+    font-size: var(--text-sm);
+  }
+
+  .promo-popup__form-row {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .promo-popup__form-row .input {
+    flex: 1;
+  }
+
+  .promo-popup__success {
+    color: var(--color-success);
+    font-weight: 600;
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    var popup = document.getElementById('PromoPopup');
+    var backdrop = document.getElementById('PromoPopupBackdrop');
+    if (!popup || !backdrop) return;
+
+    var STORAGE_KEY = 'nexoira:popup-dismissed-at';
+    var frequencyDays = parseInt(popup.getAttribute('data-frequency-days'), 10) || 7;
+    var closeBtn = popup.querySelector('[data-promo-popup-close]');
+    var releaseFocusTrap = null;
+    var unlockScroll = null;
+    var shown = false;
+
+    function wasRecentlyDismissed() {
+      try {
+        var dismissedAt = window.localStorage.getItem(STORAGE_KEY);
+        if (!dismissedAt) return false;
+        var elapsedDays = (Date.now() - parseInt(dismissedAt, 10)) / 86400000;
+        return elapsedDays < frequencyDays;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function open() {
+      if (shown || wasRecentlyDismissed()) return;
+      shown = true;
+      popup.hidden = false;
+      backdrop.hidden = false;
+      unlockScroll = Nexoira.lockScroll();
+      window.requestAnimationFrame(function () {
+        popup.setAttribute('data-open', '');
+        backdrop.setAttribute('data-open', '');
+      });
+      releaseFocusTrap = Nexoira.trapFocus(popup, { onEscape: close });
+    }
+
+    function close() {
+      popup.removeAttribute('data-open');
+      backdrop.removeAttribute('data-open');
+      if (unlockScroll) unlockScroll();
+      if (releaseFocusTrap) releaseFocusTrap();
+      window.setTimeout(function () {
+        popup.hidden = true;
+        backdrop.hidden = true;
+      }, 250);
+      try {
+        window.localStorage.setItem(STORAGE_KEY, String(Date.now()));
+      } catch (e) {}
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+
+    if (wasRecentlyDismissed()) return;
+
+    var trigger = popup.getAttribute('data-trigger');
+
+    if (trigger === 'delay') {
+      var delay = (parseInt(popup.getAttribute('data-delay'), 10) || 8) * 1000;
+      window.setTimeout(open, delay);
+    } else if (trigger === 'scroll') {
+      var depth = (parseInt(popup.getAttribute('data-scroll-depth'), 10) || 50) / 100;
+      window.addEventListener(
+        'scroll',
+        function onScroll() {
+          var scrolled = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+          if (scrolled >= depth) {
+            open();
+            window.removeEventListener('scroll', onScroll);
+          }
+        },
+        { passive: true }
+      );
+    } else if (trigger === 'exit') {
+      document.addEventListener('mouseout', function onExit(e) {
+        if (!e.relatedTarget && e.clientY < 20) {
+          open();
+          document.removeEventListener('mouseout', onExit);
+        }
+      });
+    }
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Promo popup",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enable_popup",
+      "label": "Enable popup",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "trigger",
+      "label": "Trigger",
+      "options": [
+        { "value": "delay", "label": "Time delay" },
+        { "value": "scroll", "label": "Scroll depth" },
+        { "value": "exit", "label": "Exit intent (desktop)" }
+      ],
+      "default": "delay"
+    },
+    {
+      "type": "range",
+      "id": "delay_seconds",
+      "min": 3,
+      "max": 30,
+      "step": 1,
+      "unit": "s",
+      "label": "Delay before showing",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "scroll_depth",
+      "min": 10,
+      "max": 90,
+      "step": 10,
+      "unit": "%",
+      "label": "Scroll depth before showing",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "frequency_days",
+      "min": 1,
+      "max": 30,
+      "step": 1,
+      "unit": "d",
+      "label": "Don't show again for",
+      "default": 7
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "body",
+      "label": "Body text"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_email_capture",
+      "label": "Show email signup instead of a button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "Button label",
+      "info": "Used only when email signup is off"
+    },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "Button link"
+    }
+  ]
+}
+{% endschema %}

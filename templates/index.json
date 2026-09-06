@@ -1,0 +1,118 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero",
+      "blocks": {
+        "slide-1": {
+          "type": "slide",
+          "settings": {
+            "heading": "Nexoira",
+            "position": "start",
+            "text_color": "light"
+          }
+        }
+      },
+      "block_order": ["slide-1"]
+    },
+    "early-merch": {
+      "type": "featured-collection",
+      "settings": {
+        "heading": "New Arrivals",
+        "collection": "all",
+        "max_products": 8,
+        "columns_desktop": 4,
+        "is_lcp": false
+      }
+    },
+    "category-discovery": {
+      "type": "editorial-cards",
+      "settings": {
+        "heading": "Shop by Category"
+      },
+      "blocks": {
+        "shirts": {
+          "type": "card",
+          "settings": { "heading": "Shirts" }
+        },
+        "kurtas": {
+          "type": "card",
+          "settings": { "heading": "Kurtas" }
+        },
+        "pants": {
+          "type": "card",
+          "settings": { "heading": "Pants" }
+        }
+      },
+      "block_order": ["shirts", "kurtas", "pants"]
+    },
+    "featured-merch": {
+      "type": "featured-collection",
+      "settings": {
+        "heading": "Bestsellers",
+        "max_products": 8,
+        "columns_desktop": 4
+      }
+    },
+    "quality-banner": {
+      "type": "banner",
+      "settings": {
+        "layout": "image-left"
+      }
+    },
+    "occasion-discovery": {
+      "type": "editorial-cards",
+      "settings": {
+        "heading": "Shop by Occasion"
+      },
+      "blocks": {
+        "casual": {
+          "type": "card",
+          "settings": { "heading": "Casual" }
+        },
+        "smart-casual": {
+          "type": "card",
+          "settings": { "heading": "Smart Casual" }
+        },
+        "traditional": {
+          "type": "card",
+          "settings": { "heading": "Traditional" }
+        }
+      },
+      "block_order": ["casual", "smart-casual", "traditional"]
+    },
+    "social-proof": {
+      "type": "reviews-highlight"
+    },
+    "brand-story": {
+      "type": "banner",
+      "settings": {
+        "layout": "image-right"
+      }
+    },
+    "ugc": {
+      "type": "ugc-gallery"
+    },
+    "final-cta": {
+      "type": "banner",
+      "settings": {
+        "layout": "image-left"
+      }
+    },
+    "popup": {
+      "type": "promo-popup"
+    }
+  },
+  "order": [
+    "hero",
+    "early-merch",
+    "category-discovery",
+    "featured-merch",
+    "quality-banner",
+    "occasion-discovery",
+    "social-proof",
+    "brand-story",
+    "ugc",
+    "final-cta",
+    "popup"
+  ]
+}

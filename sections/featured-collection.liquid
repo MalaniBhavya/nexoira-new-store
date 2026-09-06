@@ -1,0 +1,137 @@
+{%- comment -%}
+  Product merchandising section, reused via presets for both the "early
+  product merchandising" section (PRD §5 - products must appear within
+  the first 1-2 sections) and the "featured merchandising chosen from
+  live catalog performance" section (pick a collection sorted by
+  Best Selling in Admin). Sort order follows the collection's own Sort
+  setting (Shopify Admin) rather than a Liquid-level override.
+{%- endcomment -%}
+
+{%- liquid
+  assign featured_collection = collections[section.settings.collection]
+-%}
+
+{%- if featured_collection and featured_collection.products.size > 0 -%}
+  <section class="featured-collection container">
+    <div class="featured-collection__header">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="featured-collection__heading">{{ section.settings.heading }}</h2>
+      {%- endif -%}
+      {%- if section.settings.show_view_all -%}
+        <a href="{{ featured_collection.url }}" class="button--tertiary featured-collection__view-all">
+          {{ 'general.navigation.shop_all' | t: category: featured_collection.title }}
+        </a>
+      {%- endif -%}
+    </div>
+
+    <div class="featured-collection__grid" style="--columns-desktop: {{ section.settings.columns_desktop }};">
+      {%- for product in featured_collection.products limit: section.settings.max_products -%}
+        {%- liquid
+          assign card_loading = 'lazy'
+          assign card_fetchpriority = blank
+          if forloop.first and section.settings.is_lcp
+            assign card_loading = 'eager'
+            assign card_fetchpriority = 'high'
+          endif
+        -%}
+        {%- render 'card-product', product: product, loading: card_loading, fetchpriority: card_fetchpriority -%}
+      {%- endfor -%}
+    </div>
+  </section>
+{%- endif -%}
+
+{% stylesheet %}
+  .featured-collection {
+    padding-block: var(--section-spacing-y);
+  }
+
+  .featured-collection__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-5);
+  }
+
+  .featured-collection__heading {
+    font-size: var(--text-2xl);
+  }
+
+  .featured-collection__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4) var(--space-3);
+  }
+
+  @media (min-width: 750px) {
+    .featured-collection__grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-5);
+    }
+  }
+
+  @media (min-width: 990px) {
+    .featured-collection__grid {
+      grid-template-columns: repeat(var(--columns-desktop, 4), 1fr);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Featured collection",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "New Arrivals"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "max_products",
+      "min": 4,
+      "max": 12,
+      "step": 1,
+      "label": "Products to show",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 3,
+      "max": 5,
+      "step": 1,
+      "label": "Desktop columns",
+      "default": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "Show \"View all\" link",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "is_lcp",
+      "label": "This is the page's main image (LCP)",
+      "info": "Enable only for the section that renders first on the page",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured collection",
+      "settings": {
+        "heading": "New Arrivals",
+        "is_lcp": true
+      }
+    }
+  ]
+}
+{% endschema %}

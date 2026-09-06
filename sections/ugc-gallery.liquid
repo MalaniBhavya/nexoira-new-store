@@ -1,0 +1,137 @@
+{%- comment -%}
+  Optional UGC/social section (PRD §5: "when it improves trust without
+  harming speed"). Native fallback: a merchant-curated image grid (real
+  photos the merchant uploads), not a live Instagram API feed - that
+  would need an app/API credentials this store doesn't have yet. Images
+  are lazy-loaded so it never competes with the LCP. Renders nothing
+  until at least one image block is added.
+{%- endcomment -%}
+
+{%- if section.blocks.size > 0 -%}
+  <section class="ugc-gallery container">
+    <div class="ugc-gallery__header">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="ugc-gallery__heading">{{ section.settings.heading }}</h2>
+      {%- endif -%}
+      {%- if section.settings.social_handle != blank -%}
+        <p class="ugc-gallery__handle">{{ section.settings.social_handle }}</p>
+      {%- endif -%}
+    </div>
+    <div class="ugc-gallery__grid">
+      {%- for block in section.blocks -%}
+        {%- if block.settings.image -%}
+          {%- if block.settings.link != blank -%}
+            <a href="{{ block.settings.link }}" class="ugc-gallery__item" target="_blank" rel="noopener" {{ block.shopify_attributes }}>
+          {%- else -%}
+            <div class="ugc-gallery__item" {{ block.shopify_attributes }}>
+          {%- endif -%}
+              <img
+                src="{{ block.settings.image | image_url: width: 500 }}"
+                srcset="
+                  {{- block.settings.image | image_url: width: 300 }} 300w,
+                  {{ block.settings.image | image_url: width: 500 }} 500w
+                "
+                sizes="(min-width: 990px) 22vw, 45vw"
+                width="{{ block.settings.image.width }}"
+                height="{{ block.settings.image.height }}"
+                alt="{{ block.settings.image.alt | escape }}"
+                loading="lazy"
+              >
+          {%- if block.settings.link != blank -%}
+            </a>
+          {%- else -%}
+            </div>
+          {%- endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </section>
+{%- endif -%}
+
+{% stylesheet %}
+  .ugc-gallery {
+    padding-block: var(--section-spacing-y);
+  }
+
+  .ugc-gallery__header {
+    text-align: center;
+    margin-bottom: var(--space-5);
+  }
+
+  .ugc-gallery__heading {
+    font-size: var(--text-2xl);
+  }
+
+  .ugc-gallery__handle {
+    color: var(--color-ink-muted);
+    margin-top: var(--space-1);
+  }
+
+  .ugc-gallery__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 750px) {
+    .ugc-gallery__grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .ugc-gallery__item {
+    display: block;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--color-surface-alt);
+  }
+
+  .ugc-gallery__item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "UGC gallery",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "As worn by you"
+    },
+    {
+      "type": "text",
+      "id": "social_handle",
+      "label": "Social handle",
+      "info": "Optional, e.g. @nexoira"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link",
+          "info": "Optional, opens in a new tab"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    { "name": "UGC gallery" }
+  ]
+}
+{% endschema %}
