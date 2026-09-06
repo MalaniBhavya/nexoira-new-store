@@ -1,7 +1,40 @@
 {
   "sections": {
     "hero": {
-      "type": "hero-slider"
+      "type": "hero-slider",
+      "blocks": {
+        "slide-shirts": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/SHTHMPBGWZYTVW9Z_1781343043969_1gn1mf83smtbbw4.jpg",
+            "heading": "EVERYDAY,\nELEVATED.",
+            "subtext": "Effortless shirts designed for comfort, versatility and everyday style.",
+            "button_label": "SHOP SHIRTS",
+            "button_link": "/collections/shirts"
+          }
+        },
+        "slide-trousers": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/TROHZ6KZZMCKDSQP_1781343038900_0zkt2tmrtm4r5u0.jpg",
+            "heading": "MOVE WITH\nCOMFORT.",
+            "subtext": "Modern linen-blend trousers designed for effortless movement and refined everyday dressing.",
+            "button_label": "SHOP TROUSERS",
+            "button_link": "/collections/pants"
+          }
+        },
+        "slide-kurtas": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/KTAHKYVS7GEEZXXX_1781343000222_kvesira8nu6p0ch.jpg",
+            "heading": "TRADITION,\nREDEFINED.",
+            "subtext": "Contemporary kurtas crafted for celebrations, gatherings and modern Indian style.",
+            "button_label": "SHOP KURTAS",
+            "button_link": "/collections/kurta"
+          }
+        }
+      },
+      "block_order": ["slide-shirts", "slide-trousers", "slide-kurtas"]
     },
     "categories": {
       "type": "shop-by-category",
