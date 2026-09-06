@@ -1,0 +1,21 @@
+{%- comment -%}
+  Accessible FAQ accordion using native <details>/<summary> - no JS
+  required. Reused for product FAQs (Phase 6) and the global FAQ page
+  (Phase 9).
+
+  Accepts: faqs (required, array of faq_item metaobjects)
+{%- endcomment -%}
+
+{%- if faqs.size > 0 -%}
+  <div class="faq-accordion">
+    {%- for faq in faqs -%}
+      <details class="faq-accordion__item">
+        <summary class="faq-accordion__question">
+          <span>{{ faq.question.value }}</span>
+          {%- render 'icon', name: 'plus', size: 14, class: 'faq-accordion__icon' -%}
+        </summary>
+        <div class="faq-accordion__answer rte">{{ faq.answer.value }}</div>
+      </details>
+    {%- endfor -%}
+  </div>
+{%- endif -%}

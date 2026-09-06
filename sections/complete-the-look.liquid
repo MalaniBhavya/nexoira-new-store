@@ -1,0 +1,52 @@
+{%- comment -%}
+  Complete the Look: merchant-curated cross-sell via custom.complete_the_look
+  (list.product_reference). Renders nothing until that metafield is set.
+{%- endcomment -%}
+
+{%- liquid
+  assign look_products = product.metafields.custom.complete_the_look.value
+-%}
+
+{%- if look_products and look_products.size > 0 -%}
+  <section class="complete-the-look container">
+    <h2 class="complete-the-look__heading">{{ 'general.product.complete_the_look_heading' | t }}</h2>
+    <div class="complete-the-look__grid">
+      {%- for look_product in look_products -%}
+        {%- render 'card-product', product: look_product, loading: 'lazy' -%}
+      {%- endfor -%}
+    </div>
+  </section>
+{%- endif -%}
+
+{% stylesheet %}
+  .complete-the-look {
+    padding-block: var(--section-spacing-y);
+  }
+
+  .complete-the-look__heading {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-5);
+  }
+
+  .complete-the-look__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4) var(--space-3);
+  }
+
+  @media (min-width: 750px) {
+    .complete-the-look__grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-5);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Complete the Look",
+  "presets": [
+    { "name": "Complete the Look" }
+  ]
+}
+{% endschema %}

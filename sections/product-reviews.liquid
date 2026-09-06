@@ -1,0 +1,261 @@
+{%- comment -%}
+  Reviews module, native fallback (no reviews app on Basic yet):
+  - Displayed reviews come from custom.reviews (list.metaobject_reference) -
+    the merchant curates/publishes these after moderation.
+  - Submissions go through Shopify's native contact form (emails the
+    merchant; no storefront write access to metaobjects exists without
+    an app), so nothing here fakes an instant-publish review system.
+  See snippets/integrations/reviews-adapter.liquid for the documented
+  swap point to a real reviews app later.
+{%- endcomment -%}
+
+{%- liquid
+  assign reviews = product.metafields.custom.reviews.value
+  assign review_count = reviews.size
+-%}
+
+<section class="product-reviews container" id="Reviews">
+  <div class="product-reviews__header">
+    <h2 class="product-reviews__heading">{{ 'general.product.reviews_heading' | t }}</h2>
+    {%- if review_count > 0 -%}
+      {%- render 'review-summary', product: product -%}
+    {%- endif -%}
+    <button type="button" class="button--secondary" data-review-form-toggle aria-controls="ReviewFormWrap" aria-expanded="false">
+      {{ 'general.product.reviews_write' | t }}
+    </button>
+  </div>
+
+  {%- if review_count > 0 -%}
+    <ul class="product-reviews__list">
+      {%- for review in reviews -%}
+        {%- liquid
+          assign rating = review.rating.value
+        -%}
+        <li class="review-card">
+          <div class="review-card__stars" aria-label="{{ 'general.product.reviews_average' | t: rating: rating }}">
+            {%- for i in (1..5) -%}
+              {%- if i <= rating -%}
+                {%- render 'icon', name: 'star-filled', size: 14 -%}
+              {%- else -%}
+                {%- render 'icon', name: 'star', size: 14 -%}
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+          <div class="review-card__meta">
+            <span class="review-card__author">{{ review.author_name.value }}</span>
+            {%- if review.verified_purchase.value -%}
+              <span class="review-card__verified">
+                {%- render 'icon', name: 'shield-check', size: 12 -%}
+                {{ 'general.product.reviews_verified' | t }}
+              </span>
+            {%- endif -%}
+            {%- if review.submitted_at.value -%}
+              <span class="review-card__date">{{ review.submitted_at.value | date: '%B %Y' }}</span>
+            {%- endif -%}
+          </div>
+          <p class="review-card__body">{{ review.body.value }}</p>
+          {%- if review.photo.value -%}
+            <img
+              class="review-card__photo"
+              src="{{ review.photo.value | image_url: width: 200 }}"
+              width="100"
+              height="100"
+              alt=""
+              loading="lazy"
+            >
+          {%- endif -%}
+          {%- if review.video.value -%}
+            <video class="review-card__video" src="{{ review.video.value.url }}" controls preload="none"></video>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- else -%}
+    <p class="product-reviews__empty">{{ 'general.product.reviews_empty' | t }}</p>
+  {%- endif -%}
+
+  <div class="review-form-wrap" id="ReviewFormWrap" data-review-form-wrap hidden>
+    {%- form 'contact', id: 'ReviewForm', class: 'review-form' -%}
+      <input type="hidden" name="contact[tags]" value="product-review">
+      <input type="hidden" name="contact[product]" value="{{ product.title }} ({{ product.handle }})">
+
+      {%- if form.posted_successfully? -%}
+        <p class="review-form__success" role="status">{{ 'general.product.reviews_thanks' | t }}</p>
+      {%- else -%}
+        <div class="field">
+          <label class="field__label" for="ReviewName">{{ 'general.product.reviews_name_label' | t }}</label>
+          <input type="text" id="ReviewName" name="contact[name]" class="input" required>
+        </div>
+        <div class="field">
+          <label class="field__label" for="ReviewEmail">{{ 'general.product.reviews_email_label' | t }}</label>
+          <input type="email" id="ReviewEmail" name="contact[email]" class="input" required>
+        </div>
+        <div class="field">
+          <label class="field__label" for="ReviewRating">{{ 'general.product.reviews_rating_label' | t }}</label>
+          <select id="ReviewRating" name="contact[rating]" class="input select" required>
+            <option value="">-</option>
+            {%- for i in (1..5) -%}
+              <option value="{{ i }}">{{ i }}</option>
+            {%- endfor -%}
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label" for="ReviewBody">{{ 'general.product.reviews_body_label' | t }}</label>
+          <textarea id="ReviewBody" name="contact[body]" class="input" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="button--primary">{{ 'general.product.reviews_submit' | t }}</button>
+      {%- endif -%}
+    {%- endform -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .product-reviews {
+    padding-block: var(--section-spacing-y);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .product-reviews__header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+
+  .product-reviews__heading {
+    font-size: var(--text-2xl);
+    margin: 0;
+  }
+
+  .product-reviews__header .button--secondary {
+    margin-left: auto;
+  }
+
+  .product-reviews__empty {
+    color: var(--color-ink-muted);
+    margin-bottom: var(--space-5);
+  }
+
+  .review-summary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    text-decoration: none;
+    color: var(--color-ink);
+    font-size: var(--text-sm);
+  }
+
+  .review-summary__stars {
+    display: inline-flex;
+    color: var(--color-accent-700);
+  }
+
+  .product-reviews__list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+    margin-bottom: var(--space-6);
+  }
+
+  @media (min-width: 750px) {
+    .product-reviews__list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .review-card {
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .review-card__stars {
+    display: flex;
+    gap: 2px;
+    color: var(--color-accent-700);
+    margin-bottom: var(--space-2);
+  }
+
+  .review-card__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-ink-muted);
+    margin-bottom: var(--space-2);
+  }
+
+  .review-card__author {
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+
+  .review-card__verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--color-success);
+  }
+
+  .review-card__body {
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    margin-bottom: var(--space-3);
+  }
+
+  .review-card__photo {
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+  }
+
+  .review-card__video {
+    width: 100%;
+    max-width: 240px;
+    border-radius: var(--radius-sm);
+  }
+
+  .review-form-wrap[hidden] {
+    display: none;
+  }
+
+  .review-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-width: 480px;
+  }
+
+  .review-form__success {
+    color: var(--color-success);
+    font-weight: 600;
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    var toggle = document.querySelector('[data-review-form-toggle]');
+    var wrap = document.querySelector('[data-review-form-wrap]');
+    if (!toggle || !wrap) return;
+
+    toggle.addEventListener('click', function () {
+      var isHidden = wrap.hidden;
+      wrap.hidden = !isHidden;
+      toggle.setAttribute('aria-expanded', String(isHidden));
+      if (isHidden) {
+        var firstField = wrap.querySelector('input, textarea, select');
+        if (firstField) firstField.focus();
+      }
+    });
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Reviews",
+  "presets": [
+    { "name": "Reviews" }
+  ]
+}
+{% endschema %}

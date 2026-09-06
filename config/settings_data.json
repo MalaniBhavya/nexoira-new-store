@@ -22,6 +22,7 @@
       "cod_enabled": true,
       "cod_conditions": "COD available on eligible orders. A small COD fee may apply at checkout.",
       "returns_window_days": "7",
+      "default_delivery_estimate": "4-7 business days",
       "contact_email": "nexoira.supply@gmail.com",
       "shirts_url": "/collections/shirts",
       "kurtas_url": "/collections/kurtas",

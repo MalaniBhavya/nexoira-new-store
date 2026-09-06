@@ -1,0 +1,37 @@
+{%- comment -%}
+  Size chart modal. Renders nothing if the product has no
+  custom.size_chart metaobject reference set. The metaobject's `table`
+  field is rich text so the merchant can build a real table in the
+  admin's rich text editor - no structured schema required for display.
+
+  Accepts: product (required)
+{%- endcomment -%}
+
+{%- assign chart = product.metafields.custom.size_chart.value -%}
+
+{%- if chart -%}
+  <button type="button" class="button--tertiary size-chart-trigger" data-size-chart-open>
+    {%- render 'icon', name: 'filter', size: 14 -%}
+    {{ 'general.product.size_chart' | t }}
+  </button>
+
+  <div class="dialog-backdrop" id="SizeChartBackdrop" data-size-chart-backdrop hidden></div>
+  <div
+    class="dialog-panel size-chart-modal"
+    id="SizeChartModal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="SizeChartTitle"
+    data-size-chart-modal
+    hidden
+  >
+    <button type="button" class="button--icon dialog-close" data-size-chart-close>
+      {%- render 'icon', name: 'close', size: 18, title: 'general.accessibility.close' | t -%}
+    </button>
+    <h2 id="SizeChartTitle" class="size-chart-modal__title">{{ 'general.product.size_chart' | t }}</h2>
+    <div class="size-chart-modal__table rte">{{ chart.table.value }}</div>
+    {%- if chart.measurement_instructions.value != blank -%}
+      <div class="size-chart-modal__instructions rte">{{ chart.measurement_instructions.value }}</div>
+    {%- endif -%}
+  </div>
+{%- endif -%}

@@ -230,6 +230,13 @@
         "id": "returns_window_days",
         "label": "Returns & exchange window (days)",
         "default": "7"
+      },
+      {
+        "type": "text",
+        "id": "default_delivery_estimate",
+        "label": "Default delivery estimate",
+        "default": "4-7 business days",
+        "info": "Shown on the PDP delivery check until you configure zone-specific estimates"
       }
     ]
   },

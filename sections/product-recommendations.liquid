@@ -1,0 +1,91 @@
+{%- comment -%}
+  Native Shopify product recommendations (algorithmic, free, no app - the
+  "graceful fallback to rule-based recommendations" PRD §13 asks for).
+  The `recommendations` object is only populated when this section is
+  fetched through routes.product_recommendations_url, so it renders empty
+  on a normal page load and JS immediately fetches+swaps in the real
+  content. Progressive: if JS fails, the section just stays empty rather
+  than broken.
+{%- endcomment -%}
+
+<section
+  class="product-recommendations container"
+  id="ProductRecommendations-{{ section.id }}"
+  data-product-recommendations
+  data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ section.settings.max_products }}&intent=related"
+  hidden
+>
+  {%- if recommendations.performed and recommendations.products_count > 0 -%}
+    <h2 class="product-recommendations__heading">{{ 'general.product.related_products_heading' | t }}</h2>
+    <div class="product-recommendations__grid">
+      {%- for product in recommendations.products -%}
+        {%- render 'card-product', product: product, loading: 'lazy' -%}
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+</section>
+
+{% stylesheet %}
+  .product-recommendations {
+    padding-block: var(--section-spacing-y);
+  }
+
+  .product-recommendations__heading {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-5);
+  }
+
+  .product-recommendations__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4) var(--space-3);
+  }
+
+  @media (min-width: 750px) {
+    .product-recommendations__grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-5);
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    var container = document.getElementById('ProductRecommendations-{{ section.id }}');
+    if (!container) return;
+
+    fetch(container.getAttribute('data-url'))
+      .then(function (response) {
+        return response.text();
+      })
+      .then(function (html) {
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        var newContent = doc.querySelector('[data-product-recommendations]');
+        if (newContent && newContent.innerHTML.trim()) {
+          container.innerHTML = newContent.innerHTML;
+          container.hidden = false;
+        }
+      })
+      .catch(function () {});
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Related products",
+  "settings": [
+    {
+      "type": "range",
+      "id": "max_products",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "label": "Maximum products",
+      "default": 4
+    }
+  ],
+  "presets": [
+    { "name": "Related products" }
+  ]
+}
+{% endschema %}

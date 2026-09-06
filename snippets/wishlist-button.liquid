@@ -1,0 +1,28 @@
+{%- comment -%}
+  Wishlist toggle button. State is read/written entirely client-side by
+  assets/wishlist-store.js (event delegation on [data-wishlist-toggle]),
+  so this snippet just needs to render correct markup - initial
+  aria-pressed is set on DOMContentLoaded by that script.
+
+  Accepts:
+    product      (required)
+    show_label   (optional, default false) - PDP wants visible text,
+                 the card just wants the icon
+{%- endcomment -%}
+
+<button
+  type="button"
+  class="wishlist-button{% if show_label %} wishlist-button--labeled{% endif %}"
+  data-wishlist-toggle
+  data-product-id="{{ product.id }}"
+  data-label-add="{{ 'general.product.wishlist_add' | t }}"
+  data-label-remove="{{ 'general.product.wishlist_remove' | t }}"
+  aria-pressed="false"
+  aria-label="{{ 'general.product.wishlist_add' | t }}"
+>
+  {%- render 'icon', name: 'wishlist', size: 20, class: 'wishlist-button__icon wishlist-button__icon--outline' -%}
+  {%- render 'icon', name: 'wishlist-filled', size: 20, class: 'wishlist-button__icon wishlist-button__icon--filled' -%}
+  {%- if show_label -%}
+    <span class="wishlist-button__label">{{ 'general.product.wishlist_add' | t }}</span>
+  {%- endif -%}
+</button>

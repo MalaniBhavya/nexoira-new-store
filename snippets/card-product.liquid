@@ -74,16 +74,19 @@
 
     {%- render 'badge', product: product -%}
 
-    {%- if show_quick_view -%}
-      <button
-        type="button"
-        class="product-card__quick-view button--icon"
-        data-quick-view-trigger
-        data-product-handle="{{ product.handle }}"
-      >
-        {%- render 'icon', name: 'search', size: 16, title: 'general.product.quick_view' | t -%}
-      </button>
-    {%- endif -%}
+    <div class="product-card__actions">
+      {%- if show_quick_view -%}
+        <button
+          type="button"
+          class="product-card__quick-view button--icon"
+          data-quick-view-trigger
+          data-product-handle="{{ product.handle }}"
+        >
+          {%- render 'icon', name: 'search', size: 16, title: 'general.product.quick_view' | t -%}
+        </button>
+      {%- endif -%}
+      {%- render 'wishlist-button', product: product -%}
+    </div>
 
     {%- if show_quick_add and product.available -%}
       <button

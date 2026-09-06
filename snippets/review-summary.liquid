@@ -1,0 +1,39 @@
+{%- comment -%}
+  Computes and renders a compact star-rating + count summary from
+  custom.reviews (list.metaobject_reference). Renders nothing when the
+  product has no reviews yet - nothing here is invented.
+
+  Accepts: product (required)
+{%- endcomment -%}
+
+{%- liquid
+  assign reviews = product.metafields.custom.reviews.value
+  assign review_count = reviews.size
+-%}
+
+{%- if review_count > 0 -%}
+  {%- liquid
+    assign rating_sum = 0
+    for review in reviews
+      assign rating_sum = rating_sum | plus: review.rating.value
+    endfor
+    assign rating_avg = rating_sum | times: 1.0 | divided_by: review_count
+    assign rating_rounded = rating_avg | round
+    assign rating_display = rating_avg | round: 1
+  -%}
+  <a href="#Reviews" class="review-summary">
+    <span class="review-summary__stars" aria-hidden="true">
+      {%- for i in (1..5) -%}
+        {%- if i <= rating_rounded -%}
+          {%- render 'icon', name: 'star-filled', size: 14 -%}
+        {%- else -%}
+          {%- render 'icon', name: 'star', size: 14 -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </span>
+    <span class="review-summary__text">
+      {{ 'general.product.reviews_average' | t: rating: rating_display }}
+      ({{ 'general.product.reviews_based_on' | t: count: review_count }})
+    </span>
+  </a>
+{%- endif -%}

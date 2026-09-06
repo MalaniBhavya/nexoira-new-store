@@ -1,0 +1,1100 @@
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign fabric = product.metafields.custom.fabric.value
+  assign fit = product.metafields.custom.fit.value
+  assign care = product.metafields.custom.care_instructions.value
+  assign model_info = product.metafields.custom.model_info.value
+  assign faqs = product.metafields.custom.faqs.value
+  assign reviews = product.metafields.custom.reviews.value
+  assign review_count = reviews.size
+-%}
+
+<script type="application/ld+json">
+  {%- comment -%} product.images is already image-only (no videos), so forloop.last is safe here {%- endcomment -%}
+  {%- capture product_images_json -%}
+    [
+      {%- for image in product.images -%}
+        "{{ image | image_url: width: 1200 }}"{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ]
+  {%- endcapture -%}
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": {{ product.title | json }},
+    "description": {{ product.description | strip_html | truncate: 300 | json }},
+    "image": {{ product_images_json }},
+    "sku": {{ current_variant.sku | json }},
+    "brand": { "@type": "Brand", "name": {{ shop.name | json }} },
+    "offers": {
+      "@type": "Offer",
+      "url": {{ request.origin | append: product.url | json }},
+      "priceCurrency": {{ cart.currency.iso_code | json }},
+      "price": {{ current_variant.price | money_without_currency | remove: ',' | json }},
+      "availability": "https://schema.org/{% if current_variant.available %}InStock{% else %}OutOfStock{% endif %}",
+      "itemCondition": "https://schema.org/NewCondition"
+    }
+    {%- if review_count > 0 -%}
+      {%- assign rating_sum = 0 -%}
+      {%- for review in reviews -%}
+        {%- assign rating_sum = rating_sum | plus: review.rating.value -%}
+      {%- endfor -%}
+      {%- assign rating_avg = rating_sum | times: 1.0 | divided_by: review_count | round: 1 -%}
+      ,
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": {{ rating_avg | json }},
+        "reviewCount": {{ review_count | json }}
+      }
+    {%- endif -%}
+  }
+</script>
+
+<div class="product-page container">
+  <div class="product-page__gallery">
+    {%- render 'media-gallery', product: product -%}
+  </div>
+
+  <div class="product-page__info">
+    {%- render 'sibling-colors', product: product, limit: 10 -%}
+
+    <h1 class="product-page__title">{{ product.title }}</h1>
+
+    {%- if review_count > 0 -%}
+      {%- render 'review-summary', product: product -%}
+    {%- endif -%}
+
+    <div class="product-page__price">
+      {%- render 'price', price: current_variant.price, compare_at_price: current_variant.compare_at_price -%}
+    </div>
+
+    {%- form 'product', product, id: 'ProductForm', class: 'product-form' -%}
+      <input type="hidden" data-i18n-added value="{{ 'general.product.added' | t }}">
+      <input type="hidden" data-i18n-error value="{{ 'general.product.add_to_cart_error' | t }}">
+
+      {%- if product.variants.size > 1 -%}
+        <div class="product-form__size-header">
+          <span class="field__label">{{ 'general.product.select_size' | t }}</span>
+          {%- render 'size-chart-modal', product: product -%}
+        </div>
+        {%- comment -%}
+          Real radio inputs named "id" (Shopify's cart-add form field) so
+          size selection works with zero JS - each label IS the variant
+          picker. JS only adds the pressed-state polish and the AJAX
+          submit; `required` gives native browser validation as the
+          no-JS fallback for "please pick a size."
+        {%- endcomment -%}
+        <div class="size-selector" role="group" aria-label="{{ 'general.product.select_size' | t }}" data-size-selector>
+          {%- for variant in product.variants -%}
+            <input
+              type="radio"
+              name="id"
+              value="{{ variant.id }}"
+              id="Variant-{{ variant.id }}"
+              class="size-option-input visually-hidden"
+              data-size-option
+              required
+              {% unless variant.available %}disabled{% endunless %}
+            >
+            <label
+              for="Variant-{{ variant.id }}"
+              class="size-option"
+              {% unless variant.available %}aria-label="{{ variant.title }} - {{ 'general.product.badge_sold_out' | t }}"{% endunless %}
+            >
+              {{ variant.title }}
+            </label>
+          {%- endfor -%}
+        </div>
+        <p class="field__error" data-size-error hidden>{{ 'general.product.select_size' | t }}</p>
+      {%- else -%}
+        <input type="hidden" name="id" value="{{ current_variant.id }}">
+        {%- render 'size-chart-modal', product: product -%}
+      {%- endif -%}
+
+      {%- if section.settings.show_find_my_size -%}
+        {%- render 'find-my-size', product: product -%}
+      {%- endif -%}
+
+      <div class="product-form__row">
+        <div class="quantity-selector" data-quantity-selector>
+          <button type="button" class="quantity-selector__button" data-quantity-decrease aria-label="{{ 'general.product.decrease_quantity' | t }}">
+            {%- render 'icon', name: 'minus', size: 14 -%}
+          </button>
+          <label class="visually-hidden" for="ProductQuantity">{{ 'general.product.quantity_label' | t }}</label>
+          <input type="number" id="ProductQuantity" name="quantity" class="quantity-selector__input" value="1" min="1" data-quantity-input>
+          <button type="button" class="quantity-selector__button" data-quantity-increase aria-label="{{ 'general.product.increase_quantity' | t }}">
+            {%- render 'icon', name: 'plus', size: 14 -%}
+          </button>
+        </div>
+
+        {%- if section.settings.show_wishlist -%}
+          {%- render 'wishlist-button', product: product, show_label: true -%}
+        {%- endif -%}
+      </div>
+
+      <button
+        type="submit"
+        class="button--primary button--full product-form__submit"
+        data-add-to-cart-submit
+        {% unless product.available %}disabled{% endunless %}
+      >
+        {%- if product.available -%}
+          {{ 'general.product.add_to_cart' | t }}
+        {%- else -%}
+          {{ 'general.product.badge_sold_out' | t }}
+        {%- endif -%}
+      </button>
+
+      {%- if section.settings.enable_buy_now and product.available -%}
+        <div class="product-form__buy-now" data-buy-now-wrap>
+          {{ form | payment_button }}
+        </div>
+      {%- endif -%}
+
+      <p class="product-form__status" data-product-status role="status" aria-live="polite"></p>
+    {%- endform -%}
+
+    {%- if section.settings.show_delivery_estimate -%}
+      {%- render 'delivery-estimate' -%}
+    {%- endif -%}
+
+    <div class="product-page__trust">
+      {%- if settings.cod_enabled -%}
+        <div class="product-page__trust-item">
+          {%- render 'icon', name: 'shield-check', size: 18 -%}
+          <span>{{ settings.cod_conditions }}</span>
+        </div>
+      {%- endif -%}
+      <div class="product-page__trust-item">
+        {%- render 'icon', name: 'return', size: 18 -%}
+        <span>{{ 'general.footer.trust_returns' | t: days: settings.returns_window_days }}</span>
+      </div>
+    </div>
+
+    <div class="product-page__accordions">
+      {%- if fabric != blank or fit != blank or care != blank -%}
+        <details class="product-accordion" open>
+          <summary class="product-accordion__summary">
+            <span>{{ 'general.product.fabric_fit_care' | t }}</span>
+            {%- render 'icon', name: 'plus', size: 14, class: 'product-accordion__icon' -%}
+          </summary>
+          <div class="product-accordion__body">
+            {%- if fabric != blank -%}
+              <p><strong>{{ 'general.product.fabric_label' | t }}:</strong> {{ fabric }}</p>
+            {%- endif -%}
+            {%- if fit != blank -%}
+              <p><strong>{{ 'general.product.fit_label' | t }}:</strong> {{ fit }}</p>
+            {%- endif -%}
+            {%- if care != blank -%}
+              <p><strong>{{ 'general.product.care_label' | t }}:</strong> {{ care }}</p>
+            {%- endif -%}
+          </div>
+        </details>
+      {%- endif -%}
+
+      {%- if model_info != blank -%}
+        <details class="product-accordion">
+          <summary class="product-accordion__summary">
+            <span>{{ 'general.product.model_info_label' | t }}</span>
+            {%- render 'icon', name: 'plus', size: 14, class: 'product-accordion__icon' -%}
+          </summary>
+          <div class="product-accordion__body">
+            <p>{{ model_info }}</p>
+          </div>
+        </details>
+      {%- endif -%}
+
+      {%- if product.description != blank -%}
+        <details class="product-accordion">
+          <summary class="product-accordion__summary">
+            <span>{{ product.type | default: 'Description' }}</span>
+            {%- render 'icon', name: 'plus', size: 14, class: 'product-accordion__icon' -%}
+          </summary>
+          <div class="product-accordion__body rte">{{ product.description }}</div>
+        </details>
+      {%- endif -%}
+
+      {%- if faqs.size > 0 -%}
+        <details class="product-accordion">
+          <summary class="product-accordion__summary">
+            <span>{{ 'general.product.product_faqs' | t }}</span>
+            {%- render 'icon', name: 'plus', size: 14, class: 'product-accordion__icon' -%}
+          </summary>
+          <div class="product-accordion__body">
+            {%- render 'faq-accordion', faqs: faqs -%}
+          </div>
+        </details>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{%- if section.settings.enable_sticky_bar -%}
+  {%- render 'sticky-purchase-bar', product: product, current_variant: current_variant -%}
+{%- endif -%}
+
+{% stylesheet %}
+  .product-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    padding-block: var(--space-6) var(--section-spacing-y);
+  }
+
+  @media (min-width: 990px) {
+    .product-page {
+      flex-direction: row;
+      gap: var(--space-8);
+      align-items: flex-start;
+    }
+  }
+
+  .product-page__gallery {
+    flex: 1 1 55%;
+    min-width: 0;
+  }
+
+  .product-page__info {
+    flex: 1 1 45%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    position: sticky;
+    top: calc(var(--space-6) + 72px);
+  }
+
+  .product-page__title {
+    font-size: var(--text-3xl);
+  }
+
+  .product-page__price .price__amount {
+    font-size: var(--text-xl);
+  }
+
+  /* Gallery */
+  .product-gallery {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-gallery__main {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: var(--space-2);
+    border-radius: var(--radius-md);
+  }
+
+  .product-gallery__slide {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+  }
+
+  .product-gallery__slide img,
+  .product-gallery__slide video,
+  .product-gallery__slide iframe,
+  .product-gallery__slide model-viewer {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-md);
+  }
+
+  .product-gallery__zoom-trigger {
+    display: block;
+    width: 100%;
+    cursor: zoom-in;
+  }
+
+  .product-gallery__thumbs {
+    display: flex;
+    gap: var(--space-2);
+    padding-top: var(--space-3);
+    overflow-x: auto;
+    order: 2;
+  }
+
+  .product-gallery__thumb {
+    position: relative;
+    flex: 0 0 auto;
+    width: 64px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1.5px solid transparent;
+  }
+
+  .product-gallery__thumb img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+  }
+
+  .product-gallery__thumb--active {
+    border-color: var(--color-ink);
+  }
+
+  .product-gallery__thumb-play {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(28, 22, 20, 0.3);
+    color: #fff;
+  }
+
+  @media (min-width: 990px) {
+    .product-gallery {
+      flex-direction: row-reverse;
+      gap: var(--space-4);
+    }
+
+    .product-gallery__main {
+      flex: 1;
+      overflow-x: visible;
+    }
+
+    .product-gallery__slide {
+      display: none;
+      flex: 0 0 100%;
+    }
+
+    .product-gallery__slide--active {
+      display: block;
+    }
+
+    .product-gallery__thumbs {
+      flex-direction: column;
+      width: 72px;
+      padding-top: 0;
+      order: 0;
+    }
+  }
+
+  /* Zoom lightbox */
+  .zoom-lightbox {
+    width: min(1000px, 96vw);
+    max-height: 96vh;
+    padding: var(--space-5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .zoom-lightbox__image img {
+    max-width: 100%;
+    max-height: 84vh;
+    object-fit: contain;
+  }
+
+  .zoom-lightbox__prev,
+  .zoom-lightbox__next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .zoom-lightbox__prev {
+    left: var(--space-3);
+  }
+
+  .zoom-lightbox__next {
+    right: var(--space-3);
+  }
+
+  /* Size selector */
+  .product-form__size-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .size-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+
+  .size-selector .size-option {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .size-option-input:checked + .size-option {
+    border-color: var(--color-ink);
+    background: var(--color-ink);
+    color: var(--color-surface);
+  }
+
+  .size-option-input:focus-visible + .size-option {
+    outline: 2px solid var(--color-accent-700);
+    outline-offset: 2px;
+  }
+
+  .size-option-input:disabled + .size-option {
+    color: var(--color-ink-muted);
+    border-color: var(--color-border);
+    background: repeating-linear-gradient(
+      45deg,
+      var(--color-surface-alt),
+      var(--color-surface-alt) 4px,
+      var(--color-surface) 4px,
+      var(--color-surface) 8px
+    );
+    cursor: not-allowed;
+  }
+
+  .size-chart-trigger,
+  .find-my-size-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-top: var(--space-2);
+    margin-right: var(--space-4);
+  }
+
+  .size-chart-modal,
+  .find-my-size-modal {
+    width: min(480px, 92vw);
+    padding: var(--space-6) var(--space-5);
+  }
+
+  .size-chart-modal__title,
+  .find-my-size-modal__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    margin: 0 0 var(--space-4);
+    padding-right: var(--space-6);
+  }
+
+  .find-my-size-modal__fields {
+    display: flex;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .find-my-size-modal__result {
+    margin-top: var(--space-4);
+    font-weight: 600;
+    min-height: 1.5em;
+  }
+
+  .find-my-size-modal__disclaimer {
+    margin-top: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-ink-muted);
+  }
+
+  .product-form__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .quantity-selector {
+    display: inline-flex;
+    align-items: center;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-sm);
+  }
+
+  .quantity-selector__button {
+    width: 40px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .quantity-selector__input {
+    width: 40px;
+    height: 44px;
+    text-align: center;
+    border: 0;
+    border-left: 1.5px solid var(--color-border);
+    border-right: 1.5px solid var(--color-border);
+    -moz-appearance: textfield;
+  }
+
+  .product-form__submit {
+    margin-top: var(--space-2);
+  }
+
+  .product-form__buy-now {
+    margin-top: var(--space-2);
+  }
+
+  .product-form__buy-now--disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .product-form__status {
+    min-height: 1.5em;
+    font-size: var(--text-sm);
+  }
+
+  .product-form__status[data-state='success'] {
+    color: var(--color-success);
+  }
+
+  .product-form__status[data-state='error'] {
+    color: var(--color-error);
+  }
+
+  /* Delivery */
+  .delivery-estimate__row {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+
+  .delivery-estimate__row .input {
+    flex: 1;
+  }
+
+  .delivery-estimate__result {
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+  }
+
+  .delivery-estimate__result[data-state='error'] {
+    color: var(--color-error);
+  }
+
+  .product-page__trust {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-md);
+  }
+
+  .product-page__trust-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+  }
+
+  .product-page__trust-item .icon {
+    color: var(--color-accent-900);
+    flex-shrink: 0;
+  }
+
+  /* Accordions */
+  .product-page__accordions {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-accordion {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .product-accordion:last-child {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .product-accordion__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: var(--space-3);
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .product-accordion__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .product-accordion[open] .product-accordion__icon {
+    transform: rotate(45deg);
+  }
+
+  .product-accordion__icon {
+    transition: transform var(--duration-fast) var(--ease-standard);
+  }
+
+  .product-accordion__body {
+    padding-bottom: var(--space-4);
+    font-size: var(--text-sm);
+    color: var(--color-ink-muted);
+  }
+
+  .product-accordion__body p {
+    margin: 0 0 var(--space-2);
+  }
+
+  /* Sticky mobile purchase bar */
+  .sticky-purchase-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--z-sticky-bar);
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    box-shadow: var(--shadow-soft);
+    transform: translateY(100%);
+    transition: transform var(--duration-base) var(--ease-standard);
+  }
+
+  .sticky-purchase-bar[hidden] {
+    display: none;
+  }
+
+  .sticky-purchase-bar[data-visible] {
+    transform: translateY(0);
+  }
+
+  .sticky-purchase-bar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-block: var(--space-3);
+  }
+
+  .sticky-purchase-bar__info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  .sticky-purchase-bar__info img {
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+  }
+
+  .sticky-purchase-bar__title {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 42vw;
+  }
+
+  .sticky-purchase-bar__cta {
+    flex-shrink: 0;
+  }
+
+  @media (min-width: 990px) {
+    .sticky-purchase-bar {
+      display: none;
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    function initGallery() {
+      var gallery = document.querySelector('[data-product-gallery]');
+      if (!gallery) return;
+      var thumbs = Array.prototype.slice.call(gallery.querySelectorAll('[data-gallery-thumb]'));
+      var slides = Array.prototype.slice.call(gallery.querySelectorAll('[data-gallery-slide]'));
+
+      function activate(index) {
+        thumbs.forEach(function (t) {
+          var active = t.getAttribute('data-index') === String(index);
+          t.classList.toggle('product-gallery__thumb--active', active);
+          t.setAttribute('aria-current', String(active));
+        });
+        slides.forEach(function (s) {
+          s.classList.toggle('product-gallery__slide--active', s.getAttribute('data-index') === String(index));
+        });
+      }
+
+      thumbs.forEach(function (thumb) {
+        thumb.addEventListener('click', function () {
+          activate(thumb.getAttribute('data-index'));
+        });
+      });
+
+      var backdrop = document.getElementById('GalleryZoomBackdrop');
+      var lightbox = document.getElementById('GalleryZoomLightbox');
+      if (backdrop && lightbox) {
+        var imageEl = lightbox.querySelector('[data-zoom-image]');
+        var closeBtn = lightbox.querySelector('[data-zoom-close]');
+        var prevBtn = lightbox.querySelector('[data-zoom-prev]');
+        var nextBtn = lightbox.querySelector('[data-zoom-next]');
+        var zoomTriggers = Array.prototype.slice.call(gallery.querySelectorAll('[data-gallery-zoom]'));
+        var currentIndex = 0;
+        var releaseFocusTrap = null;
+        var unlockScroll = null;
+
+        function showZoom(index) {
+          var trigger = zoomTriggers[index];
+          if (!trigger) return;
+          currentIndex = index;
+          var img = trigger.querySelector('img');
+          imageEl.innerHTML = '';
+          if (img) {
+            var large = img.cloneNode(true);
+            large.removeAttribute('sizes');
+            imageEl.appendChild(large);
+          }
+        }
+
+        function open(index) {
+          backdrop.hidden = false;
+          lightbox.hidden = false;
+          unlockScroll = Nexoira.lockScroll();
+          window.requestAnimationFrame(function () {
+            backdrop.setAttribute('data-open', '');
+            lightbox.setAttribute('data-open', '');
+          });
+          releaseFocusTrap = Nexoira.trapFocus(lightbox, { onEscape: close });
+          showZoom(index);
+        }
+
+        function close() {
+          backdrop.removeAttribute('data-open');
+          lightbox.removeAttribute('data-open');
+          if (unlockScroll) unlockScroll();
+          if (releaseFocusTrap) releaseFocusTrap();
+          window.setTimeout(function () {
+            backdrop.hidden = true;
+            lightbox.hidden = true;
+          }, 250);
+        }
+
+        zoomTriggers.forEach(function (trigger, index) {
+          trigger.addEventListener('click', function () {
+            open(index);
+          });
+        });
+
+        if (closeBtn) closeBtn.addEventListener('click', close);
+        if (backdrop) backdrop.addEventListener('click', close);
+        if (prevBtn) {
+          prevBtn.addEventListener('click', function () {
+            showZoom((currentIndex - 1 + zoomTriggers.length) % zoomTriggers.length);
+          });
+        }
+        if (nextBtn) {
+          nextBtn.addEventListener('click', function () {
+            showZoom((currentIndex + 1) % zoomTriggers.length);
+          });
+        }
+      }
+    }
+
+    function initProductForm() {
+      var form = document.getElementById('ProductForm');
+      if (!form) return;
+
+      var sizeInputs = Array.prototype.slice.call(form.querySelectorAll('[data-size-option]'));
+      var sizeError = form.querySelector('[data-size-error]');
+      var submitBtn = form.querySelector('[data-add-to-cart-submit]');
+      var statusEl = form.querySelector('[data-product-status]');
+      var quantityInput = form.querySelector('[data-quantity-input]');
+      var buyNowWrap = document.querySelector('[data-buy-now-wrap]');
+      var hasExplicitSelection = sizeInputs.length === 0;
+
+      if (buyNowWrap && !hasExplicitSelection) {
+        buyNowWrap.classList.add('product-form__buy-now--disabled');
+      }
+
+      // Real radio inputs already handle selection natively (no-JS
+      // fallback); this just clears the error state and unlocks Buy Now
+      // once the customer has made an explicit choice.
+      sizeInputs.forEach(function (input) {
+        input.addEventListener('change', function () {
+          hasExplicitSelection = true;
+          if (sizeError) sizeError.hidden = true;
+          if (buyNowWrap) buyNowWrap.classList.remove('product-form__buy-now--disabled');
+        });
+      });
+
+      var quantitySelector = form.querySelector('[data-quantity-selector]');
+      if (quantitySelector) {
+        quantitySelector.querySelector('[data-quantity-decrease]').addEventListener('click', function () {
+          var value = Math.max(1, parseInt(quantityInput.value, 10) - 1);
+          quantityInput.value = value;
+        });
+        quantitySelector.querySelector('[data-quantity-increase]').addEventListener('click', function () {
+          var value = parseInt(quantityInput.value, 10) + 1;
+          quantityInput.value = value;
+        });
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        if (!hasExplicitSelection) {
+          if (sizeError) sizeError.hidden = false;
+          if (sizeInputs[0]) sizeInputs[0].focus();
+          return;
+        }
+
+        var checkedInput = form.querySelector('[data-size-option]:checked');
+        var variantId = checkedInput ? checkedInput.value : form.querySelector('input[name="id"]').value;
+        var quantity = parseInt(quantityInput.value, 10) || 1;
+        submitBtn.disabled = true;
+        submitBtn.classList.add('button--loading');
+        if (statusEl) {
+          statusEl.textContent = '';
+          statusEl.removeAttribute('data-state');
+        }
+
+        var addedLabel = form.querySelector('[data-i18n-added]').value;
+        var errorLabel = form.querySelector('[data-i18n-error]').value;
+
+        Nexoira.cart
+          .addItem(variantId, quantity)
+          .then(function () {
+            if (statusEl) {
+              statusEl.textContent = addedLabel;
+              statusEl.setAttribute('data-state', 'success');
+            }
+          })
+          .catch(function (err) {
+            if (statusEl) {
+              statusEl.textContent = (err && err.data && err.data.description) || errorLabel;
+              statusEl.setAttribute('data-state', 'error');
+            }
+          })
+          .finally(function () {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('button--loading');
+          });
+      });
+    }
+
+    function initSizeChart() {
+      var trigger = document.querySelector('[data-size-chart-open]');
+      var backdrop = document.getElementById('SizeChartBackdrop');
+      var modal = document.getElementById('SizeChartModal');
+      if (!trigger || !backdrop || !modal) return;
+
+      var closeBtn = modal.querySelector('[data-size-chart-close]');
+      var releaseFocusTrap = null;
+      var unlockScroll = null;
+
+      function open() {
+        backdrop.hidden = false;
+        modal.hidden = false;
+        unlockScroll = Nexoira.lockScroll();
+        window.requestAnimationFrame(function () {
+          backdrop.setAttribute('data-open', '');
+          modal.setAttribute('data-open', '');
+        });
+        releaseFocusTrap = Nexoira.trapFocus(modal, { onEscape: close });
+      }
+
+      function close() {
+        backdrop.removeAttribute('data-open');
+        modal.removeAttribute('data-open');
+        if (unlockScroll) unlockScroll();
+        if (releaseFocusTrap) releaseFocusTrap();
+        window.setTimeout(function () {
+          backdrop.hidden = true;
+          modal.hidden = true;
+        }, 250);
+        trigger.focus();
+      }
+
+      trigger.addEventListener('click', open);
+      if (closeBtn) closeBtn.addEventListener('click', close);
+      backdrop.addEventListener('click', close);
+    }
+
+    function initFindMySize() {
+      var trigger = document.querySelector('[data-find-my-size-open]');
+      var backdrop = document.getElementById('FindMySizeBackdrop');
+      var modal = document.getElementById('FindMySizeModal');
+      if (!trigger || !backdrop || !modal) return;
+
+      var closeBtn = modal.querySelector('[data-find-my-size-close]');
+      var submitBtn = modal.querySelector('[data-find-my-size-submit]');
+      var resultEl = modal.querySelector('[data-find-my-size-result]');
+      var chestInput = modal.querySelector('[data-fms-chest]');
+      var waistInput = modal.querySelector('[data-fms-waist]');
+      var releaseFocusTrap = null;
+      var unlockScroll = null;
+
+      // Standard generic menswear reference ranges (inches) - an estimate,
+      // not Nexoira-specific fit data. Always paired with the real size
+      // chart above via the disclaimer text.
+      var CHEST_RANGES = [
+        ['S', 36, 38],
+        ['M', 38, 40],
+        ['L', 40, 42],
+        ['XL', 42, 44],
+        ['XXL', 44, 46],
+      ];
+      var WAIST_RANGES = [
+        ['S', 30, 32],
+        ['M', 32, 34],
+        ['L', 34, 36],
+        ['XL', 36, 38],
+        ['XXL', 38, 40],
+      ];
+
+      function estimate(value, ranges) {
+        for (var i = 0; i < ranges.length; i++) {
+          if (value >= ranges[i][1] && value <= ranges[i][2]) return ranges[i][0];
+        }
+        if (value < ranges[0][1]) return ranges[0][0];
+        return ranges[ranges.length - 1][0];
+      }
+
+      function open() {
+        backdrop.hidden = false;
+        modal.hidden = false;
+        unlockScroll = Nexoira.lockScroll();
+        window.requestAnimationFrame(function () {
+          backdrop.setAttribute('data-open', '');
+          modal.setAttribute('data-open', '');
+        });
+        releaseFocusTrap = Nexoira.trapFocus(modal, { onEscape: close });
+      }
+
+      function close() {
+        backdrop.removeAttribute('data-open');
+        modal.removeAttribute('data-open');
+        if (unlockScroll) unlockScroll();
+        if (releaseFocusTrap) releaseFocusTrap();
+        window.setTimeout(function () {
+          backdrop.hidden = true;
+          modal.hidden = true;
+        }, 250);
+        trigger.focus();
+      }
+
+      submitBtn.addEventListener('click', function () {
+        var chest = parseFloat(chestInput.value);
+        var waist = parseFloat(waistInput.value);
+        if (!chest && !waist) {
+          resultEl.textContent = resultEl.getAttribute('data-no-match');
+          return;
+        }
+        var size = chest ? estimate(chest, CHEST_RANGES) : estimate(waist, WAIST_RANGES);
+        resultEl.textContent = resultEl.getAttribute('data-result-template').replace('%SIZE%', size);
+      });
+
+      trigger.addEventListener('click', open);
+      if (closeBtn) closeBtn.addEventListener('click', close);
+      backdrop.addEventListener('click', close);
+    }
+
+    function initDeliveryEstimate() {
+      var checkBtn = document.querySelector('[data-delivery-check]');
+      if (!checkBtn) return;
+      var pinInput = document.querySelector('[data-delivery-pin]');
+      var resultEl = document.querySelector('[data-delivery-result]');
+
+      checkBtn.addEventListener('click', function () {
+        var value = pinInput.value.trim();
+        if (!/^[0-9]{6}$/.test(value)) {
+          resultEl.textContent = resultEl.getAttribute('data-invalid');
+          resultEl.setAttribute('data-state', 'error');
+          return;
+        }
+        resultEl.removeAttribute('data-state');
+        resultEl.textContent = resultEl.getAttribute('data-estimate');
+      });
+    }
+
+    function recordRecentlyViewed() {
+      if (window.Nexoira && Nexoira.recentlyViewed) {
+        Nexoira.recentlyViewed.record({{ product.handle | json }});
+      }
+    }
+
+    function initStickyBar() {
+      var bar = document.querySelector('[data-sticky-bar]');
+      var submitBtn = document.querySelector('#ProductForm [data-add-to-cart-submit]');
+      if (!bar || !submitBtn) return;
+
+      function show() {
+        bar.hidden = false;
+        window.requestAnimationFrame(function () {
+          bar.setAttribute('data-visible', '');
+        });
+      }
+
+      function hide() {
+        bar.removeAttribute('data-visible');
+        window.setTimeout(function () {
+          bar.hidden = true;
+        }, 250);
+      }
+
+      var observer = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              hide();
+            } else if (entry.boundingClientRect.top < 0) {
+              show();
+            }
+          });
+        },
+        { threshold: 0 }
+      );
+      observer.observe(submitBtn);
+
+      var barBtn = bar.querySelector('[data-sticky-bar-add]');
+      if (barBtn) {
+        barBtn.addEventListener('click', function () {
+          submitBtn.scrollIntoView({ behavior: Nexoira.prefersReducedMotion() ? 'auto' : 'smooth', block: 'center' });
+        });
+      }
+    }
+
+    initGallery();
+    initProductForm();
+    initSizeChart();
+    initFindMySize();
+    initDeliveryEstimate();
+    initStickyBar();
+    recordRecentlyViewed();
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Product information",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_wishlist",
+      "label": "Show wishlist button",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_find_my_size",
+      "label": "Show Find My Size",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_delivery_estimate",
+      "label": "Show delivery PIN check",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_buy_now",
+      "label": "Show Buy Now / express checkout button",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sticky_bar",
+      "label": "Enable sticky mobile purchase bar",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

@@ -168,6 +168,42 @@ ol {
   }
 }
 
+/* Rich text content rendered from Shopify's editor (metaobject rich text
+   fields, page/product descriptions, policies) */
+.rte {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--color-ink);
+}
+
+.rte h2, .rte h3, .rte h4 {
+  font-size: var(--text-lg);
+}
+
+.rte ul, .rte ol {
+  padding-left: var(--space-5);
+  list-style: revert;
+}
+
+.rte a {
+  color: var(--color-accent-900);
+  text-decoration: underline;
+}
+
+.rte table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rte th, .rte td {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  text-align: left;
+}
+
 /* Responsive visibility - purpose-named, not a generic utility system */
 .hide-mobile {
   display: none;

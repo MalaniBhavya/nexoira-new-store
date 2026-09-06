@@ -1,0 +1,140 @@
+<section class="recently-viewed container" data-recently-viewed hidden>
+  <h2 class="recently-viewed__heading">{{ 'general.product.recently_viewed_heading' | t }}</h2>
+  <div
+    class="recently-viewed__grid"
+    data-recently-viewed-grid
+    data-exclude-handle="{{ product.handle }}"
+    data-limit="{{ section.settings.max_items }}"
+  ></div>
+</section>
+
+{% stylesheet %}
+  .recently-viewed {
+    padding-block: var(--section-spacing-y);
+  }
+
+  .recently-viewed__heading {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-5);
+  }
+
+  .recently-viewed__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4) var(--space-3);
+  }
+
+  @media (min-width: 750px) {
+    .recently-viewed__grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-5);
+    }
+  }
+
+  .recently-viewed-card {
+    text-decoration: none;
+    color: var(--color-ink);
+  }
+
+  .recently-viewed-card__image {
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-bottom: var(--space-3);
+  }
+
+  .recently-viewed-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .recently-viewed-card__title {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    margin: 0 0 var(--space-1);
+  }
+
+  .recently-viewed-card__price {
+    font-size: var(--text-sm);
+    color: var(--color-ink-muted);
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    var section = document.querySelector('[data-recently-viewed]');
+    if (!section) return;
+    var grid = section.querySelector('[data-recently-viewed-grid]');
+
+    var excludeHandle = grid.getAttribute('data-exclude-handle');
+    var limit = parseInt(grid.getAttribute('data-limit'), 10) || 8;
+    var handles = Nexoira.recentlyViewed.getHandles(excludeHandle, limit);
+    if (!handles.length) return;
+
+    Promise.all(
+      handles.map(function (handle) {
+        return fetch('/products/' + handle + '.js', { headers: { Accept: 'application/json' } })
+          .then(function (response) {
+            return response.ok ? response.json() : null;
+          })
+          .catch(function () {
+            return null;
+          });
+      })
+    ).then(function (products) {
+      products
+        .filter(Boolean)
+        .forEach(function (product) {
+          var card = document.createElement('a');
+          card.className = 'recently-viewed-card';
+          card.href = product.url;
+
+          var imageWrap = document.createElement('div');
+          imageWrap.className = 'recently-viewed-card__image aspect-portrait';
+          if (product.featured_image) {
+            var img = document.createElement('img');
+            img.src = product.featured_image + (product.featured_image.indexOf('?') > -1 ? '&' : '?') + 'width=400';
+            img.loading = 'lazy';
+            img.alt = product.title;
+            imageWrap.appendChild(img);
+          }
+          card.appendChild(imageWrap);
+
+          var title = document.createElement('p');
+          title.className = 'recently-viewed-card__title';
+          title.textContent = product.title;
+          card.appendChild(title);
+
+          var price = document.createElement('p');
+          price.className = 'recently-viewed-card__price';
+          price.textContent = Nexoira.formatMoney(product.price / 100);
+          card.appendChild(price);
+
+          grid.appendChild(card);
+        });
+
+      if (grid.children.length) section.hidden = false;
+    });
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Recently viewed",
+  "settings": [
+    {
+      "type": "range",
+      "id": "max_items",
+      "min": 4,
+      "max": 12,
+      "step": 1,
+      "label": "Maximum products",
+      "default": 8
+    }
+  ],
+  "presets": [
+    { "name": "Recently viewed" }
+  ]
+}
+{% endschema %}
