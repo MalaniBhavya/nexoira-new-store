@@ -35,13 +35,12 @@
   <body class="template-{{ template.name | handleize }}">
     <a class="skip-link" href="#MainContent">{{ 'general.accessibility.skip_to_content' | t }}</a>
 
-    {%- comment -%}
-      Announcement bar, header and footer sections land in Phase 3
-      (announcement bar, header, mobile drawer navigation).
-    {%- endcomment -%}
+    {% sections 'header-group' %}
 
     <main id="MainContent" tabindex="-1">
       {{ content_for_layout }}
     </main>
+
+    {% sections 'footer-group' %}
   </body>
 </html>

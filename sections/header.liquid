@@ -1,0 +1,733 @@
+{%- liquid
+  assign shirts_label = 'general.navigation.shirts' | t
+  assign kurtas_label = 'general.navigation.kurtas' | t
+  assign pants_label = 'general.navigation.pants' | t
+  assign about_label = 'general.navigation.about' | t
+  assign logo_style = 'width:' | append: settings.logo_width | append: 'px'
+-%}
+
+<header class="site-header" data-sticky="{{ section.settings.sticky_header }}">
+  <div class="container site-header__inner">
+    <button
+      type="button"
+      class="button--icon hide-desktop"
+      data-drawer-open
+      aria-controls="MobileDrawer"
+      aria-expanded="false"
+    >
+      {%- render 'icon', name: 'menu', size: 22, title: 'general.accessibility.menu' | t -%}
+    </button>
+
+    <a href="{{ routes.root_url }}" class="site-header__logo" aria-label="{{ shop.name }}">
+      {%- if settings.logo -%}
+        {{
+          settings.logo
+          | image_url: width: 400
+          | image_tag:
+            loading: 'eager',
+            widths: '140,200,280,400',
+            style: logo_style
+        }}
+      {%- else -%}
+        {{ shop.name }}
+      {%- endif -%}
+    </a>
+
+    <nav class="site-header__nav hide-mobile" aria-label="Primary">
+      <ul>
+        {%- render 'nav-mega-item',
+          label: shirts_label,
+          url: settings.shirts_url,
+          menu: section.settings.shirts_menu,
+          promo_image: section.settings.shirts_promo_image,
+          promo_heading: section.settings.shirts_promo_heading,
+          promo_url: section.settings.shirts_promo_url
+        -%}
+        {%- render 'nav-mega-item',
+          label: kurtas_label,
+          url: settings.kurtas_url,
+          menu: section.settings.kurtas_menu,
+          promo_image: section.settings.kurtas_promo_image,
+          promo_heading: section.settings.kurtas_promo_heading,
+          promo_url: section.settings.kurtas_promo_url
+        -%}
+        {%- render 'nav-mega-item',
+          label: pants_label,
+          url: settings.pants_url,
+          menu: section.settings.pants_menu,
+          promo_image: section.settings.pants_promo_image,
+          promo_heading: section.settings.pants_promo_heading,
+          promo_url: section.settings.pants_promo_url
+        -%}
+        <li>
+          <a href="{{ settings.about_url }}" class="nav-item__trigger nav-item__trigger--link">{{ about_label }}</a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="site-header__utilities">
+      <button type="button" class="button--icon" data-search-toggle aria-controls="HeaderSearchPanel" aria-expanded="false">
+        {%- render 'icon', name: 'search', size: 20, title: 'general.accessibility.search' | t -%}
+      </button>
+
+      <a href="{{ routes.account_url }}" class="button--icon hide-mobile">
+        {%- render 'icon', name: 'account', size: 20, title: 'general.accessibility.account' | t -%}
+      </a>
+
+      <a href="{{ routes.cart_url }}" class="button--icon site-header__cart">
+        {%- render 'icon', name: 'cart', size: 20, title: 'general.accessibility.cart' | t -%}
+        {%- if cart.item_count > 0 -%}
+          <span class="site-header__cart-count" aria-hidden="true">{{ cart.item_count }}</span>
+        {%- endif -%}
+      </a>
+    </div>
+  </div>
+
+  <div class="site-header__search-panel" id="HeaderSearchPanel" data-search-panel hidden>
+    <div class="container">
+      <form action="{{ routes.search_url }}" method="get" role="search" class="site-header__search-form">
+        <input
+          type="search"
+          name="q"
+          class="input"
+          value="{{ search.terms | escape }}"
+          placeholder="{{ 'general.navigation.search_placeholder' | t }}"
+          aria-label="{{ 'general.accessibility.search' | t }}"
+        >
+        <input type="hidden" name="type" value="product">
+        <button type="submit" class="button--primary">{{ 'general.accessibility.search' | t }}</button>
+        <button type="button" class="button--icon" data-search-close>
+          {%- render 'icon', name: 'close', size: 18, title: 'general.accessibility.close' | t -%}
+        </button>
+      </form>
+    </div>
+  </div>
+</header>
+
+{%- render 'mobile-drawer',
+  shirts_label: shirts_label,
+  shirts_url: settings.shirts_url,
+  shirts_menu: section.settings.shirts_menu,
+  kurtas_label: kurtas_label,
+  kurtas_url: settings.kurtas_url,
+  kurtas_menu: section.settings.kurtas_menu,
+  pants_label: pants_label,
+  pants_url: settings.pants_url,
+  pants_menu: section.settings.pants_menu,
+  about_label: about_label,
+  about_url: settings.about_url
+-%}
+
+{% stylesheet %}
+  .site-header {
+    position: relative;
+    z-index: var(--z-header);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .site-header[data-sticky='true'] {
+    position: sticky;
+    top: 0;
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-block: var(--space-4);
+  }
+
+  .site-header__logo {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-heading);
+    text-decoration: none;
+    color: var(--color-ink);
+  }
+
+  .site-header__nav > ul {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+  }
+
+  .nav-item {
+    position: relative;
+  }
+
+  .nav-item__trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-2) 0;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    background: none;
+    border: 0;
+    text-decoration: none;
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+
+  .nav-item__trigger:hover {
+    color: var(--color-accent-900);
+  }
+
+  .nav-item__chevron {
+    transition: transform var(--duration-fast) var(--ease-standard);
+  }
+
+  .nav-item__trigger[aria-expanded='true'] .nav-item__chevron {
+    transform: rotate(180deg);
+  }
+
+  .nav-item__panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: var(--space-3);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-modal);
+    min-width: 340px;
+    max-width: 640px;
+  }
+
+  .nav-item__panel[hidden] {
+    display: none;
+  }
+
+  .nav-item__panel-inner {
+    display: flex;
+    gap: var(--space-6);
+    padding: var(--space-5);
+  }
+
+  .nav-item__main {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .nav-item__columns {
+    display: flex;
+    gap: var(--space-6);
+  }
+
+  .nav-item__column-heading {
+    font-size: var(--text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-ink-muted);
+    margin: 0 0 var(--space-2);
+  }
+
+  .nav-item__column ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .nav-item__column a {
+    font-size: var(--text-sm);
+    text-decoration: none;
+    color: var(--color-ink);
+  }
+
+  .nav-item__column a:hover {
+    color: var(--color-accent-900);
+  }
+
+  .nav-item__shop-all {
+    margin-top: var(--space-4);
+    align-self: flex-start;
+  }
+
+  .nav-item__promo {
+    width: 160px;
+    flex-shrink: 0;
+    text-decoration: none;
+    color: var(--color-ink);
+  }
+
+  .nav-item__promo-image {
+    border-radius: var(--radius-sm);
+  }
+
+  .nav-item__promo-heading {
+    display: block;
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  .site-header__utilities {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .site-header__cart {
+    position: relative;
+  }
+
+  .site-header__cart-count {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-pill);
+    background: var(--color-accent-500);
+    color: var(--color-ink);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .site-header__search-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-soft);
+    padding-block: var(--space-5);
+  }
+
+  .site-header__search-panel[hidden] {
+    display: none;
+  }
+
+  .site-header__search-form {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .site-header__search-form .input {
+    flex: 1;
+  }
+
+  /* Mobile drawer */
+
+  .mobile-drawer[hidden] {
+    display: none;
+  }
+
+  .mobile-drawer__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-drawer);
+    background: rgba(28, 22, 20, 0.4);
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-standard);
+  }
+
+  .mobile-drawer[data-open] .mobile-drawer__backdrop {
+    opacity: 1;
+  }
+
+  .mobile-drawer__panel {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: calc(var(--z-drawer) + 1);
+    width: min(340px, 88vw);
+    background: var(--color-surface);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform var(--duration-base) var(--ease-standard);
+  }
+
+  .mobile-drawer[data-open] .mobile-drawer__panel {
+    transform: translateX(0);
+  }
+
+  .mobile-drawer__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .mobile-drawer__logo img {
+    width: 100px;
+    height: auto;
+  }
+
+  .mobile-drawer__body {
+    padding: var(--space-4) var(--space-5) var(--space-9);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .mobile-drawer__categories {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobile-drawer__category-link {
+    display: block;
+    padding: var(--space-3) 0;
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-heading);
+    text-decoration: none;
+    color: var(--color-ink);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .drawer-accordion {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .drawer-accordion summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) 0;
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-heading);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .drawer-accordion summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .drawer-accordion[open] .drawer-accordion__chevron {
+    transform: rotate(180deg);
+  }
+
+  .drawer-accordion__chevron {
+    transition: transform var(--duration-fast) var(--ease-standard);
+  }
+
+  .drawer-accordion__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-1) 0 var(--space-4) var(--space-3);
+  }
+
+  .drawer-accordion__list a {
+    text-decoration: none;
+    font-size: var(--text-sm);
+    color: var(--color-ink);
+  }
+
+  .mobile-drawer__section-heading {
+    font-size: var(--text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-ink-muted);
+    margin: 0 0 var(--space-2);
+  }
+
+  .mobile-drawer__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+    text-decoration: none;
+    font-size: var(--text-sm);
+    color: var(--color-ink);
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    function initMegaMenu() {
+      var triggers = Array.prototype.slice.call(document.querySelectorAll('[data-nav-trigger]'));
+      if (!triggers.length) return;
+      var openPanel = null;
+
+      function closeAll() {
+        triggers.forEach(function (trigger) {
+          trigger.setAttribute('aria-expanded', 'false');
+          var panel = document.getElementById(trigger.getAttribute('aria-controls'));
+          if (panel) panel.hidden = true;
+        });
+        openPanel = null;
+      }
+
+      function open(trigger) {
+        closeAll();
+        trigger.setAttribute('aria-expanded', 'true');
+        var panel = document.getElementById(trigger.getAttribute('aria-controls'));
+        if (panel) {
+          panel.hidden = false;
+          openPanel = panel;
+        }
+      }
+
+      triggers.forEach(function (trigger) {
+        var panel = document.getElementById(trigger.getAttribute('aria-controls'));
+        var hoverTimer = null;
+
+        trigger.addEventListener('click', function () {
+          var isOpen = trigger.getAttribute('aria-expanded') === 'true';
+          if (isOpen) {
+            closeAll();
+          } else {
+            open(trigger);
+          }
+        });
+
+        trigger.addEventListener('mouseenter', function () {
+          window.clearTimeout(hoverTimer);
+          hoverTimer = window.setTimeout(function () {
+            open(trigger);
+          }, 120);
+        });
+
+        [trigger, panel].forEach(function (el) {
+          if (!el) return;
+          el.addEventListener('mouseleave', function () {
+            window.clearTimeout(hoverTimer);
+            hoverTimer = window.setTimeout(function () {
+              if (!trigger.matches(':hover') && !(panel && panel.matches(':hover'))) {
+                closeAll();
+              }
+            }, 200);
+          });
+        });
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && openPanel) {
+          var trigger = document.querySelector('[aria-controls="' + openPanel.id + '"]');
+          closeAll();
+          if (trigger) trigger.focus();
+        }
+      });
+
+      document.addEventListener('click', function (e) {
+        if (openPanel && !openPanel.contains(e.target) && !e.target.closest('[data-nav-trigger]')) {
+          closeAll();
+        }
+      });
+    }
+
+    function initSearchPanel() {
+      var toggle = document.querySelector('[data-search-toggle]');
+      var panel = document.querySelector('[data-search-panel]');
+      if (!toggle || !panel) return;
+
+      var closeBtn = panel.querySelector('[data-search-close]');
+      var input = panel.querySelector('input[type="search"]');
+
+      function open() {
+        panel.hidden = false;
+        toggle.setAttribute('aria-expanded', 'true');
+        if (input) input.focus();
+      }
+
+      function close() {
+        panel.hidden = true;
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.focus();
+      }
+
+      toggle.addEventListener('click', function () {
+        if (panel.hidden) {
+          open();
+        } else {
+          close();
+        }
+      });
+
+      if (closeBtn) closeBtn.addEventListener('click', close);
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !panel.hidden) close();
+      });
+    }
+
+    function initDrawer() {
+      var openBtn = document.querySelector('[data-drawer-open]');
+      var drawer = document.querySelector('[data-mobile-drawer]');
+      if (!openBtn || !drawer) return;
+
+      var panel = drawer.querySelector('[data-drawer-panel]');
+      var backdrop = drawer.querySelector('[data-drawer-backdrop]');
+      var closeBtn = drawer.querySelector('[data-drawer-close]');
+      var lastFocused = null;
+
+      function getFocusable() {
+        return Array.prototype.slice.call(
+          panel.querySelectorAll('a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])')
+        );
+      }
+
+      function open() {
+        lastFocused = document.activeElement;
+        drawer.hidden = false;
+        document.body.style.overflow = 'hidden';
+        openBtn.setAttribute('aria-expanded', 'true');
+        window.requestAnimationFrame(function () {
+          drawer.setAttribute('data-open', '');
+        });
+        var focusable = getFocusable();
+        if (focusable[0]) focusable[0].focus();
+      }
+
+      function close() {
+        drawer.removeAttribute('data-open');
+        openBtn.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+        window.setTimeout(function () {
+          drawer.hidden = true;
+        }, 250);
+        if (lastFocused) lastFocused.focus();
+      }
+
+      openBtn.addEventListener('click', open);
+      if (closeBtn) closeBtn.addEventListener('click', close);
+      if (backdrop) backdrop.addEventListener('click', close);
+
+      drawer.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          close();
+          return;
+        }
+        if (e.key !== 'Tab') return;
+        var focusable = getFocusable();
+        if (!focusable.length) return;
+        var first = focusable[0];
+        var last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      });
+    }
+
+    initMegaMenu();
+    initSearchPanel();
+    initDrawer();
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Header",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "sticky_header",
+      "label": "Sticky header",
+      "default": true
+    },
+    { "type": "header", "content": "Shirts" },
+    {
+      "type": "paragraph",
+      "content": "The Shirts link itself is set under Theme settings → Primary navigation."
+    },
+    {
+      "type": "link_list",
+      "id": "shirts_menu",
+      "label": "Mega menu links",
+      "info": "Optional. Pick a menu to show a dropdown panel under Shirts."
+    },
+    {
+      "type": "image_picker",
+      "id": "shirts_promo_image",
+      "label": "Promo tile image",
+      "info": "Optional, shown in the dropdown panel"
+    },
+    {
+      "type": "text",
+      "id": "shirts_promo_heading",
+      "label": "Promo tile heading"
+    },
+    {
+      "type": "url",
+      "id": "shirts_promo_url",
+      "label": "Promo tile link"
+    },
+    { "type": "header", "content": "Kurtas" },
+    {
+      "type": "paragraph",
+      "content": "The Kurtas link itself is set under Theme settings → Primary navigation."
+    },
+    {
+      "type": "link_list",
+      "id": "kurtas_menu",
+      "label": "Mega menu links",
+      "info": "Optional. Pick a menu to show a dropdown panel under Kurtas."
+    },
+    {
+      "type": "image_picker",
+      "id": "kurtas_promo_image",
+      "label": "Promo tile image",
+      "info": "Optional, shown in the dropdown panel"
+    },
+    {
+      "type": "text",
+      "id": "kurtas_promo_heading",
+      "label": "Promo tile heading"
+    },
+    {
+      "type": "url",
+      "id": "kurtas_promo_url",
+      "label": "Promo tile link"
+    },
+    { "type": "header", "content": "Pants" },
+    {
+      "type": "paragraph",
+      "content": "The Pants link itself is set under Theme settings → Primary navigation."
+    },
+    {
+      "type": "link_list",
+      "id": "pants_menu",
+      "label": "Mega menu links",
+      "info": "Optional. Pick a menu to show a dropdown panel under Pants."
+    },
+    {
+      "type": "image_picker",
+      "id": "pants_promo_image",
+      "label": "Promo tile image",
+      "info": "Optional, shown in the dropdown panel"
+    },
+    {
+      "type": "text",
+      "id": "pants_promo_heading",
+      "label": "Promo tile heading"
+    },
+    {
+      "type": "url",
+      "id": "pants_promo_url",
+      "label": "Promo tile link"
+    },
+    { "type": "header", "content": "About" },
+    {
+      "type": "paragraph",
+      "content": "The About link itself is set under Theme settings → Primary navigation."
+    }
+  ]
+}
+{% endschema %}

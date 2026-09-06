@@ -259,6 +259,102 @@
         "id": "social_facebook",
         "label": "Facebook URL",
         "info": "Optional"
+      },
+      {
+        "type": "text",
+        "id": "contact_whatsapp",
+        "label": "WhatsApp number",
+        "info": "Optional. Include country code, e.g. 919876543210. Used for a WhatsApp support link once configured."
+      }
+    ]
+  },
+  {
+    "name": "Primary navigation",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "The four primary nav items are fixed by design. These links are shared between the header and footer; the header's own settings add the optional mega-menu dropdown and promo tile for each."
+      },
+      {
+        "type": "url",
+        "id": "shirts_url",
+        "label": "Shirts link",
+        "default": "/collections/shirts"
+      },
+      {
+        "type": "url",
+        "id": "kurtas_url",
+        "label": "Kurtas link",
+        "default": "/collections/kurtas"
+      },
+      {
+        "type": "url",
+        "id": "pants_url",
+        "label": "Pants link",
+        "default": "/collections/pants"
+      },
+      {
+        "type": "url",
+        "id": "about_url",
+        "label": "About link",
+        "default": "/pages/about"
+      }
+    ]
+  },
+  {
+    "name": "Key pages",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Used by the header, mobile menu and footer. Defaults match the page handles this theme expects you to create in Online Store → Pages; update any of these if you use different handles."
+      },
+      {
+        "type": "url",
+        "id": "size_guide_url",
+        "label": "Size Guide",
+        "default": "/pages/size-guide"
+      },
+      {
+        "type": "url",
+        "id": "faq_url",
+        "label": "FAQ",
+        "default": "/pages/faq"
+      },
+      {
+        "type": "url",
+        "id": "contact_url",
+        "label": "Contact Us",
+        "default": "/pages/contact"
+      },
+      {
+        "type": "url",
+        "id": "track_order_url",
+        "label": "Track Order",
+        "default": "/pages/track-order"
+      }
+    ]
+  },
+  {
+    "name": "Occasions",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Optional collection links for occasion-based shopping (used in the mobile menu and homepage). Left blank until you create the matching collection."
+      },
+      {
+        "type": "url",
+        "id": "occasion_casual_url",
+        "label": "Casual"
+      },
+      {
+        "type": "url",
+        "id": "occasion_smart_casual_url",
+        "label": "Smart Casual"
+      },
+      {
+        "type": "url",
+        "id": "occasion_traditional_url",
+        "label": "Traditional"
       }
     ]
   }

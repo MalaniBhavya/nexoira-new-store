@@ -22,7 +22,15 @@
       "cod_enabled": true,
       "cod_conditions": "COD available on eligible orders. A small COD fee may apply at checkout.",
       "returns_window_days": "7",
-      "contact_email": "nexoira.supply@gmail.com"
+      "contact_email": "nexoira.supply@gmail.com",
+      "shirts_url": "/collections/shirts",
+      "kurtas_url": "/collections/kurtas",
+      "pants_url": "/collections/pants",
+      "about_url": "/pages/about",
+      "size_guide_url": "/pages/size-guide",
+      "faq_url": "/pages/faq",
+      "contact_url": "/pages/contact",
+      "track_order_url": "/pages/track-order"
     }
   }
 }

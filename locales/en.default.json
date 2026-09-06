@@ -11,6 +11,44 @@
       "cart": "Cart",
       "wishlist": "Wishlist",
       "account": "Account"
+    },
+    "navigation": {
+      "shirts": "Shirts",
+      "kurtas": "Kurtas",
+      "pants": "Pants",
+      "about": "About",
+      "shop_all": "Shop all {{ category }}",
+      "search_placeholder": "Search products",
+      "collections": "Collections",
+      "all_collections": "All Collections",
+      "shop_by_occasion": "Shop by Occasion",
+      "occasion_casual": "Casual",
+      "occasion_smart_casual": "Smart Casual",
+      "occasion_traditional": "Traditional",
+      "shop_by_price": "Shop by Price",
+      "price_under": "Under {{ amount }}",
+      "price_between": "{{ low }} – {{ high }}",
+      "price_over": "{{ amount }} & above",
+      "account": "Account",
+      "support": "Support",
+      "size_guide": "Size Guide",
+      "track_order": "Track Order",
+      "faq": "FAQ",
+      "contact_us": "Contact Us",
+      "whatsapp_us": "Chat on WhatsApp"
+    },
+    "footer": {
+      "shop_heading": "Shop",
+      "support_heading": "Support",
+      "connect_heading": "Connect",
+      "newsletter_heading": "Sign up for updates",
+      "newsletter_placeholder": "Email address",
+      "newsletter_cta": "Sign up",
+      "newsletter_success": "Thanks for signing up.",
+      "trust_shipping": "Free shipping over {{ amount }}",
+      "trust_returns": "{{ days }}-day returns & exchanges",
+      "trust_cod": "Cash on Delivery available",
+      "copyright": "© {{ year }} {{ shop }}. All rights reserved."
     }
   }
 }
