@@ -1,35 +1,131 @@
-<div class="customer-addresses container" data-section-id="{{ section.id }}" data-section-type="main-addresses">
-  <div class="account-header">
-    <div>
-      <p class="about-story__eyebrow">MY ACCOUNT</p>
-      <h1>Addresses</h1>
-    </div>
-    <div class="account-header__actions">
-      <a href="{{ routes.account_url }}" class="button button--outline">Back to account</a>
-    </div>
+<div class="account-page account-page--wide container">
+  <div class="account-page__header">
+    <h1 class="account-page__heading">{{ 'general.customer.addresses' | t }}</h1>
+    <a href="{{ routes.account_url }}" class="button--tertiary">{{ 'general.customer.back_to_account' | t }}</a>
   </div>
 
-  {%- if customer.addresses.size > 0 -%}
-    <div class="customer-addresses__grid">
-      {%- for address in customer.addresses -%}
-        <div class="address-card">
-          {%- if address == customer.default_address -%}
-            <span class="badge">Default</span>
-          {%- endif -%}
-          <p>{{ address | format_address }}</p>
-        </div>
-      {%- endfor -%}
-    </div>
-  {%- else -%}
-    <p class="customer-account__empty">You don't have any saved addresses yet.</p>
-  {%- endif -%}
+  <details class="address-card address-card--new">
+    <summary class="button--secondary address-card__add-toggle">{{ 'general.customer.add_address' | t }}</summary>
+    {%- form 'customer_address', customer.new_address, class: 'address-form' -%}
+      {%- render 'address-fields', form: form, id: 'New' -%}
+      <button type="submit" class="button--primary">{{ 'general.customer.save_address' | t }}</button>
+    {%- endform -%}
+  </details>
+
+  <div class="address-list">
+    {%- for address in customer.addresses -%}
+      <details class="address-card">
+        <summary class="address-card__summary">
+          <address>{{ address | format_address }}</address>
+          <span class="address-card__edit-label">{{ 'general.customer.edit_address' | t }}</span>
+        </summary>
+        {%- form 'customer_address', address, class: 'address-form' -%}
+          {%- render 'address-fields', form: form, id: address.id -%}
+          <div class="address-form__actions">
+            <button type="submit" class="button--primary">{{ 'general.customer.save_address' | t }}</button>
+            <button
+              type="submit"
+              name="_method"
+              value="delete"
+              class="button--tertiary"
+              data-confirm="{{ 'general.customer.delete_confirm' | t }}"
+            >
+              {{ 'general.customer.delete_address' | t }}
+            </button>
+          </div>
+        {%- endform -%}
+      </details>
+    {%- endfor -%}
+  </div>
 </div>
+
+{% stylesheet %}
+  .account-page--wide {
+    display: block;
+    padding-block: var(--space-8) var(--section-spacing-y);
+  }
+
+  .account-page__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+
+  .address-card {
+    border-bottom: 1px solid var(--color-border);
+    padding-block: var(--space-4);
+  }
+
+  .address-card--new {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .address-card__add-toggle {
+    display: inline-flex;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .address-card__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .address-card__summary address {
+    font-style: normal;
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+  }
+
+  .address-card__edit-label {
+    font-size: var(--text-sm);
+    color: var(--color-accent-900);
+    text-decoration: underline;
+    flex-shrink: 0;
+  }
+
+  .address-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+    max-width: 560px;
+  }
+
+  .address-form .field--full {
+    grid-column: 1 / -1;
+  }
+
+  .address-form__actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: var(--space-3);
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    document.querySelectorAll('.address-form').forEach(function (form) {
+      form.addEventListener('submit', function (e) {
+        var submitter = e.submitter;
+        if (submitter && submitter.hasAttribute('data-confirm')) {
+          if (!window.confirm(submitter.getAttribute('data-confirm'))) {
+            e.preventDefault();
+          }
+        }
+      });
+    });
+  })();
+{% endjavascript %}
 
 {% schema %}
 {
-  "name": "Customer addresses",
-  "settings": [
-
-  ]
+  "name": "Addresses page"
 }
 {% endschema %}

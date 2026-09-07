@@ -1,0 +1,35 @@
+{%- comment -%}
+  Sticky mobile purchase bar - appears only after the primary Add to Cart
+  button scrolls out of view (PRD PDP §6), mobile only (desktop already
+  keeps the buy box sticky in the info column). JS lives in
+  main-product.liquid's {% javascript %}.
+
+  Accepts: product, current_variant (required)
+{%- endcomment -%}
+
+<div class="sticky-purchase-bar" data-sticky-bar hidden>
+  <div class="container sticky-purchase-bar__inner">
+    <div class="sticky-purchase-bar__info">
+      {%- if product.featured_image -%}
+        <img
+          src="{{ product.featured_image | image_url: width: 80 }}"
+          width="40"
+          height="50"
+          alt=""
+          loading="lazy"
+        >
+      {%- endif -%}
+      <div class="sticky-purchase-bar__text">
+        <p class="sticky-purchase-bar__title">{{ product.title }}</p>
+        {%- render 'price', price: current_variant.price, compare_at_price: current_variant.compare_at_price, show_savings: false -%}
+      </div>
+    </div>
+    <button type="button" class="button--primary sticky-purchase-bar__cta" data-sticky-bar-add {% unless product.available %}disabled{% endunless %}>
+      {%- if product.available -%}
+        {{ 'general.product.add_to_cart' | t }}
+      {%- else -%}
+        {{ 'general.product.badge_sold_out' | t }}
+      {%- endif -%}
+    </button>
+  </div>
+</div>

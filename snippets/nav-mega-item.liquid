@@ -1,0 +1,102 @@
+{%- comment -%}
+  Renders one top-level desktop nav item, plain link or mega-menu trigger.
+
+  Accepts:
+    label          (required) visible text
+    url            (required) destination when the item has no menu, and
+                   the "Shop all" link inside the panel when it does
+    menu           (optional) a linklist object (settings.xxx_menu) - when
+                   present, the item becomes a disclosure button with a panel
+    promo_image    (optional) image object for the panel's editorial tile
+    promo_heading  (optional) string
+    promo_url      (optional) string
+{%- endcomment -%}
+
+{%- liquid
+  assign item_id = label | handleize
+  assign has_menu = false
+  if menu and menu.links.size > 0
+    assign has_menu = true
+  endif
+
+  assign has_columns = false
+  if has_menu
+    for link in menu.links
+      if link.links.size > 0
+        assign has_columns = true
+      endif
+    endfor
+  endif
+-%}
+
+<li class="nav-item">
+  {%- if has_menu -%}
+    <button
+      type="button"
+      class="nav-item__trigger"
+      aria-expanded="false"
+      aria-haspopup="true"
+      aria-controls="NavPanel-{{ item_id }}"
+      data-nav-trigger
+    >
+      {{ label }}
+      {%- render 'icon', name: 'chevron-down', size: 14, class: 'nav-item__chevron' -%}
+    </button>
+
+    <div class="nav-item__panel" id="NavPanel-{{ item_id }}" data-nav-panel hidden>
+      <div class="nav-item__panel-inner">
+        <div class="nav-item__main">
+          <div class="nav-item__columns">
+            {%- if has_columns -%}
+              {%- for link in menu.links -%}
+                <div class="nav-item__column">
+                  {%- if link.links.size > 0 -%}
+                    <p class="nav-item__column-heading">{{ link.title }}</p>
+                    <ul>
+                      {%- for child in link.links -%}
+                        <li><a href="{{ child.url }}">{{ child.title }}</a></li>
+                      {%- endfor -%}
+                    </ul>
+                  {%- else -%}
+                    <ul>
+                      <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                    </ul>
+                  {%- endif -%}
+                </div>
+              {%- endfor -%}
+            {%- else -%}
+              <div class="nav-item__column">
+                <ul>
+                  {%- for link in menu.links -%}
+                    <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                  {%- endfor -%}
+                </ul>
+              </div>
+            {%- endif -%}
+          </div>
+
+          <a href="{{ url }}" class="nav-item__shop-all button--tertiary">
+            {{ 'general.navigation.shop_all' | t: category: label }}
+          </a>
+        </div>
+
+        {%- if promo_image -%}
+          <a href="{{ promo_url | default: url }}" class="nav-item__promo">
+            <span class="nav-item__promo-image aspect-portrait">
+              {{
+                promo_image
+                | image_url: width: 480
+                | image_tag: loading: 'lazy', widths: '240,320,480', sizes: '240px'
+              }}
+            </span>
+            {%- if promo_heading -%}
+              <span class="nav-item__promo-heading">{{ promo_heading }}</span>
+            {%- endif -%}
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- else -%}
+    <a href="{{ url }}" class="nav-item__trigger nav-item__trigger--link">{{ label }}</a>
+  {%- endif -%}
+</li>

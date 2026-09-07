@@ -1,10 +1,24 @@
 {
   "sections": {
     "main": {
-      "type": "about-story"
+      "type": "main-page"
+    },
+    "story": {
+      "type": "banner",
+      "settings": {
+        "layout": "image-right"
+      }
+    },
+    "categories": {
+      "type": "featured-collection",
+      "settings": {
+        "heading": "Shop the Collection",
+        "collection": "all",
+        "max_products": 4,
+        "columns_desktop": 4,
+        "show_view_all": true
+      }
     }
   },
-  "order": [
-    "main"
-  ]
+  "order": ["main", "story", "categories"]
 }

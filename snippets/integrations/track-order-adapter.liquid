@@ -1,0 +1,19 @@
+{%- comment -%}
+  ADAPTER: Order tracking swap point.
+
+  Current state (native, no app): sections/track-order-page.liquid
+  points customers to their account order history and the tracking
+  link already in Shopify's shipping-confirmation email - there is no
+  public storefront endpoint for guest order lookup by number without
+  an app or custom backend.
+
+  To add a real "enter order number + email" guest tracking form:
+    1. Pick a tracking app, or build a small backend (app proxy) that
+       validates the order number/email pair against the Admin API and
+       returns shipment status.
+    2. Add the form to sections/track-order-page.liquid, submitting to
+       that endpoint instead of (or alongside) the current cards.
+    3. Keep the existing account-history and email-link cards - they
+       work today and cost nothing to keep as a fallback if the new
+       endpoint is ever unreachable.
+{%- endcomment -%}

@@ -1,0 +1,8 @@
+{
+  "sections": {
+    "main": {
+      "type": "size-guide-page"
+    }
+  },
+  "order": ["main"]
+}

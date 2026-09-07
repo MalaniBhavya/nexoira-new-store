@@ -1,0 +1,73 @@
+{%- comment -%}
+  Sibling-color swatches: each color is its own product listing, linked
+  here via the custom.sibling_products metafield rather than behaving as
+  a variant. Renders nothing until that metafield is set up - see
+  README.md for the exact metafields this depends on.
+
+  Accepts:
+    product   (required)
+    limit     (optional, default 5) max sibling swatches before "+N"
+{%- endcomment -%}
+
+{%- liquid
+  assign limit = limit | default: 5
+  assign siblings = product.metafields.custom.sibling_products.value
+  assign has_siblings = false
+  if siblings and siblings.size > 0
+    assign has_siblings = true
+  endif
+-%}
+
+{%- if has_siblings -%}
+  {%- liquid
+    assign current_color_name = product.metafields.custom.color_name.value
+    if current_color_name == blank
+      assign current_color_name = 'general.product.this_color' | t
+    endif
+    assign current_swatch = product.metafields.custom.color_swatch.value
+    assign shown_count = 0
+  -%}
+
+  <div class="sibling-colors" role="group" aria-label="{{ 'general.product.color_options' | t }}">
+    <span class="sibling-colors__swatch sibling-colors__swatch--current" aria-current="true" title="{{ current_color_name }}">
+      {%- if current_swatch -%}
+        <span class="sibling-colors__dot" style="background-color:{{ current_swatch }};"></span>
+      {%- else -%}
+        <span class="sibling-colors__dot sibling-colors__dot--placeholder"></span>
+      {%- endif -%}
+      <span class="visually-hidden">{{ current_color_name }}</span>
+    </span>
+
+    {%- for sibling in siblings -%}
+      {%- unless sibling.id == product.id -%}
+        {%- if shown_count < limit -%}
+          {%- liquid
+            assign sibling_swatch = sibling.metafields.custom.color_swatch.value
+            assign sibling_name = sibling.metafields.custom.color_name.value
+            if sibling_name == blank
+              assign sibling_name = sibling.title
+            endif
+          -%}
+          <a
+            href="{{ sibling.url }}"
+            class="sibling-colors__swatch{% unless sibling.available %} sibling-colors__swatch--soldout{% endunless %}"
+            title="{{ sibling_name }}{% unless sibling.available %} ({{ 'general.product.badge_sold_out' | t }}){% endunless %}"
+          >
+            {%- if sibling_swatch -%}
+              <span class="sibling-colors__dot" style="background-color:{{ sibling_swatch }};"></span>
+            {%- else -%}
+              <span class="sibling-colors__dot sibling-colors__dot--placeholder"></span>
+            {%- endif -%}
+            <span class="visually-hidden">{{ sibling_name }}</span>
+          </a>
+          {%- assign shown_count = shown_count | plus: 1 -%}
+        {%- endif -%}
+      {%- endunless -%}
+    {%- endfor -%}
+
+    {%- assign remaining = siblings.size | minus: shown_count -%}
+    {%- if remaining > 0 -%}
+      <span class="sibling-colors__more">+{{ remaining }}</span>
+    {%- endif -%}
+  </div>
+{%- endif -%}

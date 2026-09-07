@@ -1,71 +1,141 @@
-<div class="customer-account container" data-section-id="{{ section.id }}" data-section-type="main-account">
-  <div class="account-header">
-    <div>
-      <p class="about-story__eyebrow">MY ACCOUNT</p>
-      <h1>Welcome, {{ customer.first_name }}</h1>
-    </div>
-    <div class="account-header__actions">
-      <a href="{{ routes.account_addresses_url }}" class="button button--outline">Addresses</a>
-      <a href="{{ routes.account_logout_url }}" class="button button--outline">Log out</a>
+<div class="account-page account-page--wide container">
+  <div class="account-page__header">
+    <h1 class="account-page__heading">{{ 'general.customer.my_account' | t }}</h1>
+    <div class="account-page__actions">
+      <a href="{{ routes.account_addresses_url }}" class="button--secondary">{{ 'general.customer.addresses' | t }}</a>
+      {%- form 'customer_logout' -%}
+        <button type="submit" class="button--tertiary">{{ 'general.customer.sign_out' | t }}</button>
+      {%- endform -%}
     </div>
   </div>
 
-  <h2 class="account-orders__title">Order History</h2>
-
-  {%- paginate customer.orders by 20 -%}
-    {%- if customer.orders.size > 0 -%}
-      <div class="customer-order-table-wrap">
-        <table class="customer-orders">
-          <thead>
+  {%- if customer.orders.size > 0 -%}
+    <div class="account-orders">
+      <table class="account-orders__table">
+        <thead>
+          <tr>
+            <th>{{ 'general.customer.order_number' | t }}</th>
+            <th>{{ 'general.customer.order_date' | t }}</th>
+            <th>{{ 'general.customer.order_payment_status' | t }}</th>
+            <th>{{ 'general.customer.order_fulfillment_status' | t }}</th>
+            <th>{{ 'general.customer.order_total' | t }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {%- for order in customer.orders -%}
             <tr>
-              <th>Order</th>
-              <th>Date</th>
-              <th>Payment status</th>
-              <th>Total</th>
+              <td data-label="{{ 'general.customer.order_number' | t }}">{{ order.name }}</td>
+              <td data-label="{{ 'general.customer.order_date' | t }}">{{ order.created_at | date: '%d %b %Y' }}</td>
+              <td data-label="{{ 'general.customer.order_payment_status' | t }}">{{ order.financial_status_label }}</td>
+              <td data-label="{{ 'general.customer.order_fulfillment_status' | t }}">{{ order.fulfillment_status_label }}</td>
+              <td data-label="{{ 'general.customer.order_total' | t }}">{{ order.total_price | money }}</td>
+              <td><a href="{{ order.customer_url }}" class="button--tertiary">{{ 'general.customer.view_order' | t }}</a></td>
             </tr>
-          </thead>
-          <tbody>
-            {%- for order in customer.orders -%}
-              <tr>
-                <td><a href="{{ order.customer_url }}">{{ order.name }}</a></td>
-                <td>{{ order.created_at | date: '%B %d, %Y' }}</td>
-                <td>{{ order.financial_status_label }}</td>
-                <td>{{ order.total_price | money }}</td>
-              </tr>
-            {%- endfor -%}
-          </tbody>
-        </table>
-      </div>
-
-      {%- if paginate.pages > 1 -%}
-        <nav class="pagination" aria-label="{{ 'collections.general.pagination_label' | t }}">
-          {%- if paginate.previous -%}
-            <a href="{{ paginate.previous.url }}" class="pagination__link">&larr;</a>
-          {%- endif -%}
-          {%- for part in paginate.parts -%}
-            {%- if part.is_link -%}
-              <a href="{{ part.url }}" class="pagination__link">{{ part.title }}</a>
-            {%- else -%}
-              <span class="pagination__current">{{ part.title }}</span>
-            {%- endif -%}
           {%- endfor -%}
-          {%- if paginate.next -%}
-            <a href="{{ paginate.next.url }}" class="pagination__link">&rarr;</a>
-          {%- endif -%}
-        </nav>
-      {%- endif -%}
-    {%- else -%}
-      <p class="customer-account__empty">You haven't placed any orders yet.</p>
-      <a href="{{ routes.all_products_collection_url }}" class="button button--solid">Start shopping</a>
-    {%- endif -%}
-  {%- endpaginate -%}
+        </tbody>
+      </table>
+    </div>
+  {%- else -%}
+    <p class="account-page__empty">{{ 'general.customer.no_orders' | t }}</p>
+  {%- endif -%}
+
+  {%- if customer.default_address -%}
+    <div class="account-address-preview">
+      <h2>{{ 'general.customer.default_address' | t }}</h2>
+      <address>{{ customer.default_address | format_address }}</address>
+    </div>
+  {%- endif -%}
 </div>
+
+{% stylesheet %}
+  .account-page--wide {
+    display: block;
+    padding-block: var(--space-8) var(--section-spacing-y);
+  }
+
+  .account-page__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+
+  .account-page__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .account-orders__table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .account-orders__table th {
+    text-align: left;
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-ink-muted);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .account-orders__table td {
+    padding-block: var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--text-sm);
+  }
+
+  .account-page__empty {
+    color: var(--color-ink-muted);
+    padding-block: var(--space-6);
+  }
+
+  .account-address-preview {
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .account-address-preview address {
+    font-style: normal;
+    font-size: var(--text-sm);
+    color: var(--color-ink-muted);
+    line-height: var(--leading-relaxed);
+  }
+
+  @media (max-width: 749px) {
+    .account-orders__table thead {
+      display: none;
+    }
+
+    .account-orders__table tr {
+      display: flex;
+      flex-direction: column;
+      padding-block: var(--space-3);
+    }
+
+    .account-orders__table td {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 0;
+      padding-block: var(--space-1);
+    }
+
+    .account-orders__table td::before {
+      content: attr(data-label);
+      font-weight: 600;
+      margin-right: var(--space-3);
+    }
+  }
+{% endstylesheet %}
 
 {% schema %}
 {
-  "name": "Customer account",
-  "settings": [
-
-  ]
+  "name": "Account page"
 }
 {% endschema %}

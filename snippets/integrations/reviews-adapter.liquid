@@ -1,0 +1,22 @@
+{%- comment -%}
+  ADAPTER: Reviews provider swap point.
+
+  Current state (native, no app): sections/product-reviews.liquid reads
+  published reviews from product.metafields.custom.reviews (a
+  list.metaobject_reference to the `review` metaobject), and the
+  submission form emails the merchant via Shopify's native contact form
+  for manual moderation/publishing.
+
+  To swap in a real reviews app (e.g. one offering photo/video reviews
+  at scale, automated moderation, star-rating widgets on collection
+  cards):
+    1. Replace the body of sections/product-reviews.liquid with the
+       app's Liquid snippet/App Block, or render this file instead and
+       have it call the app's snippet.
+    2. Update snippets/review-summary.liquid the same way if the app
+       also provides its own rating-summary snippet, so the collection
+       grid and PDP stay in sync.
+    3. Leave the native metaobject fallback in git history - if the app
+       is ever removed, reverting this file restores a working,
+       app-free reviews module immediately.
+{%- endcomment -%}

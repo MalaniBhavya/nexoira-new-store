@@ -1,0 +1,72 @@
+{%- comment -%}
+  One cart page line item. Real <input name="updates[]"> so quantity
+  changes work via the cart form's native submit with zero JS; JS
+  progressively enhances with +/- steppers and instant AJAX updates
+  (using item.key, not position, since position can shift).
+
+  Accepts: item (required), position (required, 1-based - forloop.index,
+  matches what Shopify's updates[] form field expects)
+{%- endcomment -%}
+
+<div class="cart-line" data-cart-line data-line-key="{{ item.key }}">
+  <a href="{{ item.url }}" class="cart-line__image">
+    {%- if item.image -%}
+      <img
+        src="{{ item.image | image_url: width: 160 }}"
+        width="80"
+        height="100"
+        alt="{{ item.image.alt | default: item.title | escape }}"
+        loading="lazy"
+      >
+    {%- endif -%}
+  </a>
+
+  <div class="cart-line__details">
+    <a href="{{ item.url }}" class="cart-line__title">{{ item.product.title }}</a>
+    {%- unless item.variant.title == 'Default Title' -%}
+      <p class="cart-line__variant">{{ item.variant.title }}</p>
+    {%- endunless -%}
+    {%- if item.product.metafields.custom.color_name.value != blank -%}
+      <p class="cart-line__color">{{ item.product.metafields.custom.color_name.value }}</p>
+    {%- endif -%}
+
+    {%- if item.original_line_price != item.final_line_price -%}
+      <p class="cart-line__price">
+        <s class="cart-line__price--compare">{{ item.original_line_price | money }}</s>
+        {{ item.final_line_price | money }}
+      </p>
+    {%- else -%}
+      <p class="cart-line__price">{{ item.final_line_price | money }}</p>
+    {%- endif -%}
+
+    <div class="cart-line__controls">
+      <div class="quantity-selector" data-quantity-selector>
+        <button type="button" class="quantity-selector__button" data-quantity-decrease aria-label="{{ 'general.product.decrease_quantity' | t }}">
+          {%- render 'icon', name: 'minus', size: 14 -%}
+        </button>
+        <label class="visually-hidden" for="CartQuantity-{{ position }}">{{ 'general.product.quantity_label' | t }}</label>
+        <input
+          type="number"
+          id="CartQuantity-{{ position }}"
+          name="updates[{{ position }}]"
+          class="quantity-selector__input"
+          value="{{ item.quantity }}"
+          min="0"
+          data-quantity-input
+          data-line-key="{{ item.key }}"
+        >
+        <button type="button" class="quantity-selector__button" data-quantity-increase aria-label="{{ 'general.product.increase_quantity' | t }}">
+          {%- render 'icon', name: 'plus', size: 14 -%}
+        </button>
+      </div>
+
+      <button type="button" class="cart-line__remove button--tertiary" data-cart-remove data-line-key="{{ item.key }}">
+        {{ 'general.cart.remove' | t }}
+      </button>
+    </div>
+
+    {%- unless item.variant.available -%}
+      <p class="field__error">{{ 'general.cart.line_unavailable' | t }}</p>
+    {%- endunless -%}
+  </div>
+</div>

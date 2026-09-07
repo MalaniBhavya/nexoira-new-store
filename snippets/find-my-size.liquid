@@ -1,0 +1,57 @@
+{%- comment -%}
+  Find My Size: a generic, clearly-labeled estimate tool (standard menswear
+  chest/waist ranges), not a brand-specific claim - it always points back
+  at the real size chart rather than replacing it. JS lives in
+  main-product.liquid's {% javascript %} (Nexoira has no standard menswear
+  measurement data from Nexoira itself to encode as authoritative, so this
+  stays disclosed as an estimate per the "never invent data" constraint).
+
+  Accepts: product (required)
+{%- endcomment -%}
+
+<button type="button" class="button--tertiary find-my-size-trigger" data-find-my-size-open>
+  {%- render 'icon', name: 'filter', size: 14 -%}
+  {{ 'general.product.find_my_size' | t }}
+</button>
+
+<div class="dialog-backdrop" id="FindMySizeBackdrop" data-find-my-size-backdrop hidden></div>
+<div
+  class="dialog-panel find-my-size-modal"
+  id="FindMySizeModal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="FindMySizeTitle"
+  data-find-my-size-modal
+  hidden
+>
+  <button type="button" class="button--icon dialog-close" data-find-my-size-close>
+    {%- assign close_label = 'general.accessibility.close' | t -%}
+    {%- render 'icon', name: 'close', size: 18, title: close_label -%}
+  </button>
+  <h2 id="FindMySizeTitle" class="find-my-size-modal__title">{{ 'general.product.find_my_size' | t }}</h2>
+
+  <div class="find-my-size-modal__fields">
+    <div class="field">
+      <label class="field__label" for="FindMySizeChest">{{ 'general.product.find_my_size_chest' | t }}</label>
+      <input type="number" id="FindMySizeChest" class="input" min="20" max="70" data-fms-chest>
+    </div>
+    <div class="field">
+      <label class="field__label" for="FindMySizeWaist">{{ 'general.product.find_my_size_waist' | t }}</label>
+      <input type="number" id="FindMySizeWaist" class="input" min="20" max="70" data-fms-waist>
+    </div>
+  </div>
+
+  <button type="button" class="button--primary button--full" data-find-my-size-submit>
+    {{ 'general.product.find_my_size_cta' | t }}
+  </button>
+
+  <p
+    class="find-my-size-modal__result"
+    data-find-my-size-result
+    data-result-template="{{ 'general.product.find_my_size_result' | t }}"
+    data-no-match="{{ 'general.product.find_my_size_no_match' | t }}"
+    role="status"
+    aria-live="polite"
+  ></p>
+  <p class="find-my-size-modal__disclaimer">{{ 'general.product.find_my_size_disclaimer' | t }}</p>
+</div>

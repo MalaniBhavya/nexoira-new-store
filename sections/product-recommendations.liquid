@@ -1,34 +1,104 @@
-{%- doc -%}
-  Rendered standalone via routes.product_recommendations_url?section_id=...
-  and injected client-side (see theme.js initProductRecommendations).
-  Never rendered directly in a template.
-{%- enddoc -%}
+{%- comment -%}
+  Native Shopify product recommendations (algorithmic, free, no app - the
+  "graceful fallback to rule-based recommendations" PRD §13 asks for).
+  The `recommendations` object is only populated when this section is
+  fetched through routes.product_recommendations_url, so it renders empty
+  on a normal page load and JS immediately fetches+swaps in the real
+  content. Progressive: if JS fails, the section just stays empty rather
+  than broken.
 
-{%- if recommendations.performed and recommendations.products_count > 0 -%}
-  <section class="product-recommendations">
-    <div class="container">
-      <div class="section-heading section-heading--center">
-        <h2 class="section-heading__title">{{ section.settings.heading }}</h2>
-      </div>
-      <div class="product-grid" style="--grid-columns: 4;">
-        {%- for product in recommendations.products -%}
-          {%- render 'card-product', product: product -%}
+  Seed product: the global `product` object on a PDP, or the most
+  recently added cart line's product when placed on the cart page (there
+  is no global `product` there). Renders nothing if neither exists.
+{%- endcomment -%}
+
+{%- liquid
+  assign seed_product = product
+  if seed_product == blank and cart.item_count > 0
+    assign seed_product = cart.items.last.product
+  endif
+-%}
+
+{%- if seed_product != blank -%}
+  <section
+    class="product-recommendations container"
+    id="ProductRecommendations-{{ section.id }}"
+    data-product-recommendations
+    data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ seed_product.id }}&limit={{ section.settings.max_products }}&intent=related"
+    hidden
+  >
+    {%- if recommendations.performed and recommendations.products_count > 0 -%}
+      <h2 class="product-recommendations__heading">{{ 'general.product.related_products_heading' | t }}</h2>
+      <div class="product-recommendations__grid">
+        {%- for recommended_product in recommendations.products -%}
+          {%- render 'card-product', product: recommended_product, loading: 'lazy' -%}
         {%- endfor -%}
       </div>
-    </div>
+    {%- endif -%}
   </section>
 {%- endif -%}
 
+{% stylesheet %}
+  .product-recommendations {
+    padding-block: var(--section-spacing-y);
+  }
+
+  .product-recommendations__heading {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-5);
+  }
+
+  .product-recommendations__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4) var(--space-3);
+  }
+
+  @media (min-width: 750px) {
+    .product-recommendations__grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-5);
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    var container = document.querySelector('[data-product-recommendations]');
+    if (!container) return;
+
+    fetch(container.getAttribute('data-url'))
+      .then(function (response) {
+        return response.text();
+      })
+      .then(function (html) {
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        var newContent = doc.querySelector('[data-product-recommendations]');
+        if (newContent && newContent.innerHTML.trim()) {
+          container.innerHTML = newContent.innerHTML;
+          container.hidden = false;
+        }
+      })
+      .catch(function () {});
+  })();
+{% endjavascript %}
+
 {% schema %}
 {
-  "name": "Product recommendations",
+  "name": "Related products",
   "settings": [
     {
-      "type": "text",
-      "id": "heading",
-      "label": "Heading",
-      "default": "You May Also Like"
+      "type": "range",
+      "id": "max_products",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "label": "Maximum products",
+      "default": 4
     }
+  ],
+  "presets": [
+    { "name": "Related products" }
   ]
 }
 {% endschema %}

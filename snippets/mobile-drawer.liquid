@@ -1,0 +1,169 @@
+{%- comment -%}
+  Full mobile shopping menu (PRD §4): categories, collections, occasions,
+  price discovery, account and support. Rendered once from header.liquid;
+  toggled open/closed by header.liquid's {% javascript %}.
+
+  Accepts: shirts_label, shirts_url, shirts_menu, kurtas_label, kurtas_url,
+  kurtas_menu, pants_label, pants_url, pants_menu, about_label, about_url
+  - the same fixed nav data as the desktop mega menu, with labels already
+  translated by header.liquid so this snippet never has to nest `| t` calls.
+{%- endcomment -%}
+
+<div class="mobile-drawer" id="MobileDrawer" data-mobile-drawer hidden>
+  <div class="mobile-drawer__backdrop" data-drawer-backdrop></div>
+
+  <div
+    class="mobile-drawer__panel"
+    role="dialog"
+    aria-modal="true"
+    aria-label="{{ 'general.accessibility.menu' | t }}"
+    data-drawer-panel
+  >
+    <div class="mobile-drawer__header">
+      <a href="{{ routes.root_url }}" class="mobile-drawer__logo">
+        {%- if settings.logo -%}
+          {{ settings.logo | image_url: width: 120 | image_tag: loading: 'lazy', widths: '80,120,160' }}
+        {%- else -%}
+          {{ shop.name }}
+        {%- endif -%}
+      </a>
+      <button type="button" class="button--icon" data-drawer-close>
+        {%- assign close_label = 'general.accessibility.close' | t -%}
+        {%- render 'icon', name: 'close', size: 20, title: close_label -%}
+      </button>
+    </div>
+
+    <nav class="mobile-drawer__body">
+      <ul class="mobile-drawer__categories">
+        {%- comment -%} Shirts {%- endcomment -%}
+        <li>
+          {%- if shirts_menu and shirts_menu.links.size > 0 -%}
+            <details class="drawer-accordion">
+              <summary>
+                {{ shirts_label }}
+                {%- render 'icon', name: 'chevron-down', size: 16, class: 'drawer-accordion__chevron' -%}
+              </summary>
+              <ul class="drawer-accordion__list">
+                <li><a href="{{ shirts_url }}">{{ 'general.navigation.shop_all' | t: category: shirts_label }}</a></li>
+                {%- for link in shirts_menu.links -%}
+                  <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                  {%- for child in link.links -%}
+                    <li><a href="{{ child.url }}">{{ child.title }}</a></li>
+                  {%- endfor -%}
+                {%- endfor -%}
+              </ul>
+            </details>
+          {%- else -%}
+            <a class="mobile-drawer__category-link" href="{{ shirts_url }}">{{ shirts_label }}</a>
+          {%- endif -%}
+        </li>
+
+        {%- comment -%} Kurtas {%- endcomment -%}
+        <li>
+          {%- if kurtas_menu and kurtas_menu.links.size > 0 -%}
+            <details class="drawer-accordion">
+              <summary>
+                {{ kurtas_label }}
+                {%- render 'icon', name: 'chevron-down', size: 16, class: 'drawer-accordion__chevron' -%}
+              </summary>
+              <ul class="drawer-accordion__list">
+                <li><a href="{{ kurtas_url }}">{{ 'general.navigation.shop_all' | t: category: kurtas_label }}</a></li>
+                {%- for link in kurtas_menu.links -%}
+                  <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                  {%- for child in link.links -%}
+                    <li><a href="{{ child.url }}">{{ child.title }}</a></li>
+                  {%- endfor -%}
+                {%- endfor -%}
+              </ul>
+            </details>
+          {%- else -%}
+            <a class="mobile-drawer__category-link" href="{{ kurtas_url }}">{{ kurtas_label }}</a>
+          {%- endif -%}
+        </li>
+
+        {%- comment -%} Pants {%- endcomment -%}
+        <li>
+          {%- if pants_menu and pants_menu.links.size > 0 -%}
+            <details class="drawer-accordion">
+              <summary>
+                {{ pants_label }}
+                {%- render 'icon', name: 'chevron-down', size: 16, class: 'drawer-accordion__chevron' -%}
+              </summary>
+              <ul class="drawer-accordion__list">
+                <li><a href="{{ pants_url }}">{{ 'general.navigation.shop_all' | t: category: pants_label }}</a></li>
+                {%- for link in pants_menu.links -%}
+                  <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                  {%- for child in link.links -%}
+                    <li><a href="{{ child.url }}">{{ child.title }}</a></li>
+                  {%- endfor -%}
+                {%- endfor -%}
+              </ul>
+            </details>
+          {%- else -%}
+            <a class="mobile-drawer__category-link" href="{{ pants_url }}">{{ pants_label }}</a>
+          {%- endif -%}
+        </li>
+
+        <li>
+          <a class="mobile-drawer__category-link" href="{{ about_url }}">{{ about_label }}</a>
+        </li>
+      </ul>
+
+      <div class="mobile-drawer__section">
+        <p class="mobile-drawer__section-heading">{{ 'general.navigation.collections' | t }}</p>
+        <a class="mobile-drawer__row" href="{{ routes.all_products_collection_url }}">
+          {{ 'general.navigation.all_collections' | t }}
+        </a>
+      </div>
+
+      {%- if settings.occasion_casual_url != blank or settings.occasion_smart_casual_url != blank or settings.occasion_traditional_url != blank -%}
+        <div class="mobile-drawer__section">
+          <p class="mobile-drawer__section-heading">{{ 'general.navigation.shop_by_occasion' | t }}</p>
+          {%- if settings.occasion_casual_url != blank -%}
+            <a class="mobile-drawer__row" href="{{ settings.occasion_casual_url }}">{{ 'general.navigation.occasion_casual' | t }}</a>
+          {%- endif -%}
+          {%- if settings.occasion_smart_casual_url != blank -%}
+            <a class="mobile-drawer__row" href="{{ settings.occasion_smart_casual_url }}">{{ 'general.navigation.occasion_smart_casual' | t }}</a>
+          {%- endif -%}
+          {%- if settings.occasion_traditional_url != blank -%}
+            <a class="mobile-drawer__row" href="{{ settings.occasion_traditional_url }}">{{ 'general.navigation.occasion_traditional' | t }}</a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      <div class="mobile-drawer__section">
+        <p class="mobile-drawer__section-heading">{{ 'general.navigation.shop_by_price' | t }}</p>
+        <a class="mobile-drawer__row" href="{{ routes.all_products_collection_url }}?filter.v.price.gte=0&amp;filter.v.price.lte=700">
+          {{ 'general.navigation.price_under' | t: amount: '₹700' }}
+        </a>
+        <a class="mobile-drawer__row" href="{{ routes.all_products_collection_url }}?filter.v.price.gte=700&amp;filter.v.price.lte=1200">
+          {{ 'general.navigation.price_between' | t: low: '₹700', high: '₹1,200' }}
+        </a>
+        <a class="mobile-drawer__row" href="{{ routes.all_products_collection_url }}?filter.v.price.gte=1200">
+          {{ 'general.navigation.price_over' | t: amount: '₹1,200' }}
+        </a>
+      </div>
+
+      <div class="mobile-drawer__section">
+        <p class="mobile-drawer__section-heading">{{ 'general.navigation.account' | t }}</p>
+        <a class="mobile-drawer__row" href="{{ routes.account_url }}">
+          {%- render 'icon', name: 'account', size: 18 -%}
+          {{ 'general.accessibility.account' | t }}
+        </a>
+      </div>
+
+      <div class="mobile-drawer__section">
+        <p class="mobile-drawer__section-heading">{{ 'general.navigation.support' | t }}</p>
+        <a class="mobile-drawer__row" href="{{ settings.size_guide_url }}">{{ 'general.navigation.size_guide' | t }}</a>
+        <a class="mobile-drawer__row" href="{{ settings.track_order_url }}">{{ 'general.navigation.track_order' | t }}</a>
+        <a class="mobile-drawer__row" href="{{ settings.faq_url }}">{{ 'general.navigation.faq' | t }}</a>
+        <a class="mobile-drawer__row" href="{{ settings.contact_url }}">{{ 'general.navigation.contact_us' | t }}</a>
+        {%- if settings.contact_whatsapp != blank -%}
+          <a class="mobile-drawer__row" href="https://wa.me/{{ settings.contact_whatsapp }}" target="_blank" rel="noopener">
+            {{ 'general.navigation.whatsapp_us' | t }}
+          </a>
+        {%- endif -%}
+      </div>
+    </nav>
+  </div>
+</div>

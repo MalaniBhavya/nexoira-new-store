@@ -1,0 +1,34 @@
+{%- comment -%}
+  Free-shipping progress bar/message, driven by the real cart total and
+  the merchant's configured threshold (Theme settings -> Cart & shipping).
+  Server-rendered version for the cart page; the drawer has its own
+  small JS equivalent since it renders from the cart.js JSON response.
+
+  Accepts: cart (required)
+{%- endcomment -%}
+
+{%- liquid
+  assign threshold_cents = settings.free_shipping_threshold | times: 100
+  assign remaining_cents = threshold_cents | minus: cart.total_price
+  assign remaining_display = remaining_cents | money
+  assign progress_percent = cart.total_price | times: 100 | divided_by: threshold_cents
+  if progress_percent > 100
+    assign progress_percent = 100
+  endif
+-%}
+
+<div class="free-shipping-progress">
+  {%- if cart.total_price >= threshold_cents -%}
+    <p class="free-shipping-progress__message free-shipping-progress__message--met">
+      {%- render 'icon', name: 'check', size: 14 -%}
+      {{ 'general.cart.free_shipping_met' | t }}
+    </p>
+  {%- else -%}
+    <p class="free-shipping-progress__message">
+      {{ 'general.cart.free_shipping_remaining' | t: amount: remaining_display }}
+    </p>
+  {%- endif -%}
+  <div class="free-shipping-progress__bar">
+    <div class="free-shipping-progress__fill" style="width: {{ progress_percent }}%;"></div>
+  </div>
+</div>

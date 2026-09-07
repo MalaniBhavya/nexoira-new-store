@@ -1,46 +1,56 @@
-<div class="error-page container" data-section-id="{{ section.id }}" data-section-type="main-404">
-  <p class="error-page__code">404</p>
-  <h1>{{ section.settings.heading }}</h1>
-  <p class="error-page__text">{{ section.settings.text }}</p>
-  <a href="{{ routes.root_url }}" class="button button--solid">{{ section.settings.button_label }}</a>
+<div class="error-page container">
+  <h1 class="error-page__heading">{{ 'general.error_page.heading' | t }}</h1>
+  <p class="error-page__body">{{ 'general.error_page.body' | t }}</p>
 
-  {%- if section.settings.show_shop_links -%}
-    <div class="error-page__links">
-      <a href="/collections/shirts">Shirts</a>
-      <a href="/collections/pants">Trousers</a>
-      <a href="/collections/kurta">Kurtas</a>
-    </div>
-  {%- endif -%}
+  <form action="{{ routes.search_url }}" method="get" role="search" class="error-page__search">
+    <input type="hidden" name="type" value="product">
+    <input
+      type="search"
+      name="q"
+      class="input"
+      placeholder="{{ 'general.navigation.search_placeholder' | t }}"
+      aria-label="{{ 'general.accessibility.search' | t }}"
+    >
+    <button type="submit" class="button--primary">{{ 'general.accessibility.search' | t }}</button>
+  </form>
+
+  <a href="{{ routes.root_url }}" class="button--secondary">{{ 'general.error_page.cta' | t }}</a>
 </div>
+
+{% stylesheet %}
+  .error-page {
+    padding-block: var(--space-9);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .error-page__heading {
+    font-size: var(--text-3xl);
+  }
+
+  .error-page__body {
+    color: var(--color-ink-muted);
+    max-width: 50ch;
+  }
+
+  .error-page__search {
+    display: flex;
+    gap: var(--space-2);
+    width: 100%;
+    max-width: 400px;
+    margin-top: var(--space-2);
+  }
+
+  .error-page__search .input {
+    flex: 1;
+  }
+{% endstylesheet %}
 
 {% schema %}
 {
-  "name": "404 page",
-  "settings": [
-    {
-      "type": "text",
-      "id": "heading",
-      "label": "Heading",
-      "default": "This page took a wrong turn."
-    },
-    {
-      "type": "text",
-      "id": "text",
-      "label": "Text",
-      "default": "The page you're looking for doesn't exist, but your next favorite piece might."
-    },
-    {
-      "type": "text",
-      "id": "button_label",
-      "label": "Button label",
-      "default": "BACK TO HOMEPAGE"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_shop_links",
-      "label": "Show quick shop links",
-      "default": true
-    }
-  ]
+  "name": "404 page"
 }
 {% endschema %}

@@ -1,0 +1,47 @@
+{%- comment -%}
+  Screen-reader-friendly price display with compare-at / savings.
+
+  Accepts:
+    product             (optional) uses product.price_min/max when no
+                         explicit price is given - for product cards
+    price               (optional) explicit price in cents - for a
+                         specific selected variant, e.g. on the PDP
+    compare_at_price    (optional) explicit compare-at price in cents
+    show_savings        (optional, default true) show a "Save X%" chip
+{%- endcomment -%}
+
+{%- liquid
+  assign show_savings = show_savings | default: true
+
+  if price == blank and product
+    assign price = product.price_min
+    assign compare_at_price = product.compare_at_price_max
+    assign price_varies = product.price_varies
+  endif
+
+  assign on_sale = false
+  if compare_at_price and compare_at_price > price
+    assign on_sale = true
+  endif
+-%}
+
+<div class="price{% if on_sale %} price--on-sale{% endif %}">
+  {%- if price_varies -%}
+    <span class="visually-hidden">{{ 'general.product.price_from' | t }}</span>
+    <span class="price__amount">{{ price | money }}</span>
+  {%- elsif on_sale -%}
+    <span class="visually-hidden">{{ 'general.product.price_sale' | t }}</span>
+    <span class="price__amount price__amount--sale">{{ price | money }}</span>
+    <span class="visually-hidden">{{ 'general.product.price_regular' | t }}</span>
+    <span class="price__amount price__amount--compare">
+      <s>{{ compare_at_price | money }}</s>
+    </span>
+    {%- if show_savings -%}
+      {%- assign savings_percent = compare_at_price | minus: price | times: 100 | divided_by: compare_at_price -%}
+      <span class="price__savings">{{ 'general.product.price_savings' | t: percent: savings_percent }}</span>
+    {%- endif -%}
+  {%- else -%}
+    <span class="visually-hidden">{{ 'general.product.price_regular' | t }}</span>
+    <span class="price__amount">{{ price | money }}</span>
+  {%- endif -%}
+</div>

@@ -1,0 +1,94 @@
+{%- comment -%}
+  PDP gallery: 3-5 images, video-ready, click-to-zoom. No-JS fallback is
+  a horizontally swipeable scroll-snap strip (works on mobile without
+  any JS at all); JS progressively enhances desktop into a thumbnail +
+  single active slide layout and wires up the zoom lightbox. JS lives in
+  main-product.liquid's {% javascript %} since this snippet only renders
+  once per page.
+
+  Accepts: product (required)
+{%- endcomment -%}
+
+<div class="product-gallery" data-product-gallery>
+  <div class="product-gallery__thumbs" data-gallery-thumbs>
+    {%- for media in product.media -%}
+      <button
+        type="button"
+        class="product-gallery__thumb{% if forloop.first %} product-gallery__thumb--active{% endif %}"
+        data-gallery-thumb
+        data-index="{{ forloop.index0 }}"
+        aria-current="{{ forloop.first }}"
+      >
+        <img
+          src="{{ media.preview_image | image_url: width: 120 }}"
+          width="120"
+          height="150"
+          alt=""
+          loading="lazy"
+        >
+        {%- if media.media_type == 'video' or media.media_type == 'external_video' -%}
+          <span class="product-gallery__thumb-play">{%- render 'icon', name: 'play', size: 14 -%}</span>
+        {%- endif -%}
+      </button>
+    {%- endfor -%}
+  </div>
+
+  <div class="product-gallery__main" data-gallery-main>
+    {%- for media in product.media -%}
+      <div
+        class="product-gallery__slide{% if forloop.first %} product-gallery__slide--active{% endif %}"
+        data-gallery-slide
+        data-index="{{ forloop.index0 }}"
+      >
+        {%- case media.media_type -%}
+          {%- when 'video', 'external_video', 'model' -%}
+            {{ media | media_tag: image_size: '900x', controls: true }}
+          {%- else -%}
+            <button type="button" class="product-gallery__zoom-trigger" data-gallery-zoom data-index="{{ forloop.index0 }}">
+              <img
+                src="{{ media.preview_image | image_url: width: 900 }}"
+                srcset="
+                  {{- media.preview_image | image_url: width: 480 }} 480w,
+                  {{ media.preview_image | image_url: width: 700 }} 700w,
+                  {{ media.preview_image | image_url: width: 900 }} 900w,
+                  {{ media.preview_image | image_url: width: 1200 }} 1200w
+                "
+                sizes="(min-width: 990px) 50vw, 100vw"
+                width="{{ media.preview_image.width }}"
+                height="{{ media.preview_image.height }}"
+                alt="{{ media.alt | default: product.title | escape }}"
+                loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                {% if forloop.first %}fetchpriority="high"{% endif %}
+              >
+              <span class="visually-hidden">{{ 'general.product.zoom' | t }}</span>
+            </button>
+        {%- endcase -%}
+      </div>
+    {%- endfor -%}
+  </div>
+</div>
+
+<div class="dialog-backdrop" id="GalleryZoomBackdrop" data-zoom-backdrop hidden></div>
+<div
+  class="dialog-panel zoom-lightbox"
+  id="GalleryZoomLightbox"
+  role="dialog"
+  aria-modal="true"
+  aria-label="{{ product.title | escape }}"
+  data-zoom-lightbox
+  hidden
+>
+  {%- assign close_label = 'general.accessibility.close' | t -%}
+  {%- assign previous_label = 'general.accessibility.previous' | t -%}
+  {%- assign next_label = 'general.accessibility.next' | t -%}
+  <button type="button" class="button--icon dialog-close" data-zoom-close>
+    {%- render 'icon', name: 'close', size: 20, title: close_label -%}
+  </button>
+  <button type="button" class="button--icon zoom-lightbox__prev" data-zoom-prev>
+    {%- render 'icon', name: 'chevron-left', size: 20, title: previous_label -%}
+  </button>
+  <div class="zoom-lightbox__image" data-zoom-image></div>
+  <button type="button" class="button--icon zoom-lightbox__next" data-zoom-next>
+    {%- render 'icon', name: 'chevron-right', size: 20, title: next_label -%}
+  </button>
+</div>

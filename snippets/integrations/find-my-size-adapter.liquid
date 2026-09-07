@@ -1,0 +1,26 @@
+{%- comment -%}
+  ADAPTER: Fit/size-recommendation provider swap point.
+
+  Current state (native, no app): snippets/find-my-size.liquid asks for
+  chest/waist in inches and matches them against generic, clearly-labeled
+  standard menswear ranges (not a Nexoira-specific fit claim, since no
+  brand-specific measurement data exists to encode as authoritative). The
+  result always points back at the real size chart rather than replacing
+  it, and the tool is disclosed as an estimate.
+
+  To swap in a real fit-recommendation app (e.g. one that learns from
+  return/exchange data or brand-specific garment measurements):
+    1. Replace the body of snippets/find-my-size.liquid with the app's
+       Liquid snippet/App Block, or render this file instead and have it
+       call the app's snippet/widget mount point.
+    2. If the app needs a script include, load it deferred and scoped to
+       the PDP only - never render-block the page for a tool most
+       visitors won't open.
+    3. On the app's script failing to load or erroring, fall back to
+       hiding the trigger button entirely rather than showing a broken
+       modal - "if it can't work yet, it doesn't render" applies here
+       exactly as it does to the native version's own metaobject check.
+    4. Leave the native generic-range fallback in git history - if the
+       app is ever removed, reverting this file restores a working,
+       app-free Find My Size tool immediately.
+{%- endcomment -%}

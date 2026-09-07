@@ -1,0 +1,127 @@
+{%- liquid
+  assign contact_title = page.title
+  if contact_title == blank
+    assign contact_title = 'general.navigation.contact_us' | t
+  endif
+-%}
+<div class="contact-page container">
+  <h1 class="contact-page__title">{{ contact_title }}</h1>
+  {%- if page.content != blank -%}
+    <div class="contact-page__intro rte">{{ page.content }}</div>
+  {%- endif -%}
+
+  <div class="contact-page__layout">
+    {%- form 'contact', id: 'ContactForm', class: 'contact-form' -%}
+      {%- if form.posted_successfully? -%}
+        <p class="contact-form__success" role="status">{{ 'general.contact.thanks' | t }}</p>
+      {%- else -%}
+        {%- if form.errors -%}
+          <p class="field__error">{{ form.errors | default_errors }}</p>
+        {%- endif -%}
+        <div class="field">
+          <label class="field__label" for="ContactName">{{ 'general.contact.name' | t }}</label>
+          <input type="text" id="ContactName" name="contact[name]" class="input" required>
+        </div>
+        <div class="field">
+          <label class="field__label" for="ContactEmail">{{ 'general.contact.email' | t }}</label>
+          <input type="email" id="ContactEmail" name="contact[email]" class="input" value="{{ form.email }}" required>
+        </div>
+        <div class="field">
+          <label class="field__label" for="ContactPhone">{{ 'general.contact.phone' | t }}</label>
+          <input type="tel" id="ContactPhone" name="contact[phone]" class="input">
+        </div>
+        <div class="field">
+          <label class="field__label" for="ContactMessage">{{ 'general.contact.message' | t }}</label>
+          <textarea id="ContactMessage" name="contact[body]" class="input" rows="5" required>{{ form.body }}</textarea>
+        </div>
+        <button type="submit" class="button--primary">{{ 'general.contact.submit' | t }}</button>
+      {%- endif -%}
+    {%- endform -%}
+
+    <div class="contact-page__info">
+      {%- if settings.contact_email != blank -%}
+        <a href="mailto:{{ settings.contact_email }}" class="contact-page__info-item" data-analytics-event="support_link_click" data-analytics-payload='{"channel":"email","source":"contact_page"}'>
+          {%- render 'icon', name: 'account', size: 18 -%}
+          {{ settings.contact_email }}
+        </a>
+      {%- endif -%}
+      {%- if settings.contact_phone != blank -%}
+        <a href="tel:{{ settings.contact_phone }}" class="contact-page__info-item" data-analytics-event="support_link_click" data-analytics-payload='{"channel":"phone","source":"contact_page"}'>
+          {%- render 'icon', name: 'account', size: 18 -%}
+          {{ settings.contact_phone }}
+        </a>
+      {%- endif -%}
+      {%- if settings.contact_whatsapp != blank -%}
+        <a href="https://wa.me/{{ settings.contact_whatsapp }}" target="_blank" rel="noopener" class="contact-page__info-item" data-analytics-event="support_link_click" data-analytics-payload='{"channel":"whatsapp","source":"contact_page"}'>
+          {%- render 'icon', name: 'whatsapp', size: 18 -%}
+          {{ 'general.navigation.whatsapp_us' | t }}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .contact-page {
+    padding-block: var(--space-6) var(--section-spacing-y);
+  }
+
+  .contact-page__title {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-3);
+  }
+
+  .contact-page__intro {
+    max-width: 65ch;
+    color: var(--color-ink-muted);
+    margin-bottom: var(--space-6);
+  }
+
+  .contact-page__layout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  @media (min-width: 990px) {
+    .contact-page__layout {
+      flex-direction: row;
+    }
+  }
+
+  .contact-form {
+    flex: 1 1 60%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-width: 480px;
+  }
+
+  .contact-form__success {
+    color: var(--color-success);
+    font-weight: 600;
+  }
+
+  .contact-page__info {
+    flex: 1 1 40%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    align-items: flex-start;
+  }
+
+  .contact-page__info-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    text-decoration: none;
+    color: var(--color-ink);
+    font-size: var(--text-sm);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Contact page"
+}
+{% endschema %}

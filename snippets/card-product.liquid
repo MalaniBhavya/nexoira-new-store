@@ -1,96 +1,114 @@
-{%- doc -%}
-  Renders a premium product card with hover image swap, sale/sold-out
-  badges and a quick-add action.
+{%- comment -%}
+  Product card: media (with desktop hover second-image), badge, sibling
+  colors, title, price. Used across the collection grid, homepage,
+  related products and search results, so its CSS lives globally in
+  assets/product-card.css rather than duplicated per section.
 
-  @param product {product} - the product to render
-  @param reveal_index {number} - optional grid position, used to stagger
-    the card's scroll-reveal entrance. Only pass this from static
-    (non-AJAX-refreshed) grids.
-{%- enddoc -%}
+  Accepts:
+    product         (required)
+    loading         (optional, default 'lazy') pass 'eager' for
+                    above-the-fold instances (e.g. the first row of a
+                    homepage merchandising section)
+    fetchpriority   (optional) pass 'high' for the single LCP card, if
+                    this card is expected to be the page's LCP element
+    show_quick_add  (optional, default true)
+    show_quick_view (optional, default true)
+
+  Quick Add and Quick View are wired up globally (assets/quick-add.js,
+  assets/quick-view.js) via event delegation on [data-quick-add-trigger]
+  / [data-quick-view-trigger], so this snippet only needs to render the
+  trigger buttons - no section-specific JS required.
+{%- endcomment -%}
 
 {%- liquid
-  assign card_product = product
-  assign featured_image = card_product.featured_media.preview_image
-  assign selected_variant = card_product.selected_or_first_available_variant
-
-  if reveal_index != blank
-    assign reveal_delay = reveal_index | at_most: 5 | times: 90
-  endif
+  assign loading = loading | default: 'lazy'
+  assign show_quick_add = show_quick_add | default: true
+  assign show_quick_view = show_quick_view | default: true
+  assign primary_image = product.featured_image
+  assign secondary_image = product.images[1]
+  assign card_sizes = '(min-width: 990px) 23vw, (min-width: 750px) 31vw, 46vw'
 -%}
 
-<div class="product-card"{% if reveal_delay %} data-reveal style="--reveal-delay: {{ reveal_delay }}ms;"{% endif %}>
-  <a href="{{ card_product.url }}" class="product-card__media-link" aria-hidden="true" tabindex="-1">
-    <div class="product-card__media">
-      {%- if featured_image -%}
-        <img
-          class="product-card__image product-card__image--primary"
-          src="{{ featured_image | image_url: width: 600 }}"
-          srcset="
-            {{ featured_image | image_url: width: 300 }} 300w,
-            {{ featured_image | image_url: width: 600 }} 600w,
-            {{ featured_image | image_url: width: 900 }} 900w,
-            {{ featured_image | image_url: width: 1200 }} 1200w
-          "
-          sizes="(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw"
-          alt="{{ featured_image.alt | escape }}"
-          width="{{ featured_image.width }}"
-          height="{{ featured_image.height }}"
-          loading="lazy"
+<article class="product-card{% unless product.available %} product-card--soldout{% endunless %}">
+  <div class="product-card__media aspect-portrait">
+    {%- if primary_image -%}
+      <img
+        class="product-card__image product-card__image--primary"
+        src="{{ primary_image | image_url: width: 480 }}"
+        srcset="
+          {{- primary_image | image_url: width: 180 }} 180w,
+          {{ primary_image | image_url: width: 240 }} 240w,
+          {{ primary_image | image_url: width: 320 }} 320w,
+          {{ primary_image | image_url: width: 400 }} 400w,
+          {{ primary_image | image_url: width: 480 }} 480w
+        "
+        sizes="{{ card_sizes }}"
+        width="{{ primary_image.width }}"
+        height="{{ primary_image.height }}"
+        alt="{{ primary_image.alt | default: product.title | escape }}"
+        loading="{{ loading }}"
+        {% if fetchpriority %}fetchpriority="{{ fetchpriority }}"{% endif %}
+      >
+    {%- else -%}
+      <div class="product-card__image product-card__image--placeholder"></div>
+    {%- endif -%}
+
+    {%- if secondary_image -%}
+      <img
+        class="product-card__image product-card__image--secondary"
+        src="{{ secondary_image | image_url: width: 480 }}"
+        srcset="
+          {{- secondary_image | image_url: width: 240 }} 240w,
+          {{ secondary_image | image_url: width: 320 }} 320w,
+          {{ secondary_image | image_url: width: 400 }} 400w,
+          {{ secondary_image | image_url: width: 480 }} 480w
+        "
+        sizes="{{ card_sizes }}"
+        width="{{ secondary_image.width }}"
+        height="{{ secondary_image.height }}"
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+      >
+    {%- endif -%}
+
+    {%- render 'badge', product: product -%}
+
+    <div class="product-card__actions">
+      {%- if show_quick_view -%}
+        <button
+          type="button"
+          class="product-card__quick-view button--icon"
+          data-quick-view-trigger
+          data-product-handle="{{ product.handle }}"
         >
-
-        {%- if card_product.media.size > 1 -%}
-          {%- assign second_image = card_product.media[1].preview_image -%}
-          <img
-            class="product-card__image product-card__image--secondary"
-            src="{{ second_image | image_url: width: 600 }}"
-            alt=""
-            width="{{ second_image.width }}"
-            height="{{ second_image.height }}"
-            loading="lazy"
-          >
-        {%- endif -%}
-      {%- else -%}
-        <div class="product-card__placeholder"></div>
+          {%- assign quick_view_label = 'general.product.quick_view' | t -%}
+          {%- render 'icon', name: 'search', size: 16, title: quick_view_label -%}
+        </button>
       {%- endif -%}
-
-      <div class="product-card__badges">
-        {%- if selected_variant.available == false -%}
-          <span class="badge badge--sold-out">{{ 'products.product.sold_out' | t }}</span>
-        {%- elsif selected_variant.compare_at_price > selected_variant.price -%}
-          <span class="badge badge--sale">{{ 'products.product.on_sale' | t }}</span>
-        {%- endif -%}
-      </div>
+      {%- render 'wishlist-button', product: product -%}
     </div>
-  </a>
 
-  <div class="product-card__info">
-    <h3 class="product-card__title">
-      <a href="{{ card_product.url }}">{{ card_product.title }}</a>
-    </h3>
-    <div class="product-card__price">
-      {%- if selected_variant.compare_at_price > selected_variant.price -%}
-        <span class="product-card__price--sale">{{ selected_variant.price | money }}</span>
-        <span class="product-card__price--compare">{{ selected_variant.compare_at_price | money }}</span>
-      {%- else -%}
-        <span>{{ selected_variant.price | money }}</span>
-      {%- endif -%}
-    </div>
+    {%- if show_quick_add and product.available -%}
+      <button
+        type="button"
+        class="product-card__quick-add"
+        data-quick-add-trigger
+        data-product-handle="{{ product.handle }}"
+      >
+        {%- render 'icon', name: 'plus', size: 14 -%}
+        {{ 'general.product.quick_add' | t }}
+      </button>
+    {%- endif -%}
   </div>
 
-  {%- if selected_variant.available -%}
-    <button
-      type="button"
-      class="product-card__quick-add"
-      data-quick-add
-      data-product-url="{{ card_product.url }}"
-      data-variant-id="{{ selected_variant.id }}"
-      data-single-variant="{{ card_product.has_only_default_variant }}"
-    >
-      {%- if card_product.has_only_default_variant -%}
-        {{ 'products.product.add_to_cart' | t }}
-      {%- else -%}
-        {{ 'products.product.choose_options' | t }}
-      {%- endif -%}
-    </button>
-  {%- endif -%}
-</div>
+  <div class="product-card__info">
+    {%- render 'sibling-colors', product: product, limit: 5 -%}
+
+    <p class="product-card__title">
+      <a href="{{ product.url }}" class="product-card__link">{{ product.title }}</a>
+    </p>
+
+    {%- render 'price', product: product -%}
+  </div>
+</article>

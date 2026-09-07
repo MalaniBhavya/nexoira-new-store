@@ -1,0 +1,285 @@
+/* Buttons, form controls and icon sizing: the cross-cutting UI primitives
+   used by virtually every section. Everything else stays scoped to its own
+   section/snippet {% stylesheet %} block. */
+
+/* ---------- Icons ---------- */
+
+.icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+}
+
+/* ---------- Buttons ---------- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1.5px solid transparent;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  position: relative;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.button--primary {
+  background: var(--color-accent-500);
+  color: var(--color-ink);
+}
+
+.button--primary:hover,
+.button--primary:focus-visible {
+  background: var(--color-accent-600);
+}
+
+.button--primary:active {
+  background: var(--color-accent-600);
+  transform: scale(0.98);
+}
+
+.button--secondary {
+  background: transparent;
+  border-color: var(--color-ink);
+  color: var(--color-ink);
+}
+
+.button--secondary:hover,
+.button--secondary:focus-visible {
+  background: var(--color-accent-50);
+}
+
+.button--secondary:active {
+  transform: scale(0.98);
+}
+
+.button--tertiary {
+  min-height: auto;
+  padding: var(--space-1) 0;
+  background: none;
+  color: var(--color-accent-900);
+  text-underline-offset: 3px;
+}
+
+.button--tertiary:hover,
+.button--tertiary:focus-visible {
+  text-decoration: underline;
+}
+
+.button--full {
+  width: 100%;
+}
+
+.button--icon {
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--space-2);
+  background: none;
+  color: var(--color-ink);
+  border-radius: var(--radius-pill);
+}
+
+.button--icon:hover,
+.button--icon:focus-visible {
+  background: var(--color-surface-alt);
+}
+
+.button:disabled,
+.button[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.button--loading {
+  color: transparent;
+  pointer-events: none;
+}
+
+.button--loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 1.1em;
+  height: 1.1em;
+  border: 2px solid rgba(28, 22, 20, 0.2);
+  border-top-color: var(--color-ink);
+  border-radius: var(--radius-pill);
+  animation: button-spin 0.6s linear infinite;
+}
+
+@keyframes button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button--loading::after {
+    animation: none;
+  }
+}
+
+/* ---------- Form fields ---------- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.field__label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.field__label--required::after {
+  content: " *";
+  color: var(--color-error);
+}
+
+.field__hint {
+  font-size: var(--text-xs);
+  color: var(--color-ink-muted);
+}
+
+.field__error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--color-error);
+}
+
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-3) var(--space-4);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.input::placeholder {
+  color: var(--color-ink-muted);
+}
+
+.input:hover {
+  border-color: var(--color-ink-muted);
+}
+
+.input:focus-visible {
+  border-color: var(--color-accent-700);
+  outline: 2px solid var(--color-accent-700);
+  outline-offset: 1px;
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--color-error);
+}
+
+textarea.input {
+  min-height: 120px;
+  resize: vertical;
+}
+
+select.input {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: var(--space-7);
+  background-repeat: no-repeat;
+  background-position: right var(--space-3) center;
+  background-size: 16px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B6560' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: var(--color-accent-600);
+}
+
+.field--checkbox,
+.field--radio {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* ---------- Quantity stepper ---------- */
+/* Used on the PDP, cart page and the (globally-rendered) cart drawer. */
+
+.quantity-selector {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.quantity-selector__button {
+  width: 36px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quantity-selector__input {
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  border: 0;
+  border-left: 1.5px solid var(--color-border);
+  border-right: 1.5px solid var(--color-border);
+  -moz-appearance: textfield;
+}
+
+/* FAQ accordion - shared by sections/faq-page.liquid and snippets/faq-accordion.liquid
+   (rendered from the PDP's product-FAQ block), which never share a page. */
+.faq-accordion__item {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.faq-accordion__question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: var(--space-4);
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq-accordion__question::-webkit-details-marker {
+  display: none;
+}
+
+.faq-accordion__item[open] .faq-accordion__icon {
+  transform: rotate(45deg);
+}
+
+.faq-accordion__icon {
+  transition: transform var(--duration-fast) var(--ease-standard);
+  flex-shrink: 0;
+}
+
+.faq-accordion__answer {
+  padding-bottom: var(--space-4);
+  color: var(--color-ink-muted);
+}

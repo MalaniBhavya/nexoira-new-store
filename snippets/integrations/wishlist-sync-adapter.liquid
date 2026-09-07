@@ -1,0 +1,24 @@
+{%- comment -%}
+  ADAPTER: Wishlist cross-device sync swap point.
+
+  Current state (native, no app): assets/wishlist-store.js keeps the
+  guest wishlist entirely in localStorage (Nexoira.wishlist.*). It works
+  today with zero setup, but does not sync across devices or survive a
+  cleared browser, and there is no storefront-side write API for
+  persisting it to the customer's account without a backend.
+
+  To add real cross-device sync + guest-to-account merge on login
+  (PRD §12):
+    1. Pick a backend: a customer metafield written via a Shopify
+       Function/app proxy, or a third-party wishlist app.
+    2. In assets/wishlist-store.js, change `read()`/`write()` to call
+       that backend's API instead of localStorage, keeping the same
+       Nexoira.wishlist.getAll/has/add/remove/toggle interface so every
+       caller (wishlist-button.liquid, the card, the PDP) needs no
+       changes.
+    3. On login, merge: read the local guest list once, push it to the
+       account-backed store, then switch reads/writes to the backend.
+    4. Guest checkout and browsing must keep working if that backend is
+       unreachable - wrap calls in try/catch and fall back to the
+       existing localStorage behavior, never block Add to Cart.
+{%- endcomment -%}

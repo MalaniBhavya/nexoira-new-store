@@ -3,12 +3,18 @@
     "main": {
       "type": "main-product"
     },
-    "size-guide": {
-      "type": "size-guide"
+    "reviews": {
+      "type": "product-reviews"
+    },
+    "complete-the-look": {
+      "type": "complete-the-look"
+    },
+    "related": {
+      "type": "product-recommendations"
+    },
+    "recently-viewed": {
+      "type": "recently-viewed"
     }
   },
-  "order": [
-    "main",
-    "size-guide"
-  ]
+  "order": ["main", "reviews", "complete-the-look", "related", "recently-viewed"]
 }

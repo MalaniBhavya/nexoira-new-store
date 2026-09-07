@@ -1,9 +1,37 @@
 <!doctype html>
-<html lang="{{ request.locale.iso_code }}" data-theme="nexoira">
+<html lang="{{ request.locale.iso_code }}">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="theme-color" content="{{ settings.color_background }}">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="canonical" href="{{ canonical_url }}">
+
+    {%- if page_description -%}
+      <meta name="description" content="{{ page_description | escape }}">
+    {%- endif -%}
+
+    {%- comment -%}
+      Faceted collection pages (any filter or non-default sort applied)
+      shouldn't compete with the clean collection URL in search results -
+      keep them crawlable (follow) but out of the index.
+    {%- endcomment -%}
+    {%- if template.name == 'collection' and collection -%}
+      {%- liquid
+        assign has_faceted_state = false
+        for filter in collection.filters
+          if filter.active_values.size > 0 or filter.min_value.value != nil or filter.max_value.value != nil
+            assign has_faceted_state = true
+            break
+          endif
+        endfor
+        if collection.sort_by != blank and collection.sort_by != collection.default_sort_by
+          assign has_faceted_state = true
+        endif
+      -%}
+      {%- if has_faceted_state -%}
+        <meta name="robots" content="noindex, follow">
+      {%- endif -%}
+    {%- endif -%}
 
     <title>
       {{ page_title }}
@@ -12,49 +40,51 @@
       {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
     </title>
 
-    {% if page_description %}
-      <meta name="description" content="{{ page_description | escape }}">
-    {% endif %}
-
-    <link rel="canonical" href="{{ canonical_url }}">
-
-    {% if settings.favicon %}
+    {%- if settings.favicon -%}
       <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
-    {% endif %}
+    {%- endif -%}
 
-    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap"
-    >
+    {%- render 'meta-tags' -%}
+
+    {{ 'inter-latin.woff2' | asset_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+    {{ 'playfair-display-latin.woff2' | asset_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+
+    {{ 'tokens.css' | asset_url | stylesheet_tag }}
+    {%- render 'theme-tokens' -%}
+    {{ 'base.css' | asset_url | stylesheet_tag }}
+    {{ 'components.css' | asset_url | stylesheet_tag }}
+    {{ 'product-card.css' | asset_url | stylesheet_tag }}
+    {{ 'quick-shop.css' | asset_url | stylesheet_tag }}
+    {{ 'cart-drawer.css' | asset_url | stylesheet_tag }}
+    {{ 'collection.css' | asset_url | stylesheet_tag }}
+
+    <script src="{{ 'global.js' | asset_url }}" defer></script>
+    <script src="{{ 'analytics.js' | asset_url }}" defer></script>
+    <script src="{{ 'cart-store.js' | asset_url }}" defer></script>
+    <script src="{{ 'wishlist-store.js' | asset_url }}" defer></script>
+    <script src="{{ 'recently-viewed.js' | asset_url }}" defer></script>
+    <script src="{{ 'quick-add.js' | asset_url }}" defer></script>
+    <script src="{{ 'quick-view.js' | asset_url }}" defer></script>
+    <script src="{{ 'cart-drawer.js' | asset_url }}" defer></script>
+
+    {%- render 'organization-jsonld' -%}
 
     {{ content_for_header }}
-
-    {%- render 'css-variables' -%}
-    {{ 'base.css' | asset_url | stylesheet_tag }}
-
-    <script>window.themeMoneyFormat = {{ shop.money_format | json }};</script>
-    <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
-    <noscript>
-      <style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style>
-    </noscript>
   </head>
 
-  <body class="template-{{ request.page_type }}{% if request.page_type == 'index' %} has-transparent-header{% endif %}">
-    <a class="skip-to-content" href="#MainContent">
-      {{ 'accessibility.skip_to_content' | t }}
-    </a>
+  <body class="template-{{ template.name | handleize }}">
+    <a class="skip-link" href="#MainContent">{{ 'general.accessibility.skip_to_content' | t }}</a>
 
-    {% section 'announcement-bar' %}
-    {% section 'header' %}
+    {% sections 'header-group' %}
 
-    <main id="MainContent" class="main-content">
+    <main id="MainContent" tabindex="-1">
       {{ content_for_layout }}
     </main>
 
-    {% section 'footer' %}
-    {% section 'cart-drawer' %}
+    {% sections 'footer-group' %}
+
+    {%- render 'quick-add-popover' -%}
+    {%- render 'quick-view-modal' -%}
+    {%- render 'cart-drawer' -%}
   </body>
 </html>

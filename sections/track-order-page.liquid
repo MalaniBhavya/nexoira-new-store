@@ -1,0 +1,120 @@
+{%- comment -%}
+  Track Order. Shopify has no public guest order-lookup endpoint a theme
+  can call without an app, so this is honest about what actually works
+  today: the shipping-confirmation email's tracking link, and signed-in
+  order history. See snippets/integrations/track-order-adapter.liquid
+  for the swap point if a tracking app is added later.
+{%- endcomment -%}
+
+{%- liquid
+  assign track_title = page.title
+  if track_title == blank
+    assign track_title = 'general.navigation.track_order' | t
+  endif
+-%}
+
+<div class="track-order-page container">
+  <h1 class="track-order-page__title">{{ track_title }}</h1>
+  {%- if page.content != blank -%}
+    <div class="track-order-page__intro rte">{{ page.content }}</div>
+  {%- endif -%}
+
+  <div class="track-order-page__cards">
+    <div class="track-order-page__card">
+      {%- render 'icon', name: 'account', size: 24 -%}
+      <h2>{{ 'general.track_order.account_heading' | t }}</h2>
+      <p>{{ 'general.track_order.account_body' | t }}</p>
+      <a href="{{ routes.account_url }}" class="button--primary">{{ 'general.track_order.account_cta' | t }}</a>
+    </div>
+
+    <div class="track-order-page__card">
+      {%- render 'icon', name: 'truck', size: 24 -%}
+      <h2>{{ 'general.track_order.email_heading' | t }}</h2>
+      <p>{{ 'general.track_order.email_body' | t }}</p>
+    </div>
+
+    {%- if settings.contact_whatsapp != blank or settings.contact_email != blank -%}
+      <div class="track-order-page__card">
+        {%- render 'icon', name: 'shield-check', size: 24 -%}
+        <h2>{{ 'general.track_order.support_heading' | t }}</h2>
+        <p>{{ 'general.track_order.support_body' | t }}</p>
+        <div class="track-order-page__support-links">
+          {%- if settings.contact_whatsapp != blank -%}
+            <a href="https://wa.me/{{ settings.contact_whatsapp }}" target="_blank" rel="noopener" class="button--secondary" data-analytics-event="support_link_click" data-analytics-payload='{"channel":"whatsapp","source":"track_order_page"}'>
+              {{ 'general.navigation.whatsapp_us' | t }}
+            </a>
+          {%- endif -%}
+          {%- if settings.contact_email != blank -%}
+            <a href="mailto:{{ settings.contact_email }}" class="button--secondary" data-analytics-event="support_link_click" data-analytics-payload='{"channel":"email","source":"track_order_page"}'>{{ 'general.navigation.contact_us' | t }}</a>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .track-order-page {
+    padding-block: var(--space-6) var(--section-spacing-y);
+  }
+
+  .track-order-page__title {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-3);
+  }
+
+  .track-order-page__intro {
+    max-width: 65ch;
+    color: var(--color-ink-muted);
+    margin-bottom: var(--space-6);
+  }
+
+  .track-order-page__cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 750px) {
+    .track-order-page__cards {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .track-order-page__card {
+    padding: var(--space-6);
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .track-order-page__card .icon {
+    color: var(--color-accent-900);
+    margin-bottom: var(--space-2);
+  }
+
+  .track-order-page__card h2 {
+    font-size: var(--text-lg);
+  }
+
+  .track-order-page__card p {
+    font-size: var(--text-sm);
+    color: var(--color-ink-muted);
+    flex: 1;
+  }
+
+  .track-order-page__support-links {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Track order page"
+}
+{% endschema %}

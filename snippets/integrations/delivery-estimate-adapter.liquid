@@ -1,0 +1,18 @@
+{%- comment -%}
+  ADAPTER: Courier / delivery-estimate provider swap point.
+
+  Current state (native, no app): snippets/delivery-estimate.liquid
+  validates the PIN is a real 6-digit format and shows the merchant's
+  single configured default estimate (Theme settings -> Cart & shipping
+  -> Default delivery estimate). It never fabricates a per-pincode ETA.
+
+  To add real per-pincode/zone estimates from a courier API:
+    1. Replace the click handler in sections/main-product.liquid's
+       initDeliveryEstimate() with a fetch to the courier's rate/ETA
+       endpoint (likely via an app proxy, since calling a third-party
+       API with credentials directly from the storefront isn't safe).
+    2. Keep the 6-digit format validation as a first-line client check.
+    3. On any API failure/timeout, fall back to the existing default
+       estimate text rather than showing an error - delivery info
+       failing to load must never block browsing or Add to Cart.
+{%- endcomment -%}

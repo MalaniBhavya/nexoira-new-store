@@ -1,0 +1,35 @@
+{%- comment -%}
+  Delivery PIN check. Native fallback: validates the PIN is a real
+  6-digit format and shows the merchant's configured default estimate -
+  no fabricated per-pincode ETAs. The swap point for a real courier API
+  is snippets/integrations/delivery-estimate-adapter.liquid (documented,
+  not built here since there's no courier integration to call yet).
+  JS lives in main-product.liquid's {% javascript %}.
+{%- endcomment -%}
+
+<div class="delivery-estimate">
+  <label class="field__label" for="DeliveryPin">{{ 'general.product.delivery_label' | t }}</label>
+  <div class="delivery-estimate__row">
+    <input
+      type="text"
+      id="DeliveryPin"
+      class="input"
+      inputmode="numeric"
+      pattern="[0-9]{6}"
+      maxlength="6"
+      placeholder="{{ 'general.product.delivery_pin_placeholder' | t }}"
+      data-delivery-pin
+    >
+    <button type="button" class="button--secondary" data-delivery-check>
+      {{ 'general.product.delivery_check' | t }}
+    </button>
+  </div>
+  <p
+    class="delivery-estimate__result"
+    data-delivery-result
+    data-invalid="{{ 'general.product.delivery_pin_invalid' | t }}"
+    data-estimate="{{ 'general.product.delivery_estimate_result' | t: estimate: settings.default_delivery_estimate }}{% if settings.cod_enabled %}. {{ 'general.product.cod_available' | t }}{% endif %}"
+    role="status"
+    aria-live="polite"
+  ></p>
+</div>

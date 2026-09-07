@@ -1,0 +1,134 @@
+{%- comment -%}
+  Social proof section (PRD §5: "Social proof/review highlights
+  positioned dynamically"). The merchant hand-picks real, already-
+  published reviews (the same `review` metaobjects used on PDPs) via a
+  native metaobject picker - nothing here is aggregated, invented, or
+  auto-pulled from an unrelated source. Renders nothing until at least
+  one review block is added.
+{%- endcomment -%}
+
+{%- if section.blocks.size > 0 -%}
+  <section class="reviews-highlight container">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="reviews-highlight__heading">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+    <div class="reviews-highlight__grid">
+      {%- for block in section.blocks -%}
+        {%- assign review = block.settings.review.value -%}
+        {%- if review -%}
+          <div class="reviews-highlight__card" {{ block.shopify_attributes }}>
+            <div class="reviews-highlight__stars" aria-hidden="true">
+              {%- for i in (1..5) -%}
+                {%- if i <= review.rating.value -%}
+                  {%- render 'icon', name: 'star-filled', size: 14 -%}
+                {%- else -%}
+                  {%- render 'icon', name: 'star', size: 14 -%}
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+            <p class="reviews-highlight__body">{{ review.body.value | newline_to_br }}</p>
+            <p class="reviews-highlight__author">
+              {{ review.author_name.value }}
+              {%- if review.verified_purchase.value -%}
+                <span class="reviews-highlight__verified">
+                  {%- render 'icon', name: 'shield-check', size: 12 -%}
+                  {{ 'general.product.reviews_verified' | t }}
+                </span>
+              {%- endif -%}
+            </p>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </section>
+{%- endif -%}
+
+{% stylesheet %}
+  .reviews-highlight {
+    padding-block: var(--section-spacing-y);
+  }
+
+  .reviews-highlight__heading {
+    font-size: var(--text-2xl);
+    text-align: center;
+    margin-bottom: var(--space-6);
+  }
+
+  .reviews-highlight__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 750px) {
+    .reviews-highlight__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .reviews-highlight__card {
+    padding: var(--space-5);
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-md);
+  }
+
+  .reviews-highlight__stars {
+    display: flex;
+    gap: 2px;
+    color: var(--color-accent-700);
+    margin-bottom: var(--space-3);
+  }
+
+  .reviews-highlight__body {
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    margin-bottom: var(--space-3);
+  }
+
+  .reviews-highlight__author {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+    font-weight: 700;
+  }
+
+  .reviews-highlight__verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--color-success);
+    font-weight: 400;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Review highlights",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "What customers are saying"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Review",
+      "settings": [
+        {
+          "type": "metaobject",
+          "id": "review",
+          "label": "Review",
+          "metaobject_type": "review"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    { "name": "Review highlights" }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,287 @@
+{%- liquid
+  assign active_filter_count = 0
+  for filter in collection.filters
+    assign active_filter_count = active_filter_count | plus: filter.active_values.size
+    if filter.min_value.value != nil or filter.max_value.value != nil
+      assign active_filter_count = active_filter_count | plus: 1
+    endif
+  endfor
+-%}
+
+<div class="collection-page">
+  <div class="container">
+    {%- render 'breadcrumbs', collection: collection -%}
+  </div>
+  <div class="container collection-page__header">
+    <h1 class="collection-page__title">{{ collection.title }}</h1>
+    {%- if collection.description != blank -%}
+      <div class="collection-page__description">{{ collection.description }}</div>
+    {%- endif -%}
+  </div>
+
+  {%- paginate collection.products by section.settings.products_per_page -%}
+    <div class="container collection-page__toolbar">
+      {%- if section.settings.show_filters and collection.filters.size > 0 -%}
+        <button
+          type="button"
+          class="button--secondary collection-page__filter-toggle"
+          data-filters-toggle
+          aria-controls="CollectionFiltersDrawer-{{ section.id }}"
+          aria-expanded="false"
+        >
+          {%- render 'icon', name: 'filter', size: 16 -%}
+          {{ 'general.accessibility.filters' | t }}
+          {%- if active_filter_count > 0 -%}
+            <span class="collection-page__filter-count">{{ active_filter_count }}</span>
+          {%- endif -%}
+        </button>
+      {%- endif -%}
+
+      <p class="collection-page__count">{{ 'general.product.results_count' | t: count: collection.products_count }}</p>
+
+      {%- if collection.sort_options.size > 1 -%}
+        <div class="collection-page__sort">
+          <label class="visually-hidden" for="SortBy-{{ section.id }}">{{ 'general.product.sort_by' | t }}</label>
+          <select id="SortBy-{{ section.id }}" name="sort_by" class="input" form="FacetFiltersForm" data-sort-select>
+            {%- for option in collection.sort_options -%}
+              <option value="{{ option.value }}" {% if option.value == collection.sort_by %}selected{% endif %}>
+                {{ option.name }}
+              </option>
+            {%- endfor -%}
+          </select>
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- if section.settings.show_filters and collection.filters.size > 0 -%}
+      <div class="collection-filters-drawer" id="CollectionFiltersDrawer-{{ section.id }}" data-filters-drawer hidden>
+        <div class="collection-filters-drawer__backdrop" data-filters-backdrop></div>
+        <div
+          class="collection-filters-drawer__panel"
+          role="dialog"
+          aria-modal="true"
+          aria-label="{{ 'general.accessibility.filters' | t }}"
+          data-filters-panel
+        >
+          <div class="collection-filters-drawer__header">
+            <p class="collection-filters-drawer__title">{{ 'general.accessibility.filters' | t }}</p>
+            <button type="button" class="button--icon" data-filters-close>
+              {%- assign close_label = 'general.accessibility.close' | t -%}
+              {%- render 'icon', name: 'close', size: 20, title: close_label -%}
+            </button>
+          </div>
+          {%- render 'collection-filters', results: collection, results_url: collection.url -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- if collection.products.size > 0 -%}
+      <div class="container">
+        <div
+          class="collection-grid"
+          id="ProductGrid-{{ section.id }}"
+          data-product-grid
+          style="--columns-desktop: {{ section.settings.columns_desktop }};"
+        >
+          {%- for product in collection.products -%}
+            {%- liquid
+              assign card_loading = 'lazy'
+              assign card_fetchpriority = nil
+              if forloop.index <= 2
+                assign card_loading = 'eager'
+              endif
+              if forloop.first
+                assign card_fetchpriority = 'high'
+              endif
+            -%}
+            {%- render 'card-product', product: product, loading: card_loading, fetchpriority: card_fetchpriority -%}
+          {%- endfor -%}
+        </div>
+
+        <div
+          id="Pagination-{{ section.id }}"
+          data-pagination-wrapper
+          data-section-id="{{ section.id }}"
+          data-enable-infinite-scroll="{{ section.settings.enable_infinite_scroll }}"
+        >
+          {%- render 'pagination', paginate: paginate -%}
+        </div>
+      </div>
+    {%- else -%}
+      <div class="container collection-page__empty">
+        <h2>{{ 'general.product.no_results_title' | t }}</h2>
+        <p>{{ 'general.product.no_results_body' | t }}</p>
+        <a href="{{ collection.url }}" class="button--secondary">{{ 'general.product.clear_filters' | t }}</a>
+      </div>
+    {%- endif -%}
+  {%- endpaginate -%}
+</div>
+
+{% javascript %}
+  (function () {
+    function initFiltersDrawer() {
+      var toggle = document.querySelector('[data-filters-toggle]');
+      var drawer = document.querySelector('[data-filters-drawer]');
+      if (!toggle || !drawer) return;
+
+      var panel = drawer.querySelector('[data-filters-panel]');
+      var backdrop = drawer.querySelector('[data-filters-backdrop]');
+      var closeBtn = drawer.querySelector('[data-filters-close]');
+      var releaseFocusTrap = null;
+      var unlockScroll = null;
+
+      function open() {
+        drawer.hidden = false;
+        unlockScroll = Nexoira.lockScroll();
+        toggle.setAttribute('aria-expanded', 'true');
+        window.requestAnimationFrame(function () {
+          drawer.setAttribute('data-open', '');
+        });
+        releaseFocusTrap = Nexoira.trapFocus(panel, { onEscape: close });
+      }
+
+      function close() {
+        drawer.removeAttribute('data-open');
+        toggle.setAttribute('aria-expanded', 'false');
+        if (unlockScroll) unlockScroll();
+        if (releaseFocusTrap) releaseFocusTrap();
+        window.setTimeout(function () {
+          drawer.hidden = true;
+        }, 250);
+        toggle.focus();
+      }
+
+      toggle.addEventListener('click', open);
+      if (closeBtn) closeBtn.addEventListener('click', close);
+      if (backdrop) backdrop.addEventListener('click', close);
+    }
+
+    function initAutoSubmit() {
+      var form = document.getElementById('FacetFiltersForm');
+      if (!form) return;
+
+      Array.prototype.forEach.call(form.querySelectorAll('input[type="checkbox"], select'), function (el) {
+        el.addEventListener('change', function () {
+          if (window.Nexoira && Nexoira.analytics) {
+            Nexoira.analytics.track('filter_applied', { name: el.name, value: el.value });
+          }
+          form.requestSubmit ? form.requestSubmit() : form.submit();
+        });
+      });
+
+      var debounceTimer = null;
+      Array.prototype.forEach.call(form.querySelectorAll('input[type="number"]'), function (el) {
+        el.addEventListener('input', function () {
+          window.clearTimeout(debounceTimer);
+          debounceTimer = window.setTimeout(function () {
+            if (window.Nexoira && Nexoira.analytics) {
+              Nexoira.analytics.track('filter_applied', { name: el.name, value: el.value });
+            }
+            form.requestSubmit ? form.requestSubmit() : form.submit();
+          }, 600);
+        });
+      });
+    }
+
+    function initInfiniteScroll() {
+      var wrapper = document.querySelector('[data-pagination-wrapper]');
+      if (!wrapper || wrapper.getAttribute('data-enable-infinite-scroll') !== 'true') return;
+
+      var grid = document.querySelector('[data-product-grid]');
+      if (!grid) return;
+
+      var sectionId = wrapper.getAttribute('data-section-id');
+      var loading = false;
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) loadNext();
+        });
+      }, { rootMargin: '400px' });
+
+      function observeNextLink() {
+        observer.disconnect();
+        var nextLink = wrapper.querySelector('[data-pagination-next]');
+        if (nextLink) observer.observe(nextLink);
+      }
+
+      function loadNext() {
+        var nextLink = wrapper.querySelector('[data-pagination-next]');
+        if (!nextLink || loading) return;
+        loading = true;
+
+        var cleanUrl = nextLink.href;
+        var fetchUrl = new URL(cleanUrl);
+        fetchUrl.searchParams.set('section_id', sectionId);
+
+        fetch(fetchUrl.toString())
+          .then(function (response) {
+            return response.text();
+          })
+          .then(function (html) {
+            var doc = new DOMParser().parseFromString(html, 'text/html');
+            var newGrid = doc.querySelector('[data-product-grid]');
+            var newPagination = doc.querySelector('[data-pagination-wrapper]');
+
+            if (newGrid) {
+              Array.prototype.forEach.call(newGrid.children, function (card) {
+                grid.appendChild(card);
+              });
+            }
+            if (newPagination) {
+              wrapper.innerHTML = newPagination.innerHTML;
+              observeNextLink();
+            }
+            window.history.replaceState(null, '', cleanUrl);
+          })
+          .finally(function () {
+            loading = false;
+          });
+      }
+
+      observeNextLink();
+    }
+
+    initFiltersDrawer();
+    initAutoSubmit();
+    initInfiniteScroll();
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Collection pages",
+  "settings": [
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "label": "Products per page",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 3,
+      "max": 5,
+      "step": 1,
+      "label": "Desktop columns",
+      "default": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "show_filters",
+      "label": "Show filters",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_infinite_scroll",
+      "label": "Enable infinite scroll",
+      "info": "When off, customers use the page-number links instead",
+      "default": true
+    }
+  ]
+}
+{% endschema %}
