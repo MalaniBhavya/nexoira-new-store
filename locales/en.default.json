@@ -125,6 +125,7 @@
     "cart": {
       "title": "Your Cart",
       "empty": "Your cart is empty.",
+    "load_error": "Couldn't load your cart. Please try again.",
       "continue_shopping": "Continue Shopping",
       "remove": "Remove",
       "line_unavailable": "This item is no longer available",

@@ -20,6 +20,7 @@
     freeShippingMet: drawer.getAttribute('data-i18n-free-shipping-met'),
     freeShippingRemaining: drawer.getAttribute('data-i18n-free-shipping-remaining'),
     empty: drawer.getAttribute('data-i18n-empty'),
+    loadError: drawer.getAttribute('data-i18n-load-error'),
     remove: drawer.getAttribute('data-i18n-remove'),
     decrease: drawer.getAttribute('data-i18n-decrease'),
     increase: drawer.getAttribute('data-i18n-increase'),
@@ -179,6 +180,17 @@
     renderItems(cart);
   }
 
+  function renderError() {
+    shippingEl.innerHTML = '';
+    itemsEl.innerHTML = '';
+    footerEl.hidden = true;
+    var error = document.createElement('p');
+    error.className = 'cart-drawer__empty';
+    error.setAttribute('role', 'alert');
+    error.textContent = i18n.loadError;
+    itemsEl.appendChild(error);
+  }
+
   function open() {
     drawer.hidden = false;
     backdrop.hidden = false;
@@ -188,7 +200,7 @@
       backdrop.setAttribute('data-open', '');
     });
     releaseFocusTrap = Nexoira.trapFocus(drawer, { onEscape: close });
-    Nexoira.cart.refresh();
+    Nexoira.cart.refresh().catch(renderError);
   }
 
   function close() {
