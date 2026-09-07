@@ -53,7 +53,7 @@
               <span class="review-card__date">{{ review.submitted_at.value | date: '%B %Y' }}</span>
             {%- endif -%}
           </div>
-          <p class="review-card__body">{{ review.body.value }}</p>
+          <p class="review-card__body">{{ review.body.value | newline_to_br }}</p>
           {%- if review.photo.value -%}
             <img
               class="review-card__photo"
