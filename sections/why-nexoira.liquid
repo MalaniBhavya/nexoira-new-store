@@ -7,7 +7,12 @@
   <div class="container">
     {%- if section.settings.heading != blank -%}
       <div class="section-heading section-heading--center" data-reveal>
-        <h2 class="section-heading__title">{{ section.settings.heading }}</h2>
+        <div class="section-heading__text">
+          <h2 class="section-heading__title">{{ section.settings.heading }}</h2>
+          {%- if section.settings.subheading != blank -%}
+            <p class="section-heading__subtitle">{{ section.settings.subheading }}</p>
+          {%- endif -%}
+        </div>
       </div>
     {%- endif -%}
 
@@ -19,14 +24,18 @@
             <div class="why-nexoira__icon">
               {%- liquid
                 case block.settings.icon
+                  when 'returns'
+                    render 'icon-feature-returns'
+                  when 'cod'
+                    render 'icon-feature-cod'
+                  when 'secure'
+                    render 'icon-feature-secure'
+                  when 'fabric'
+                    render 'icon-feature-fabric'
                   when 'fit'
                     render 'icon-feature-fit'
-                  when 'price'
-                    render 'icon-feature-price'
-                  when 'india'
-                    render 'icon-feature-india'
                   else
-                    render 'icon-feature-fabric'
+                    render 'icon-feature-shipping'
                 endcase
               -%}
             </div>
@@ -50,6 +59,11 @@
       "id": "heading",
       "label": "Heading",
       "default": "Why Nexoira"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Supporting text"
     }
   ],
   "blocks": [
@@ -63,23 +77,31 @@
           "label": "Icon",
           "options": [
             {
+              "value": "shipping",
+              "label": "Shipping"
+            },
+            {
+              "value": "returns",
+              "label": "Returns"
+            },
+            {
+              "value": "cod",
+              "label": "Cash on delivery"
+            },
+            {
+              "value": "secure",
+              "label": "Secure payments"
+            },
+            {
               "value": "fabric",
               "label": "Fabric"
             },
             {
               "value": "fit",
               "label": "Fit"
-            },
-            {
-              "value": "price",
-              "label": "Price"
-            },
-            {
-              "value": "india",
-              "label": "India"
             }
           ],
-          "default": "fabric"
+          "default": "shipping"
         },
         {
           "type": "text",
@@ -99,33 +121,33 @@
       {
         "type": "benefit",
         "settings": {
-          "icon": "fabric",
-          "heading": "QUALITY YOU CAN FEEL",
-          "text": "Carefully selected fabrics designed for everyday comfort."
+          "icon": "shipping",
+          "heading": "Free shipping",
+          "text": "On orders above ₹999"
         }
       },
       {
         "type": "benefit",
         "settings": {
-          "icon": "india",
-          "heading": "MADE FOR EVERYDAY",
-          "text": "Versatile clothing designed for real life."
+          "icon": "returns",
+          "heading": "7-day returns",
+          "text": "Simple and convenient"
         }
       },
       {
         "type": "benefit",
         "settings": {
-          "icon": "fit",
-          "heading": "MODERN FIT",
-          "text": "Contemporary silhouettes for the modern Indian man."
+          "icon": "cod",
+          "heading": "COD available",
+          "text": "Across eligible pincodes"
         }
       },
       {
         "type": "benefit",
         "settings": {
-          "icon": "price",
-          "heading": "FAIRLY PRICED",
-          "text": "Better quality without unnecessary markups."
+          "icon": "secure",
+          "heading": "Secure payments",
+          "text": "UPI, cards, net banking & more"
         }
       }
     ]

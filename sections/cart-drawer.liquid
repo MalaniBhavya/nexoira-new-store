@@ -10,7 +10,7 @@
       <h2 class="cart-drawer__title">
         {{ 'cart.general.title' | t }}{% if cart.item_count > 0 %} ({{ cart.item_count }}){% endif %}
       </h2>
-      <button type="button" class="cart-drawer__close" data-cart-drawer-close aria-label="{{ 'general.menu.close' | t }}">
+      <button type="button" class="cart-drawer__close" data-cart-drawer-close aria-label="{{ 'accessibility.close' | t }}">
         {%- render 'icon-close' -%}
       </button>
     </div>
@@ -78,19 +78,22 @@
 
     {%- if cart.item_count > 0 -%}
       <div class="cart-drawer__footer">
-        {%- if section.settings.shipping_note != blank -%}
-          <p class="cart-drawer__shipping-note">{{ section.settings.shipping_note }}</p>
-        {%- endif -%}
+        {%- render 'free-shipping-bar' -%}
+
         <div class="cart-drawer__subtotal">
           <span>{{ 'cart.label.total' | t }}</span>
           <span>{{ cart.total_price | money }}</span>
         </div>
-        <a href="{{ routes.cart_url }}" class="button button--outline cart-drawer__view-cart" data-cart-drawer-close>
-          View cart
-        </a>
-        <a href="/checkout" class="button button--solid cart-drawer__checkout">
-          {{ 'cart.checkout.button' | t }}
-        </a>
+        <p class="cart-drawer__taxes-note">{{ 'cart.checkout.taxes_note' | t }}</p>
+
+        <div class="cart-drawer__actions">
+          <a href="{{ routes.cart_url }}" class="button button--outline" data-cart-drawer-close>
+            {{ 'cart.general.view_cart' | t }}
+          </a>
+          <a href="{{ routes.cart_url }}/checkout" class="button button--solid cart-drawer__checkout">
+            {{ 'cart.checkout.button' | t }}
+          </a>
+        </div>
       </div>
     {%- endif -%}
   </div>
@@ -102,10 +105,8 @@
   "name": "Cart drawer",
   "settings": [
     {
-      "type": "text",
-      "id": "shipping_note",
-      "label": "Shipping note",
-      "default": "Free shipping on orders above ₹999"
+      "type": "paragraph",
+      "content": "The free shipping progress message and its threshold are set under Theme settings → Cart."
     }
   ]
 }

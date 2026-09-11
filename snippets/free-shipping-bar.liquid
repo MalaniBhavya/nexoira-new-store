@@ -1,0 +1,48 @@
+{%- doc -%}
+  Free shipping progress.
+
+  The threshold is a theme setting so it can be kept in step with the
+  actual shipping rate — the theme cannot read Shipping settings, and it
+  does not pretend to. Rendered server-side, so it stays correct after
+  every cart mutation without any JS of its own.
+{%- enddoc -%}
+
+{%- liquid
+  assign threshold = settings.cart_free_shipping_threshold | default: 0 | times: 100
+-%}
+
+{%- if settings.cart_free_shipping_enabled and threshold > 0 -%}
+  {%- liquid
+    assign remaining = threshold | minus: cart.total_price
+    assign unlocked = false
+    if remaining <= 0
+      assign unlocked = true
+      assign percent = 100
+    else
+      assign percent = cart.total_price | times: 100 | divided_by: threshold
+      # Format before interpolating: a filter after `t:` would apply to the
+      # translated string, not to the amount.
+      assign remaining_money = remaining | money
+    endif
+  -%}
+
+  <div class="shipping-bar{% if unlocked %} shipping-bar--unlocked{% endif %}">
+    <p class="shipping-bar__text">
+      {%- if unlocked -%}
+        {{ 'cart.shipping.unlocked' | t }}
+      {%- else -%}
+        {{ 'cart.shipping.progress' | t: amount: remaining_money }}
+      {%- endif -%}
+    </p>
+    <div
+      class="shipping-bar__track"
+      role="progressbar"
+      aria-valuenow="{{ percent }}"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-label="Progress towards free shipping"
+    >
+      <span class="shipping-bar__fill" style="width: {{ percent }}%;"></span>
+    </div>
+  </div>
+{%- endif -%}

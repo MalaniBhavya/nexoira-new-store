@@ -1,74 +1,129 @@
 {%- doc -%}
-  Site-wide footer. Link columns are built from repeatable blocks
-  grouped by column, so every link is editable from the theme
-  customizer without requiring a pre-built navigation menu.
+  Site footer.
+
+  Shop / Help / Legal columns are built from repeatable link blocks, so
+  every link is editable in the customizer without needing a pre-built
+  navigation menu. The Connect column is generated from theme settings —
+  no contact detail is written into this file.
 {%- enddoc -%}
 
+{%- liquid
+  assign wa_number = settings.whatsapp_number | remove: ' ' | remove: '+' | remove: '-' | remove: '(' | remove: ')'
+
+  assign has_connect = false
+  if settings.social_instagram_link != blank or wa_number != blank or settings.contact_email != blank or settings.contact_phone != blank
+    assign has_connect = true
+  endif
+-%}
+
 <footer class="site-footer" data-section-id="{{ section.id }}" data-section-type="footer">
-  <div class="container site-footer__inner" data-reveal>
+  <div class="container site-footer__inner">
 
     <div class="site-footer__brand">
-      <a href="{{ routes.root_url }}" class="site-footer__logo">Nexoira</a>
-      {%- if section.settings.tagline != blank -%}
-        <p class="site-footer__tagline">{{ section.settings.tagline }}</p>
+      <a href="{{ routes.root_url }}" class="site-footer__logo">{{ settings.brand_name | default: shop.name }}</a>
+      {%- if settings.brand_tagline != blank -%}
+        <p class="site-footer__tagline">{{ settings.brand_tagline }}</p>
       {%- endif -%}
 
-      {%- if settings.social_instagram_link != blank or settings.social_facebook_link != blank -%}
+      {%- if settings.social_instagram_link != blank or settings.social_facebook_link != blank or settings.social_youtube_link != blank -%}
         <div class="site-footer__social">
           {%- if settings.social_instagram_link != blank -%}
-            <a href="{{ settings.social_instagram_link }}" aria-label="Instagram">{%- render 'icon-instagram' -%}</a>
+            <a href="{{ settings.social_instagram_link }}" rel="noopener" aria-label="Instagram">{%- render 'icon-instagram' -%}</a>
           {%- endif -%}
           {%- if settings.social_facebook_link != blank -%}
-            <a href="{{ settings.social_facebook_link }}" aria-label="Facebook">{%- render 'icon-facebook' -%}</a>
+            <a href="{{ settings.social_facebook_link }}" rel="noopener" aria-label="Facebook">{%- render 'icon-facebook' -%}</a>
+          {%- endif -%}
+          {%- if settings.social_youtube_link != blank -%}
+            <a href="{{ settings.social_youtube_link }}" rel="noopener" aria-label="YouTube">{%- render 'icon-youtube' -%}</a>
           {%- endif -%}
         </div>
       {%- endif -%}
     </div>
 
-    <div class="site-footer__column">
-      <h3 class="site-footer__heading">Shop</h3>
-      <ul class="site-footer__link-list">
-        {%- for block in section.blocks -%}
-          {%- if block.settings.column == 'shop' -%}
-            <li {{ block.shopify_attributes }}><a href="{{ block.settings.url | default: '#' }}">{{ block.settings.title }}</a></li>
-          {%- endif -%}
-        {%- endfor -%}
-      </ul>
-    </div>
+    <div class="site-footer__columns">
+      {%- assign columns = 'shop,help,legal' | split: ',' -%}
+      {%- for column in columns -%}
+        {%- liquid
+          assign column_heading = ''
+          case column
+            when 'shop'
+              assign column_heading = section.settings.heading_shop
+            when 'help'
+              assign column_heading = section.settings.heading_help
+            when 'legal'
+              assign column_heading = section.settings.heading_legal
+          endcase
 
-    <div class="site-footer__column">
-      <h3 class="site-footer__heading">About</h3>
-      <ul class="site-footer__link-list">
-        {%- for block in section.blocks -%}
-          {%- if block.settings.column == 'about' -%}
-            <li {{ block.shopify_attributes }}><a href="{{ block.settings.url | default: '#' }}">{{ block.settings.title }}</a></li>
-          {%- endif -%}
-        {%- endfor -%}
-      </ul>
-    </div>
+          assign column_has_links = false
+          for block in section.blocks
+            if block.settings.column == column and block.settings.title != blank
+              assign column_has_links = true
+            endif
+          endfor
+        -%}
 
-    <div class="site-footer__column">
-      <h3 class="site-footer__heading">Customer Care</h3>
-      <ul class="site-footer__link-list">
-        {%- for block in section.blocks -%}
-          {%- if block.settings.column == 'care' -%}
-            <li {{ block.shopify_attributes }}><a href="{{ block.settings.url | default: '#' }}">{{ block.settings.title }}</a></li>
-          {%- endif -%}
-        {%- endfor -%}
-      </ul>
-    </div>
+        {%- if column_has_links -%}
+          <nav class="site-footer__column" aria-labelledby="FooterHeading-{{ column }}">
+            <h2 class="site-footer__heading" id="FooterHeading-{{ column }}">{{ column_heading }}</h2>
+            <ul class="site-footer__link-list">
+              {%- for block in section.blocks -%}
+                {%- if block.settings.column == column and block.settings.title != blank -%}
+                  <li {{ block.shopify_attributes }}>
+                    <a href="{{ block.settings.url | default: routes.root_url }}">{{ block.settings.title }}</a>
+                  </li>
+                {%- endif -%}
+              {%- endfor -%}
+            </ul>
+          </nav>
+        {%- endif -%}
+      {%- endfor -%}
 
+      {%- if has_connect -%}
+        <nav class="site-footer__column" aria-labelledby="FooterHeading-connect">
+          <h2 class="site-footer__heading" id="FooterHeading-connect">{{ section.settings.heading_connect }}</h2>
+          <ul class="site-footer__link-list">
+            {%- if settings.social_instagram_link != blank -%}
+              <li>
+                <a href="{{ settings.social_instagram_link }}" rel="noopener">
+                  {{ settings.social_instagram_handle | default: 'Instagram' }}
+                </a>
+              </li>
+            {%- endif -%}
+            {%- if wa_number != blank -%}
+              <li>
+                <a
+                  href="https://wa.me/{{ wa_number }}{% if settings.whatsapp_message != blank %}?text={{ settings.whatsapp_message | url_encode }}{% endif %}"
+                  rel="noopener"
+                >{{ 'general.contact.whatsapp' | t }}</a>
+              </li>
+            {%- endif -%}
+            {%- if settings.contact_email != blank -%}
+              <li><a href="mailto:{{ settings.contact_email }}">{{ settings.contact_email }}</a></li>
+            {%- endif -%}
+            {%- if settings.contact_phone != blank -%}
+              <li><a href="tel:{{ settings.contact_phone | remove: ' ' }}">{{ settings.contact_phone }}</a></li>
+            {%- endif -%}
+          </ul>
+          {%- if settings.contact_hours != blank -%}
+            <p class="site-footer__hours">{{ settings.contact_hours }}</p>
+          {%- endif -%}
+        </nav>
+      {%- endif -%}
+    </div>
   </div>
 
   <div class="container site-footer__bottom">
     {%- if shop.enabled_payment_types.size > 0 -%}
       <div class="site-footer__payment-icons">
+        <h2 class="visually-hidden">Payment methods</h2>
         {%- for type in shop.enabled_payment_types -%}
           {{ type | payment_type_svg_tag: class: 'site-footer__payment-icon' }}
         {%- endfor -%}
       </div>
     {%- endif -%}
-    <p class="site-footer__copyright">&copy; {{ 'now' | date: '%Y' }} {{ shop.name }} &mdash; {{ 'footer.copyright' | t }}</p>
+    <p class="site-footer__copyright">
+      &copy; {{ 'now' | date: '%Y' }} {{ shop.name }} &mdash; {{ 'footer.copyright' | t }}
+    </p>
   </div>
 </footer>
 
@@ -77,10 +132,32 @@
   "name": "Footer",
   "settings": [
     {
+      "type": "paragraph",
+      "content": "The brand name, tagline, contact details and social links come from Theme settings."
+    },
+    {
       "type": "text",
-      "id": "tagline",
-      "label": "Tagline",
-      "default": "THE NEW FACE OF TRADITION"
+      "id": "heading_shop",
+      "label": "Column 1 heading",
+      "default": "Shop"
+    },
+    {
+      "type": "text",
+      "id": "heading_help",
+      "label": "Column 2 heading",
+      "default": "Help"
+    },
+    {
+      "type": "text",
+      "id": "heading_legal",
+      "label": "Column 3 heading",
+      "default": "Legal"
+    },
+    {
+      "type": "text",
+      "id": "heading_connect",
+      "label": "Column 4 heading",
+      "default": "Connect"
     }
   ],
   "blocks": [
@@ -93,18 +170,9 @@
           "id": "column",
           "label": "Column",
           "options": [
-            {
-              "value": "shop",
-              "label": "Shop"
-            },
-            {
-              "value": "about",
-              "label": "About"
-            },
-            {
-              "value": "care",
-              "label": "Customer Care"
-            }
+            { "value": "shop", "label": "Shop" },
+            { "value": "help", "label": "Help" },
+            { "value": "legal", "label": "Legal" }
           ],
           "default": "shop"
         },
@@ -120,98 +188,6 @@
         }
       ]
     }
-  ],
-  "default": {
-    "blocks": [
-      {
-        "type": "link",
-        "settings": {
-          "column": "shop",
-          "title": "Shirts",
-          "url": "/collections/shirts"
-        }
-      },
-      {
-        "type": "link",
-        "settings": {
-          "column": "shop",
-          "title": "Trousers",
-          "url": "/collections/pants"
-        }
-      },
-      {
-        "type": "link",
-        "settings": {
-          "column": "shop",
-          "title": "Kurtas",
-          "url": "/collections/kurta"
-        }
-      },
-      {
-        "type": "link",
-        "settings": {
-          "column": "shop",
-          "title": "New Arrivals",
-          "url": "/collections/new-arrivals"
-        }
-      },
-      {
-        "type": "link",
-        "settings": {
-          "column": "about",
-          "title": "Our Story",
-          "url": "/pages/about"
-        }
-      },
-      {
-        "type": "link",
-        "settings": {
-          "column": "about",
-          "title": "Contact",
-          "url": "/pages/contact"
-        }
-      },
-      {
-        "type": "link",
-        "settings": {
-          "column": "about",
-          "title": "Shipping & Returns",
-          "url": "/policies/shipping-policy"
-        }
-      },
-      {
-        "type": "link",
-        "settings": {
-          "column": "about",
-          "title": "Privacy Policy",
-          "url": "/policies/privacy-policy"
-        }
-      },
-      {
-        "type": "link",
-        "settings": {
-          "column": "about",
-          "title": "Refund Policy",
-          "url": "/policies/refund-policy"
-        }
-      },
-      {
-        "type": "link",
-        "settings": {
-          "column": "about",
-          "title": "Terms of Service",
-          "url": "/policies/terms-of-service"
-        }
-      },
-      {
-        "type": "link",
-        "settings": {
-          "column": "care",
-          "title": "FAQ",
-          "url": "/pages/faq"
-        }
-      }
-    ]
-  }
+  ]
 }
 {% endschema %}
