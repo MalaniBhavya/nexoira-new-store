@@ -5,7 +5,7 @@
 {%- enddoc -%}
 
 <section
-  class="immersive-banner{% if section.settings.text_color == 'light' %} immersive-banner--light{% endif %}"
+  class="immersive-banner{% if section.settings.text_color == 'light' %} immersive-banner--light{% endif %} immersive-banner--tint-{{ section.settings.tint | default: 'none' }}"
   data-section-id="{{ section.id }}"
   data-section-type="immersive-banner"
 >
@@ -67,6 +67,26 @@
         }
       ],
       "default": "light"
+    },
+    {
+      "type": "select",
+      "id": "tint",
+      "label": "Overlay tint",
+      "options": [
+        {
+          "value": "none",
+          "label": "Neutral"
+        },
+        {
+          "value": "earth",
+          "label": "Earth"
+        },
+        {
+          "value": "accent",
+          "label": "Accent"
+        }
+      ],
+      "default": "none"
     },
     {
       "type": "textarea",

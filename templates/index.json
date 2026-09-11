@@ -46,9 +46,12 @@
           }
         }
       },
-      "block_order": ["slide-brand", "slide-trousers", "slide-kurtas"]
+      "block_order": [
+        "slide-brand",
+        "slide-trousers",
+        "slide-kurtas"
+      ]
     },
-
     "categories": {
       "type": "shop-by-category",
       "settings": {
@@ -83,9 +86,12 @@
           }
         }
       },
-      "block_order": ["shirts", "trousers", "kurtas"]
+      "block_order": [
+        "shirts",
+        "trousers",
+        "kurtas"
+      ]
     },
-
     "new-arrivals": {
       "type": "featured-collection",
       "settings": {
@@ -99,7 +105,6 @@
         "view_all_label": "View all"
       }
     },
-
     "editorial-banner": {
       "type": "editorial-split",
       "settings": {
@@ -111,7 +116,6 @@
         "button_link": "shopify://collections/shirts"
       }
     },
-
     "shirts-feature": {
       "type": "featured-collection",
       "settings": {
@@ -124,7 +128,6 @@
         "view_all_label": "SHOP SHIRTS"
       }
     },
-
     "best-sellers": {
       "type": "featured-collection",
       "settings": {
@@ -137,7 +140,6 @@
         "view_all_label": "View all"
       }
     },
-
     "trouser-campaign": {
       "type": "editorial-split",
       "settings": {
@@ -149,7 +151,6 @@
         "button_link": "shopify://collections/pants"
       }
     },
-
     "kurta-editorial": {
       "type": "immersive-banner",
       "settings": {
@@ -157,10 +158,10 @@
         "text_color": "light",
         "heading": "Tradition,\nReinterpreted.",
         "button_label": "SHOP KURTAS",
-        "button_link": "shopify://collections/kurtas"
+        "button_link": "shopify://collections/kurtas",
+        "tint": "earth"
       }
     },
-
     "brand-story": {
       "type": "brand-story",
       "settings": {
@@ -172,7 +173,6 @@
         "button_link": "/pages/about"
       }
     },
-
     "why-nexoira": {
       "type": "why-nexoira",
       "settings": {
@@ -212,16 +212,19 @@
           }
         }
       },
-      "block_order": ["shipping", "returns", "cod", "secure"]
+      "block_order": [
+        "shipping",
+        "returns",
+        "cod",
+        "secure"
+      ]
     },
-
     "reviews": {
       "type": "customer-reviews",
       "settings": {
         "heading": "Worn. Loved. Repeated."
       }
     },
-
     "instagram": {
       "type": "instagram",
       "settings": {
@@ -272,9 +275,15 @@
           }
         }
       },
-      "block_order": ["shirt-1", "trouser-1", "kurta-1", "shirt-2", "trouser-2", "kurta-2"]
+      "block_order": [
+        "shirt-1",
+        "trouser-1",
+        "kurta-1",
+        "shirt-2",
+        "trouser-2",
+        "kurta-2"
+      ]
     },
-
     "newsletter": {
       "type": "newsletter",
       "settings": {
@@ -283,7 +292,6 @@
       }
     }
   },
-
   "order": [
     "hero",
     "categories",

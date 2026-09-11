@@ -164,7 +164,7 @@ ul {
 }
 
 .button--hero:hover {
-  background: var(--color-accent);
+  background: var(--color-accent-text);
   color: var(--color-dark-text);
 }
 
@@ -235,7 +235,7 @@ ul {
 }
 
 .badge--sale {
-  background: var(--color-accent);
+  background: var(--color-accent-text);
   color: var(--color-dark-text);
 }
 
@@ -251,11 +251,17 @@ ul {
 }
 
 .form-status--success {
-  color: var(--color-earth);
+  color: var(--color-accent-text);
 }
 
 .form-status--error {
-  color: #b23a3a;
+  color: var(--color-error);
+}
+
+/* On the dark newsletter panel neither of the above has enough contrast. */
+.newsletter .form-status--error {
+  color: var(--color-dark-text);
+  font-weight: 600;
 }
 
 /* -----------------------------------------------------------------------
@@ -403,7 +409,7 @@ ul {
   position: absolute;
   top: -6px;
   right: -10px;
-  background: var(--color-accent);
+  background: var(--color-accent-text);
   color: var(--color-dark-text);
   font-size: 10px;
   line-height: 1;
@@ -522,7 +528,7 @@ ul {
 .mobile-nav-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(20, 15, 12, 0.4);
+  background: var(--scrim-40);
   z-index: 105;
   opacity: 0;
   visibility: hidden;
@@ -619,10 +625,10 @@ body.search-open {
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(20, 15, 12, 0.5) 0%,
-    rgba(20, 15, 12, 0) 24%,
-    rgba(20, 15, 12, 0) 55%,
-    rgba(20, 15, 12, 0.6) 100%
+    var(--scrim-50) 0%,
+    var(--scrim-0) 24%,
+    var(--scrim-0) 55%,
+    var(--scrim-60) 100%
   );
 }
 
@@ -636,7 +642,7 @@ body.search-open {
 
 .hero-slider__text {
   max-width: 560px;
-  color: #ffffff;
+  color: var(--color-dark-text);
 }
 
 .hero-slider__heading {
@@ -678,8 +684,8 @@ body.search-open {
   transform: translateY(-50%);
   z-index: 5;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  color: #ffffff;
+  border: 1px solid var(--light-50);
+  color: var(--color-dark-text);
   width: 48px;
   height: 48px;
   display: flex;
@@ -689,8 +695,8 @@ body.search-open {
 }
 
 .hero-slider__arrow:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: #ffffff;
+  background: var(--light-15);
+  border-color: var(--color-dark-text);
 }
 
 .hero-slider__arrow--prev {
@@ -720,14 +726,14 @@ body.search-open {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--light-70);
   background: transparent;
   padding: 0;
   transition: background-color var(--transition-fast);
 }
 
 .hero-slider__dot.is-active {
-  background: #ffffff;
+  background: var(--color-dark-text);
 }
 
 /* -----------------------------------------------------------------------
@@ -774,7 +780,7 @@ body.search-open {
   content: "";
   position: absolute;
   inset: 0;
-  background-color: rgba(20, 15, 12, 0);
+  background-color: var(--scrim-0);
   transition: background-color var(--transition-medium);
 }
 
@@ -784,7 +790,7 @@ body.search-open {
   }
 
   .category-card:hover .category-card__media::after {
-    background-color: rgba(20, 15, 12, 0.1);
+    background-color: var(--scrim-10);
   }
 }
 
@@ -800,8 +806,8 @@ body.search-open {
   right: 0;
   bottom: 0;
   padding: 28px;
-  color: #ffffff;
-  background: linear-gradient(to top, rgba(20, 15, 12, 0.7), rgba(20, 15, 12, 0));
+  color: var(--color-dark-text);
+  background: linear-gradient(to top, var(--scrim-70), var(--scrim-0));
   transition: transform var(--transition-medium);
 }
 
@@ -1197,15 +1203,25 @@ body.search-open {
 .immersive-banner__scrim {
   position: absolute;
   inset: 0;
-  background: rgba(20, 15, 12, 0.4);
-}
-
-.immersive-banner--light .immersive-banner__scrim {
-  background: rgba(20, 15, 12, 0.4);
+  /* Derived from the brand's dark surface, so a palette change carries. */
+  background: var(--color-scrim);
 }
 
 .immersive-banner:not(.immersive-banner--light) .immersive-banner__scrim {
-  background: rgba(244, 240, 232, 0.55);
+  background: var(--light-50);
+}
+
+/* The festive editorial leans on the earth and accent tones.
+   The solid fallback comes first so a browser without color-mix still
+   gets a readable scrim rather than a transparent one. */
+.immersive-banner--tint-earth .immersive-banner__scrim {
+  background: var(--color-earth);
+  background: color-mix(in srgb, var(--color-earth) 62%, transparent);
+}
+
+.immersive-banner--tint-accent .immersive-banner__scrim {
+  background: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 52%, transparent);
 }
 
 .immersive-banner__content {
@@ -1215,7 +1231,7 @@ body.search-open {
 }
 
 .immersive-banner--light .immersive-banner__content {
-  color: #ffffff;
+  color: var(--color-dark-text);
 }
 
 .immersive-banner:not(.immersive-banner--light) .immersive-banner__content {
@@ -1368,13 +1384,13 @@ body.search-open {
 .newsletter__form {
   display: flex;
   gap: 12px;
-  border-bottom: 1px solid rgba(244, 240, 232, 0.4);
+  border-bottom: 1px solid var(--light-40);
   padding-bottom: 12px;
   transition: border-color var(--transition-fast);
 }
 
 .newsletter__form:focus-within {
-  border-color: var(--color-earth);
+  border-color: var(--color-accent);
 }
 
 .newsletter__form input {
@@ -1387,7 +1403,7 @@ body.search-open {
 }
 
 .newsletter__form input::placeholder {
-  color: rgba(244, 240, 232, 0.6);
+  color: var(--light-60);
 }
 
 .newsletter__form button {
@@ -1841,8 +1857,8 @@ body.search-open {
 }
 
 .button--solid:hover {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
+  background: var(--color-accent-text);
+  border-color: var(--color-accent-text);
 }
 
 .button--hero-ghost {
@@ -2033,7 +2049,7 @@ details > summary::-webkit-details-marker {
 .filter-drawer-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(20, 15, 12, 0.4);
+  background: var(--scrim-40);
   z-index: 105;
   opacity: 0;
   visibility: hidden;
@@ -2083,7 +2099,7 @@ body.filter-drawer-open {
 .collection-hero__scrim {
   position: absolute;
   inset: 0;
-  background: rgba(20, 15, 12, 0.4);
+  background: var(--scrim-40);
 }
 
 .collection-hero__content {
@@ -2094,7 +2110,7 @@ body.filter-drawer-open {
   flex-direction: column;
   justify-content: flex-end;
   padding-bottom: 48px;
-  color: #ffffff;
+  color: var(--color-dark-text);
 }
 
 .collection-hero__title {
@@ -2517,7 +2533,7 @@ body.filter-drawer-open {
 }
 
 .shopify-payment-button__button--unbranded {
-  background-color: var(--color-accent) !important;
+  background-color: var(--color-dark) !important;
   color: var(--color-dark-text) !important;
   border: none !important;
   border-radius: 0 !important;
@@ -2617,7 +2633,7 @@ body.filter-drawer-open {
 }
 
 .product-zoom::backdrop {
-  background: rgba(20, 15, 12, 0.85);
+  background: var(--scrim-85);
 }
 
 .product-zoom img {
@@ -2631,7 +2647,7 @@ body.filter-drawer-open {
   position: absolute;
   top: 12px;
   right: 12px;
-  background: rgba(244, 240, 232, 0.9);
+  background: var(--light-90);
   border: none;
   padding: 10px;
   z-index: 1;
@@ -2651,7 +2667,7 @@ body.filter-drawer-open {
 }
 
 .size-guide::backdrop {
-  background: rgba(20, 15, 12, 0.5);
+  background: var(--scrim-50);
 }
 
 .size-guide__header {
@@ -2832,18 +2848,18 @@ body.filter-drawer-open {
 .about-story__hero-scrim {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(20, 15, 12, 0.7), rgba(20, 15, 12, 0.1));
+  background: linear-gradient(to top, var(--scrim-70), var(--scrim-10));
 }
 
 .about-story__hero-content {
   position: relative;
   z-index: 1;
   padding-bottom: 64px;
-  color: #ffffff;
+  color: var(--color-dark-text);
 }
 
 .about-story__hero-content .about-story__eyebrow {
-  color: var(--color-earth);
+  color: var(--color-dark-text);
 }
 
 .about-story__hero-heading {
@@ -3289,7 +3305,7 @@ body.filter-drawer-open {
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--color-accent-text);
   margin: 0 0 12px;
 }
 
@@ -3540,7 +3556,7 @@ body.filter-drawer-open {
   line-height: 16px;
   text-align: center;
   border-radius: 8px;
-  background: var(--color-accent);
+  background: var(--color-accent-text);
   color: var(--color-dark-text);
 }
 
@@ -3769,7 +3785,7 @@ body.filter-drawer-open {
 }
 
 .price__current--sale {
-  color: var(--color-accent);
+  color: var(--color-accent-text);
   font-weight: 600;
 }
 
@@ -3782,7 +3798,7 @@ body.filter-drawer-open {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.04em;
-  color: var(--color-accent);
+  color: var(--color-accent-text);
 }
 
 /* -----------------------------------------------------------------------
@@ -3987,7 +4003,7 @@ body.filter-drawer-open {
 }
 
 .shipping-bar--unlocked .shipping-bar__text {
-  color: var(--color-accent);
+  color: var(--color-accent-text);
   font-weight: 600;
 }
 
@@ -4179,7 +4195,7 @@ body.filter-drawer-open {
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.12em;
-  color: var(--color-accent);
+  color: var(--color-accent-text);
 }
 
 .product__sku {
@@ -4246,7 +4262,7 @@ body.filter-drawer-open {
   color: var(--color-text-muted);
 }
 
-.pincode__result--error { color: var(--color-accent); }
+.pincode__result--error { color: var(--color-error); }
 
 .pincode__policy-link {
   display: inline-block;
@@ -4564,7 +4580,7 @@ body.filter-drawer-open {
 }
 
 .whatsapp-button:hover {
-  background: var(--color-accent);
+  background: var(--color-accent-text);
 }
 
 /* Keep clear of the sticky purchase bar on product pages. */
