@@ -235,7 +235,7 @@
         "type": "text",
         "id": "contact_hours",
         "label": "Support hours",
-        "default": "Monday to Saturday, 10am - 6pm IST"
+        "info": "For example: Monday to Saturday, 10am - 6pm IST. Leave blank to hide."
       },
       {
         "type": "header",

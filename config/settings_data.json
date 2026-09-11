@@ -23,13 +23,16 @@
       "corner_radius": 2,
       "cart_free_shipping_enabled": true,
       "cart_free_shipping_threshold": 999,
-      "contact_hours": "Monday to Saturday, 10am - 6pm IST",
-      "whatsapp_enabled": false,
+      "contact_hours": "",
+      "whatsapp_enabled": true,
       "whatsapp_message": "Hi Nexoira, I need help with a product.",
       "social_instagram_handle": "@nexoira",
       "wishlist_enabled": true,
       "reviews_enabled": false,
-      "pincode_enabled": false
+      "pincode_enabled": false,
+      "contact_email": "nexoira.supply@gmail.com",
+      "contact_phone": "+91 91737 37400",
+      "whatsapp_number": "919173737400"
     }
   },
   "sections": {
