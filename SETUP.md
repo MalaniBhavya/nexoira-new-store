@@ -70,15 +70,23 @@ header section and type that link's name into it.
 
 ## 4. Collections
 
-Existing: `shirts`, `pants` (Trousers), `kurtas`, `new-arrivals`.
+Existing: `shirts`, `pants` (Trousers), `kurtas`, `new-arrivals`,
+`best-sellers`.
 
-**Best Sellers does not exist yet.** The homepage's "Most Wanted" section
-has no collection selected and therefore renders nothing on the live
-store. Create it as a smart collection and pick it in the theme editor:
+**Best Sellers** is a smart collection: every product by vendor `Nexoira
+Supply`, with the collection's sort order set to **Best selling**. It is
+already selected in the homepage's "Most Wanted" section.
 
-- Title: `Best Sellers`, handle `best-sellers`
-- Conditions: whatever suits — e.g. Product tag equals `Best Seller`
-- Sort order: **Best selling**
+Two things worth knowing about it:
+
+- The store has **no orders yet**, so Shopify has no sales data to sort
+  by and the current order is arbitrary — right now it leads with kurtas.
+  It corrects itself automatically as orders come in; nothing needs
+  changing.
+- Because it's rule-based rather than hand-picked, nothing claims to be
+  popular that isn't. If you would rather curate it, change the rule to
+  `Product tag is equal to Best Seller` and tag the pieces you want —
+  but only tag what genuinely sells, or the section becomes a fiction.
 
 Give each collection an image and a short description; the collection
 template uses both.

@@ -132,12 +132,13 @@
       "type": "featured-collection",
       "settings": {
         "heading": "Most Wanted",
-        "subheading": "What Nexoira is buying this month.",
+        "subheading": "Our most-ordered pieces, updated automatically.",
         "layout": "grid",
         "products_to_show": 8,
         "columns_desktop": 4,
         "show_view_all": true,
-        "view_all_label": "View all"
+        "view_all_label": "View all",
+        "collection": "shopify://collections/best-sellers"
       }
     },
     "trouser-campaign": {
