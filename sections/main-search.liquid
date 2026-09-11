@@ -1,35 +1,35 @@
 {%- doc -%}
-  Premium search results page with a no-results state that surfaces
-  merchant-chosen collections instead of a dead end.
+  Search results, with a no-results state that offers merchant-chosen
+  collections instead of a dead end. Uses the same predictive search
+  field as the header so suggestions work here too.
 {%- enddoc -%}
 
 <div class="search-page" data-section-id="{{ section.id }}" data-section-type="main-search">
   <div class="container">
+    {%- render 'breadcrumbs' -%}
+
     <div class="search-page__header">
-      <h1 class="search-page__title">Search</h1>
-      <form action="{{ routes.search_url }}" method="get" role="search" class="search-page__form">
-        <input
-          type="search"
-          name="q"
-          value="{{ search.terms | escape }}"
-          placeholder="{{ 'general.search.placeholder' | t }}"
-          autofocus
-        >
-        <button type="submit">{{ 'general.search.submit' | t }}</button>
-      </form>
+      <h1 class="search-page__title">{{ 'general.search.title' | t }}</h1>
+      {%- render 'predictive-search', section_id: section.id -%}
     </div>
 
     {%- if search.performed -%}
       {%- if search.results.size > 0 -%}
         {%- paginate search.results by 24 -%}
           <p class="search-page__count">
-            {{ search.results_count }} result{% unless search.results_count == 1 %}s{% endunless %} for &ldquo;{{ search.terms }}&rdquo;
+            {{ 'general.search.results_for' | t: count: search.results_count, terms: search.terms }}
           </p>
 
           <div class="product-grid" style="--grid-columns: 4;">
             {%- for item in search.results -%}
               {%- if item.object_type == 'product' -%}
-                {%- render 'card-product', product: item -%}
+                {%- liquid
+                  assign card_loading = 'lazy'
+                  if forloop.index <= 4
+                    assign card_loading = 'eager'
+                  endif
+                -%}
+                {%- render 'card-product', product: item, image_loading: card_loading -%}
               {%- else -%}
                 <a href="{{ item.url }}" class="search-page__other-result">
                   <h3>{{ item.title }}</h3>
@@ -42,7 +42,9 @@
           {%- if paginate.pages > 1 -%}
             <nav class="pagination" aria-label="{{ 'collections.general.pagination_label' | t }}">
               {%- if paginate.previous -%}
-                <a href="{{ paginate.previous.url }}" class="pagination__link">&larr;</a>
+                <a href="{{ paginate.previous.url }}" class="pagination__link" aria-label="{{ 'accessibility.previous' | t }}">
+                  {%- render 'icon-arrow-left' -%}
+                </a>
               {%- endif -%}
               {%- for part in paginate.parts -%}
                 {%- if part.is_link -%}
@@ -52,14 +54,16 @@
                 {%- endif -%}
               {%- endfor -%}
               {%- if paginate.next -%}
-                <a href="{{ paginate.next.url }}" class="pagination__link">&rarr;</a>
+                <a href="{{ paginate.next.url }}" class="pagination__link" aria-label="{{ 'accessibility.next' | t }}">
+                  {%- render 'icon-arrow-right' -%}
+                </a>
               {%- endif -%}
             </nav>
           {%- endif -%}
         {%- endpaginate -%}
       {%- else -%}
         <div class="search-page__empty">
-          <p>{{ 'collections.general.no_matches' | t }} &ldquo;{{ search.terms }}&rdquo;</p>
+          <p>{{ 'general.search.no_results' | t: terms: search.terms }}</p>
 
           {%- if section.blocks.size > 0 -%}
             <p class="search-page__empty-label">You might like</p>

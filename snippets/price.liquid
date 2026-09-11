@@ -25,12 +25,15 @@
   assign show_from = false
   if product != blank and product.price_varies and variant == blank
     assign show_from = true
+    # Format before interpolating: a filter after `t:` applies to the
+    # translated string, not to the price.
+    assign price_min_money = product.price_min | money
   endif
 -%}
 
 <div class="price{% if on_sale %} price--on-sale{% endif %}">
   {%- if show_from -%}
-    <span class="price__current">{{ 'products.product.from_price' | t: price: product.price_min | money }}</span>
+    <span class="price__current">{{ 'products.product.from_price' | t: price: price_min_money }}</span>
   {%- else -%}
     <span class="price__current{% if on_sale %} price__current--sale{% endif %}">{{ target.price | money }}</span>
     {%- if on_sale -%}

@@ -93,18 +93,23 @@
         });
       }
 
-      function renderPrice(container, variant) {
+      function renderPrice(container, variant, showBadge) {
         if (!container) return;
         var onSale = variant.compare_at_price && variant.compare_at_price > variant.price;
-        var html = '<span class="price__current">' + Nexoira.formatMoney(variant.price) + '</span>';
+        var inner = '<span class="price__current">' + Nexoira.formatMoney(variant.price) + '</span>';
+
         if (onSale) {
-          html =
+          inner =
             '<span class="price__current price__current--sale">' + Nexoira.formatMoney(variant.price) + '</span>' +
             '<s class="price__compare">' + Nexoira.formatMoney(variant.compare_at_price) + '</s>';
           var off = Math.round(((variant.compare_at_price - variant.price) / variant.compare_at_price) * 100);
-          if (off > 0) html += '<span class="price__badge">' + off + '% off</span>';
+          if (showBadge !== false && off > 0) {
+            inner += '<span class="price__badge">' + off + '% off</span>';
+          }
         }
-        container.innerHTML = html;
+
+        /* Keep the .price wrapper: it carries the layout the snippet set up. */
+        container.innerHTML = '<div class="price' + (onSale ? ' price--on-sale' : '') + '">' + inner + '</div>';
       }
 
       function setButtonState(button, variant) {
@@ -146,7 +151,7 @@
         if (hiddenIdInput) hiddenIdInput.value = variant ? variant.id : '';
         if (variant) {
           renderPrice(priceContainer, variant);
-          if (stickyBar) renderPrice(stickyBar.querySelector('[data-sticky-price]'), variant);
+          if (stickyBar) renderPrice(stickyBar.querySelector('[data-sticky-price]'), variant, false);
           showVariantMedia(variant);
           updateUrl(variant);
         }
@@ -228,7 +233,8 @@
       });
 
       var stickyAdd = document.querySelector('[data-sticky-add]');
-      if (stickyAdd) {
+      if (stickyAdd && !stickyAdd.dataset.bound) {
+        stickyAdd.dataset.bound = 'true';
         stickyAdd.addEventListener('click', function () {
           submit(stickyAdd);
         });

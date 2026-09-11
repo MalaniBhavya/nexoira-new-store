@@ -61,14 +61,14 @@
             {%- assign reveal_delay = forloop.index0 | at_most: 3 | times: 90 -%}
             <li class="review-card" data-reveal style="--reveal-delay: {{ reveal_delay }}ms;" {{ block.shopify_attributes }}>
               <blockquote class="review-card__quote">{{ block.settings.quote }}</blockquote>
-              <figcaption class="review-card__meta">
+              <div class="review-card__meta">
                 {%- if block.settings.author != blank -%}
                   <cite class="review-card__author">{{ block.settings.author }}</cite>
                 {%- endif -%}
                 {%- if block.settings.detail != blank -%}
                   <span class="review-card__detail">{{ block.settings.detail }}</span>
                 {%- endif -%}
-              </figcaption>
+              </div>
             </li>
           {%- endfor -%}
         </ul>

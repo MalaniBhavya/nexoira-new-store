@@ -38,6 +38,177 @@
       "settings": {
         "menu": "nexoira-shop-menu"
       }
+    },
+    "announcement-bar": {
+      "type": "announcement-bar",
+      "settings": {
+        "autoplay": true,
+        "interval": 5
+      },
+      "blocks": {
+        "m1": {
+          "type": "message",
+          "settings": {
+            "text": "FREE SHIPPING ON ORDERS ABOVE ₹999"
+          }
+        },
+        "m2": {
+          "type": "message",
+          "settings": {
+            "text": "COD AVAILABLE ACROSS INDIA"
+          }
+        },
+        "m3": {
+          "type": "message",
+          "settings": {
+            "text": "EASY 7-DAY RETURNS"
+          }
+        }
+      },
+      "block_order": [
+        "m1",
+        "m2",
+        "m3"
+      ]
+    },
+    "footer": {
+      "type": "footer",
+      "settings": {
+        "heading_shop": "Shop",
+        "heading_help": "Help",
+        "heading_legal": "Legal",
+        "heading_connect": "Connect"
+      },
+      "blocks": {
+        "shop-shirts": {
+          "type": "link",
+          "settings": {
+            "column": "shop",
+            "title": "Shirts",
+            "url": "/collections/shirts"
+          }
+        },
+        "shop-trousers": {
+          "type": "link",
+          "settings": {
+            "column": "shop",
+            "title": "Trousers",
+            "url": "/collections/pants"
+          }
+        },
+        "shop-kurtas": {
+          "type": "link",
+          "settings": {
+            "column": "shop",
+            "title": "Kurtas",
+            "url": "/collections/kurtas"
+          }
+        },
+        "shop-new": {
+          "type": "link",
+          "settings": {
+            "column": "shop",
+            "title": "New Arrivals",
+            "url": "/collections/new-arrivals"
+          }
+        },
+        "shop-all": {
+          "type": "link",
+          "settings": {
+            "column": "shop",
+            "title": "Shop All",
+            "url": "/collections/all"
+          }
+        },
+        "help-track": {
+          "type": "link",
+          "settings": {
+            "column": "help",
+            "title": "Track Order",
+            "url": "/pages/track-order"
+          }
+        },
+        "help-size": {
+          "type": "link",
+          "settings": {
+            "column": "help",
+            "title": "Size Guide",
+            "url": "/pages/size-guide"
+          }
+        },
+        "help-faq": {
+          "type": "link",
+          "settings": {
+            "column": "help",
+            "title": "FAQs",
+            "url": "/pages/faq"
+          }
+        },
+        "help-shipping": {
+          "type": "link",
+          "settings": {
+            "column": "help",
+            "title": "Shipping Policy",
+            "url": "/policies/shipping-policy"
+          }
+        },
+        "help-returns": {
+          "type": "link",
+          "settings": {
+            "column": "help",
+            "title": "Returns & Exchanges",
+            "url": "/policies/refund-policy"
+          }
+        },
+        "help-contact": {
+          "type": "link",
+          "settings": {
+            "column": "help",
+            "title": "Contact Us",
+            "url": "/pages/contact"
+          }
+        },
+        "legal-privacy": {
+          "type": "link",
+          "settings": {
+            "column": "legal",
+            "title": "Privacy Policy",
+            "url": "/policies/privacy-policy"
+          }
+        },
+        "legal-terms": {
+          "type": "link",
+          "settings": {
+            "column": "legal",
+            "title": "Terms & Conditions",
+            "url": "/policies/terms-of-service"
+          }
+        },
+        "legal-about": {
+          "type": "link",
+          "settings": {
+            "column": "legal",
+            "title": "About Us",
+            "url": "/pages/about"
+          }
+        }
+      },
+      "block_order": [
+        "shop-shirts",
+        "shop-trousers",
+        "shop-kurtas",
+        "shop-new",
+        "shop-all",
+        "help-track",
+        "help-size",
+        "help-faq",
+        "help-shipping",
+        "help-returns",
+        "help-contact",
+        "legal-privacy",
+        "legal-terms",
+        "legal-about"
+      ]
     }
   }
 }

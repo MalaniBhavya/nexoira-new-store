@@ -68,7 +68,7 @@
     {%- if request.page_type == 'product' -%}
       <script src="{{ 'product.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
-    {%- if request.page_type == 'collection' or request.page_type == 'search' -%}
+    {%- if request.page_type == 'collection' -%}
       <script src="{{ 'collection.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
     <noscript>
@@ -76,7 +76,7 @@
     </noscript>
   </head>
 
-  <body class="template-{{ request.page_type }}{% if request.page_type == 'index' %} has-transparent-header{% endif %}">
+  <body class="template-{{ request.page_type }}">
     <a class="skip-to-content" href="#MainContent">
       {{ 'accessibility.skip_to_content' | t }}
     </a>

@@ -1633,10 +1633,11 @@ body.search-open {
 }
 
 .product__price {
-  font-family: var(--font-body);
-  font-size: 18px;
   margin-bottom: 28px;
-  color: var(--color-text-muted);
+}
+
+.product__price .price {
+  font-size: 20px;
 }
 
 .product__quantity {
@@ -1656,15 +1657,6 @@ body.search-open {
 .product__add-to-cart {
   width: 100%;
   padding: 16px;
-  background: var(--color-accent);
-  color: var(--color-dark-text);
-  border: none;
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  transition: background-color var(--transition-fast);
 }
 
 .product__add-to-cart:hover:not([disabled]) {
@@ -2157,13 +2149,16 @@ body.filter-drawer-open {
 }
 
 .collection-toolbar__sort select {
+  appearance: none;
   background: transparent;
   border: none;
+  font-family: var(--font-body);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 4px 0;
+  padding: 4px 18px 4px 0;
+  color: inherit;
 }
 
 .collection-active-filters {
@@ -4613,4 +4608,86 @@ body.filter-drawer-open {
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 28px;
+}
+
+/* -----------------------------------------------------------------------
+   Icon defaults.
+
+   An inline <svg> with no width/height falls back to 300x150, so every
+   icon snippet carries explicit dimensions and these rules keep them
+   from stretching inside flex layouts.
+   ----------------------------------------------------------------------- */
+
+.icon {
+  flex: 0 0 auto;
+}
+
+.icon-chevron-down {
+  width: 12px;
+  height: auto;
+}
+
+/* -----------------------------------------------------------------------
+   Gaps in the original stylesheet that the new markup exposes
+   ----------------------------------------------------------------------- */
+
+.pagination__link,
+.pagination__current {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+}
+
+.pagination__link:hover {
+  border-color: var(--color-border);
+  color: var(--color-accent);
+}
+
+.pagination__current {
+  border-color: var(--color-text);
+  font-weight: 600;
+}
+
+.site-header__logo-image {
+  height: auto;
+}
+
+.site-header__logo-text {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  letter-spacing: 0.06em;
+}
+
+.site-header__cart,
+.site-header__action {
+  position: relative;
+}
+
+.predictive-search__products {
+  display: grid;
+  gap: 2px;
+}
+
+.review-card__detail {
+  opacity: 0.85;
+}
+
+.collection-toolbar__sort {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.collection-toolbar__sort .icon-chevron-down {
+  position: absolute;
+  right: 0;
+  width: 10px;
+  pointer-events: none;
 }
