@@ -1,0 +1,11 @@
+{
+  "sections": {
+    "main": {
+      "type": "track-order",
+      "settings": {
+        "contact_link": "/pages/contact"
+      }
+    }
+  },
+  "order": ["main"]
+}

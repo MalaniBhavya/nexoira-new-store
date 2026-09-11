@@ -20,33 +20,53 @@
   endif
 -%}
 
-<dialog class="size-guide" data-size-guide-dialog aria-label="{{ section.settings.heading }}">
-  <div class="size-guide__header">
-    <h2>{{ section.settings.heading }}</h2>
-    <button type="button" class="size-guide__close" data-size-guide-close aria-label="{{ 'accessibility.close' | t }}">
-      {%- render 'icon-close' -%}
-    </button>
-  </div>
+{%- assign as_page = false -%}
+{%- if section.settings.display == 'page' -%}{%- assign as_page = true -%}{%- endif -%}
+
+{%- if as_page -%}
+  <div class="size-guide size-guide--page" data-section-id="{{ section.id }}" data-section-type="size-guide">
+    <div class="container">
+      {%- render 'breadcrumbs' -%}
+      <div class="size-guide__header">
+        <h1>{{ section.settings.heading }}</h1>
+      </div>
+{%- else -%}
+  <dialog class="size-guide" data-size-guide-dialog aria-label="{{ section.settings.heading }}">
+    <div class="size-guide__header">
+      <h2>{{ section.settings.heading }}</h2>
+      <button type="button" class="size-guide__close" data-size-guide-close aria-label="{{ 'accessibility.close' | t }}">
+        {%- render 'icon-close' -%}
+      </button>
+    </div>
+{%- endif -%}
 
   {%- if product_guide != blank -%}
     {%- comment -%} A product-level chart wins over the generic ones. {%- endcomment -%}
     <div class="size-guide__body">
       <div class="size-guide__panel rte">{{ product_guide }}</div>
     </div>
+
   {%- elsif section.blocks.size > 0 -%}
-    <div class="size-guide__tabs" role="tablist">
-      {%- for block in section.blocks -%}
-        <button
-          type="button"
-          class="size-guide__tab{% if forloop.first %} is-active{% endif %}"
-          data-size-guide-tab="{{ block.settings.category_key }}"
-          role="tab"
-          aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
-        >
-          {{ block.settings.category_name }}
-        </button>
-      {%- endfor -%}
-    </div>
+    {%- comment -%}
+      The pop-up switches charts with tabs. The page stacks them instead,
+      because the tab script only loads on product templates and a size
+      chart must never depend on JavaScript to be readable.
+    {%- endcomment -%}
+    {%- unless as_page -%}
+      <div class="size-guide__tabs" role="tablist">
+        {%- for block in section.blocks -%}
+          <button
+            type="button"
+            class="size-guide__tab{% if forloop.first %} is-active{% endif %}"
+            data-size-guide-tab="{{ block.settings.category_key }}"
+            role="tab"
+            aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+          >
+            {{ block.settings.category_name }}
+          </button>
+        {%- endfor -%}
+      </div>
+    {%- endunless -%}
 
     <div class="size-guide__body">
       {%- for block in section.blocks -%}
@@ -57,18 +77,24 @@
         <div
           class="size-guide__panel"
           data-size-guide-panel="{{ block.settings.category_key }}"
-          {% unless forloop.first %}hidden{% endunless %}
+          {% unless as_page or forloop.first %}hidden{% endunless %}
           {{ block.shopify_attributes }}
         >
+          {%- if as_page -%}
+            <h2 class="size-guide__panel-title">{{ block.settings.category_name }}</h2>
+          {%- endif -%}
+
           {%- if block.settings.note != blank -%}
             <p class="size-guide__note">{{ block.settings.note }}</p>
           {%- endif -%}
+
           <div class="size-guide__table-wrap">
             <table class="size-guide__table">
+              <caption class="visually-hidden">{{ block.settings.category_name }} size chart</caption>
               <thead>
                 <tr>
                   {%- for column in columns -%}
-                    <th>{{ column | strip }}</th>
+                    <th scope="col">{{ column | strip }}</th>
                   {%- endfor -%}
                 </tr>
               </thead>
@@ -79,7 +105,11 @@
                     <tr>
                       {%- assign cells = row | split: ',' -%}
                       {%- for cell in cells -%}
-                        <td>{{ cell | strip }}</td>
+                        {%- if forloop.first -%}
+                          <th scope="row">{{ cell | strip }}</th>
+                        {%- else -%}
+                          <td>{{ cell | strip }}</td>
+                        {%- endif -%}
                       {%- endfor -%}
                     </tr>
                   {%- endif -%}
@@ -91,7 +121,16 @@
       {%- endfor -%}
     </div>
   {%- endif -%}
-</dialog>
+
+  {%- if as_page -%}
+      {%- if section.settings.note_page != blank -%}
+        <div class="size-guide__page-note rte">{{ section.settings.note_page }}</div>
+      {%- endif -%}
+    </div>
+  </div>
+  {%- else -%}
+  </dialog>
+  {%- endif -%}
 
 {% schema %}
 {
@@ -102,6 +141,29 @@
       "id": "heading",
       "label": "Heading",
       "default": "Size guide"
+    },
+    {
+      "type": "select",
+      "id": "display",
+      "label": "Display as",
+      "info": "Use the pop-up on the product template and the page version on a Size guide page.",
+      "options": [
+        {
+          "value": "modal",
+          "label": "Pop-up on the product page"
+        },
+        {
+          "value": "page",
+          "label": "Section on a page"
+        }
+      ],
+      "default": "modal"
+    },
+    {
+      "type": "richtext",
+      "id": "note_page",
+      "label": "Note below the charts",
+      "info": "Page display only."
     }
   ],
   "blocks": [

@@ -1,0 +1,118 @@
+{%- doc -%}
+  Track order page.
+
+  Shopify has no storefront order-lookup by number, so this does not
+  pretend to have one. It points customers at the two routes that
+  genuinely work — the tracking link in their shipping email, and their
+  account's order history — and leaves a clean mount point for a tracking
+  app to render its own lookup form. See DEPLOYMENT.md.
+{%- enddoc -%}
+
+<div class="track-order" data-section-id="{{ section.id }}" data-section-type="track-order">
+  <div class="container">
+    {%- render 'breadcrumbs' -%}
+
+    <div class="track-order__inner">
+      <header class="track-order__header">
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+        {%- endif -%}
+        <h1 class="track-order__heading">{{ section.settings.heading }}</h1>
+        {%- if section.settings.subtext != blank -%}
+          <p class="track-order__subtext">{{ section.settings.subtext }}</p>
+        {%- endif -%}
+      </header>
+
+      {%- comment -%}
+        A tracking app adds its block here and owns the lookup. Without
+        one, the options below are what actually works.
+      {%- endcomment -%}
+      {%- if section.blocks.size > 0 -%}
+        <div class="track-order__app">
+          {%- for block in section.blocks -%}
+            {%- render block -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      <ol class="track-order__options">
+        <li class="track-order__option">
+          <h2 class="track-order__option-title">Use the link in your shipping email</h2>
+          <p>
+            As soon as your order ships we email a tracking link from the courier.
+            It is the fastest way to see where your parcel is.
+          </p>
+        </li>
+
+        <li class="track-order__option">
+          <h2 class="track-order__option-title">Check your account</h2>
+          <p>Every order you have placed, with its current status, lives in your account.</p>
+          {%- if customer -%}
+            <a href="{{ routes.account_url }}" class="button button--solid">View my orders</a>
+          {%- else -%}
+            <a href="{{ routes.account_login_url }}" class="button button--solid">Log in to your account</a>
+          {%- endif -%}
+        </li>
+
+        <li class="track-order__option">
+          <h2 class="track-order__option-title">Ask us</h2>
+          <p>Send your order number and we will check it for you.</p>
+          <div class="track-order__contacts">
+            {%- if section.settings.contact_link != blank -%}
+              <a href="{{ section.settings.contact_link }}" class="button button--outline">Contact us</a>
+            {%- endif -%}
+            {%- assign wa_number = settings.whatsapp_number | remove: ' ' | remove: '+' | remove: '-' -%}
+            {%- if wa_number != blank -%}
+              <a
+                href="https://wa.me/{{ wa_number }}{% if settings.whatsapp_message != blank %}?text={{ settings.whatsapp_message | url_encode }}{% endif %}"
+                class="button button--outline"
+                rel="noopener"
+              >{{ 'general.contact.whatsapp' | t }}</a>
+            {%- endif -%}
+            {%- if settings.contact_email != blank -%}
+              <a href="mailto:{{ settings.contact_email }}" class="button button--outline">{{ 'general.contact.email_us' | t }}</a>
+            {%- endif -%}
+          </div>
+        </li>
+      </ol>
+
+      {%- if page.content != blank -%}
+        <div class="track-order__content rte">{{ page.content }}</div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Track order",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "ORDERS"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Track your order"
+    },
+    {
+      "type": "text",
+      "id": "subtext",
+      "label": "Supporting text",
+      "default": "Here are the quickest ways to find out where your order is."
+    },
+    {
+      "type": "url",
+      "id": "contact_link",
+      "label": "Contact page link"
+    }
+  ],
+  "blocks": [
+    { "type": "@app" }
+  ]
+}
+{% endschema %}
