@@ -178,6 +178,30 @@ for path in sorted(liquid_files):
 
 
 # --------------------------------------------------------------------------
+# Braces inside Liquid output expressions
+#
+# Shopify's Liquid parser treats a brace inside a {{ ... }} expression as a
+# syntax error and rejects the whole file on upload, replacing it with an
+# error stub. theme-check does not catch this, and the failure only shows up
+# once the theme is on a store -- so check it here.
+# --------------------------------------------------------------------------
+
+OUTPUT_TAG_RE = re.compile(r"\{\{(.*?)\}\}", re.S)
+STRING_LITERAL_RE = re.compile(r"'([^']*)'|\"([^\"]*)\"")
+
+for path in sorted(liquid_files):
+    for match in OUTPUT_TAG_RE.finditer(open(path).read()):
+        expression = match.group(1)
+        for literal in STRING_LITERAL_RE.finditer(expression):
+            value = literal.group(1) if literal.group(1) is not None else literal.group(2)
+            if "{" in value or "}" in value:
+                errors.append(
+                    f"{rel(path)}: brace inside a string in a Liquid expression "
+                    f"-- {{{{{expression.strip()}}}}} -- Shopify will reject this file. "
+                    f"Build the value with `assign` and emit the brace as plain text."
+                )
+
+# --------------------------------------------------------------------------
 # CSS: braces balance, and no selector is defined twice outside a media query
 # --------------------------------------------------------------------------
 
