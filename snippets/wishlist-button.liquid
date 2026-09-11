@@ -1,0 +1,29 @@
+{%- doc -%}
+  Wishlist toggle.
+
+  The theme stores saves on the shopper's own device and emits
+  `nexoira:wishlist:toggle` for a wishlist app to take over. See
+  assets/wishlist.js and DEPLOYMENT.md.
+
+  @param {product} product - The product to save
+  @param {string} [context] - 'card' or 'product', for styling
+{%- enddoc -%}
+
+{%- if settings.wishlist_enabled -%}
+  <button
+    type="button"
+    class="wishlist-button wishlist-button--{{ context | default: 'card' }}"
+    data-wishlist-toggle
+    data-product-handle="{{ product.handle }}"
+    data-product-id="{{ product.id }}"
+    data-label-add="{{ 'wishlist.add' | t | escape }}"
+    data-label-remove="{{ 'wishlist.remove' | t | escape }}"
+    aria-pressed="false"
+    aria-label="{{ 'wishlist.add' | t }}"
+  >
+    {%- render 'icon-heart' -%}
+    {%- if context == 'product' -%}
+      <span class="wishlist-button__label">{{ 'wishlist.add' | t }}</span>
+    {%- endif -%}
+  </button>
+{%- endif -%}

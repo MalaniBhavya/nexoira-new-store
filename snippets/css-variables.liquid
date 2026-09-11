@@ -1,26 +1,75 @@
 {%- doc -%}
   Binds theme settings to CSS custom properties so Customizer changes
   apply live without a CSS asset rebuild.
+
+  Tokens are grouped as: colour, type, layout, motion. Everything in
+  base.css reads from here — no section should hard-code a colour.
 {%- enddoc -%}
 
 {% style %}
   :root {
+    /* Surfaces */
     --color-background: {{ settings.color_background }};
     --color-surface: {{ settings.color_surface }};
     --color-surface-alt: {{ settings.color_surface_alt }};
     --color-dark: {{ settings.color_dark }};
+
+    /* Text */
     --color-text: {{ settings.color_text }};
     --color-text-muted: {{ settings.color_text_muted }};
     --color-dark-text: {{ settings.color_dark_text }};
-    --color-accent: {{ settings.color_accent_primary }};
-    --color-accent-gold: {{ settings.color_accent_secondary }};
+
+    /* Accents */
+    --color-accent: {{ settings.color_accent }};
+    --color-earth: {{ settings.color_earth }};
     --color-border: {{ settings.color_border }};
 
+    /* Form feedback. Not a brand colour: it has one job, and needs to
+       read as an error regardless of the palette. */
+    --color-error: #B23A3A;
+
+    /* Translucent variants, derived so a palette change carries through
+       to every scrim, overlay and on-image element. */
+    --color-accent-soft: {{ settings.color_accent | color_modify: 'alpha', 0.12 }};
+
+    /* The accent reaches only ~3.3:1 on the light canvas, which fails AA
+       for small text. Fills, dots and borders use --color-accent; small
+       text on a light surface uses this darkened variant instead. */
+    --color-accent-text: {{ settings.color_accent | color_darken: 14 }};
+    --color-dark-soft: {{ settings.color_dark | color_modify: 'alpha', 0.08 }};
+
+    --scrim-0: {{ settings.color_dark | color_modify: 'alpha', 0 }};
+    --scrim-10: {{ settings.color_dark | color_modify: 'alpha', 0.1 }};
+    --scrim-40: {{ settings.color_dark | color_modify: 'alpha', 0.4 }};
+    --scrim-50: {{ settings.color_dark | color_modify: 'alpha', 0.5 }};
+    --scrim-60: {{ settings.color_dark | color_modify: 'alpha', 0.6 }};
+    --scrim-70: {{ settings.color_dark | color_modify: 'alpha', 0.7 }};
+    --scrim-85: {{ settings.color_dark | color_modify: 'alpha', 0.85 }};
+    --color-scrim: var(--scrim-40);
+    --color-overlay: var(--scrim-60);
+
+    --light-15: {{ settings.color_dark_text | color_modify: 'alpha', 0.15 }};
+    --light-40: {{ settings.color_dark_text | color_modify: 'alpha', 0.4 }};
+    --light-50: {{ settings.color_dark_text | color_modify: 'alpha', 0.5 }};
+    --light-60: {{ settings.color_dark_text | color_modify: 'alpha', 0.6 }};
+    --light-70: {{ settings.color_dark_text | color_modify: 'alpha', 0.7 }};
+    --light-90: {{ settings.color_dark_text | color_modify: 'alpha', 0.9 }};
+
+    /* Layout */
     --page-width: {{ settings.page_width }}px;
     --grid-gap: {{ settings.grid_gap }}px;
-    --base-font-size: {{ settings.base_font_size }}px;
+    --section-spacing: {{ settings.section_spacing }}px;
+    --section-spacing-mobile: {{ settings.section_spacing | times: 0.6 | round }}px;
+    --radius: {{ settings.corner_radius }}px;
 
-    --font-heading: 'DM Serif Display', Georgia, 'Times New Roman', serif;
-    --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    /* Type */
+    --base-font-size: {{ settings.base_font_size }}px;
+    --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+
+    /* Motion */
+    --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+    --duration-fast: 180ms;
+    --duration-base: 320ms;
   }
 {% endstyle %}

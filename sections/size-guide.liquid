@@ -1,32 +1,72 @@
-{%- doc -%}
-  Reusable size guide modal, included on the product template and
-  triggered from the "Size Guide" link next to the size selector.
-  Table content is merchant-editable (no product data is hardcoded) —
-  each category block holds a comma-separated header row and one
-  comma-separated measurement row per line.
-{%- enddoc -%}
+{%- comment -%}
+  Size guide modal, included on the product template and opened from the
+  "Size guide" link beside the size selector.
 
-<dialog class="size-guide" data-size-guide-dialog aria-label="{{ section.settings.heading }}">
-  <div class="size-guide__header">
-    <h2>{{ section.settings.heading }}</h2>
-    <button type="button" class="size-guide__close" data-size-guide-close aria-label="{{ 'general.menu.close' | t }}">
-      {%- render 'icon-close' -%}
-    </button>
-  </div>
+  Charts are per-garment blocks, so nothing is hard-coded in the template.
+  A single product can override them all with a `custom.size_guide`
+  metafield (rich text or a metaobject with a `chart` field), which is
+  what a made-to-order or oddly-sized piece needs.
+{%- endcomment -%}
 
-  {%- if section.blocks.size > 0 -%}
-    <div class="size-guide__tabs" role="tablist">
-      {%- for block in section.blocks -%}
-        <button
-          type="button"
-          class="size-guide__tab{% if forloop.first %} is-active{% endif %}"
-          data-size-guide-tab="{{ block.settings.category_key }}"
-          role="tab"
-        >
-          {{ block.settings.category_name }}
-        </button>
-      {%- endfor -%}
+{%- liquid
+  assign product_guide = blank
+  assign guide_metafield = product.metafields.custom.size_guide
+  if guide_metafield != blank
+    if guide_metafield.type == 'metaobject_reference'
+      assign product_guide = guide_metafield.value.chart
+    else
+      assign product_guide = guide_metafield.value
+    endif
+  endif
+-%}
+
+{%- assign as_page = false -%}
+{%- if section.settings.display == 'page' -%}{%- assign as_page = true -%}{%- endif -%}
+
+{%- if as_page -%}
+  <div class="size-guide size-guide--page" data-section-id="{{ section.id }}" data-section-type="size-guide">
+    <div class="container">
+      {%- render 'breadcrumbs' -%}
+      <div class="size-guide__header">
+        <h1>{{ section.settings.heading }}</h1>
+      </div>
+{%- else -%}
+  <dialog class="size-guide" data-size-guide-dialog aria-label="{{ section.settings.heading }}">
+    <div class="size-guide__header">
+      <h2>{{ section.settings.heading }}</h2>
+      <button type="button" class="size-guide__close" data-size-guide-close aria-label="{{ 'accessibility.close' | t }}">
+        {%- render 'icon-close' -%}
+      </button>
     </div>
+{%- endif -%}
+
+  {%- if product_guide != blank -%}
+    {%- comment -%} A product-level chart wins over the generic ones. {%- endcomment -%}
+    <div class="size-guide__body">
+      <div class="size-guide__panel rte">{{ product_guide }}</div>
+    </div>
+
+  {%- elsif section.blocks.size > 0 -%}
+    {%- comment -%}
+      The pop-up switches charts with tabs. The page stacks them instead,
+      because the tab script only loads on product templates and a size
+      chart must never depend on JavaScript to be readable.
+    {%- endcomment -%}
+    {%- unless as_page -%}
+      <div class="size-guide__tabs" role="tablist">
+        {%- for block in section.blocks -%}
+          <button
+            type="button"
+            class="size-guide__tab{% if forloop.first %} is-active{% endif %}"
+            data-size-guide-tab="{{ block.settings.category_key }}"
+            role="tab"
+            aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+          >
+            {{ block.settings.category_name }}
+          </button>
+        {%- endfor -%}
+      </div>
+    {%- endunless -%}
 
     <div class="size-guide__body">
       {%- for block in section.blocks -%}
@@ -37,18 +77,24 @@
         <div
           class="size-guide__panel"
           data-size-guide-panel="{{ block.settings.category_key }}"
-          {% unless forloop.first %}hidden{% endunless %}
+          {% unless as_page or forloop.first %}hidden{% endunless %}
           {{ block.shopify_attributes }}
         >
+          {%- if as_page -%}
+            <h2 class="size-guide__panel-title">{{ block.settings.category_name }}</h2>
+          {%- endif -%}
+
           {%- if block.settings.note != blank -%}
             <p class="size-guide__note">{{ block.settings.note }}</p>
           {%- endif -%}
+
           <div class="size-guide__table-wrap">
             <table class="size-guide__table">
+              <caption class="visually-hidden">{{ block.settings.category_name }} size chart</caption>
               <thead>
                 <tr>
                   {%- for column in columns -%}
-                    <th>{{ column | strip }}</th>
+                    <th scope="col">{{ column | strip }}</th>
                   {%- endfor -%}
                 </tr>
               </thead>
@@ -59,7 +105,11 @@
                     <tr>
                       {%- assign cells = row | split: ',' -%}
                       {%- for cell in cells -%}
-                        <td>{{ cell | strip }}</td>
+                        {%- if forloop.first -%}
+                          <th scope="row">{{ cell | strip }}</th>
+                        {%- else -%}
+                          <td>{{ cell | strip }}</td>
+                        {%- endif -%}
                       {%- endfor -%}
                     </tr>
                   {%- endif -%}
@@ -71,7 +121,16 @@
       {%- endfor -%}
     </div>
   {%- endif -%}
-</dialog>
+
+  {%- if as_page -%}
+      {%- if section.settings.note_page != blank -%}
+        <div class="size-guide__page-note rte">{{ section.settings.note_page }}</div>
+      {%- endif -%}
+    </div>
+  </div>
+  {%- else -%}
+  </dialog>
+  {%- endif -%}
 
 {% schema %}
 {
@@ -81,7 +140,30 @@
       "type": "text",
       "id": "heading",
       "label": "Heading",
-      "default": "Size Guide"
+      "default": "Size guide"
+    },
+    {
+      "type": "select",
+      "id": "display",
+      "label": "Display as",
+      "info": "Use the pop-up on the product template and the page version on a Size guide page.",
+      "options": [
+        {
+          "value": "modal",
+          "label": "Pop-up on the product page"
+        },
+        {
+          "value": "page",
+          "label": "Section on a page"
+        }
+      ],
+      "default": "modal"
+    },
+    {
+      "type": "richtext",
+      "id": "note_page",
+      "label": "Note below the charts",
+      "info": "Page display only."
     }
   ],
   "blocks": [
@@ -118,7 +200,7 @@
           "type": "textarea",
           "id": "rows",
           "label": "Rows (one per line, comma separated)",
-          "default": "S, 38, 27, 24\nM, 40, 28, 24.5\nL, 42, 29, 25\nXL, 44, 30, 25.5\nXXL, 46, 31, 26"
+          "default": "S, 38, 27, 24\nM, 40, 28, 24.5\nL, 42, 29, 25\nXL, 44, 30, 25.5\nXXL, 46, 31, 26\n3XL, 48, 32, 26.5"
         }
       ]
     }
@@ -132,7 +214,7 @@
           "category_name": "Shirts",
           "note": "All measurements are in inches.",
           "columns": "Size, Chest, Length, Sleeve",
-          "rows": "S, 38, 27, 24\nM, 40, 28, 24.5\nL, 42, 29, 25\nXL, 44, 30, 25.5\nXXL, 46, 31, 26"
+          "rows": "S, 38, 27, 24\nM, 40, 28, 24.5\nL, 42, 29, 25\nXL, 44, 30, 25.5\nXXL, 46, 31, 26\n3XL, 48, 32, 26.5"
         }
       },
       {
@@ -152,7 +234,7 @@
           "category_name": "Kurtas",
           "note": "All measurements are in inches.",
           "columns": "Size, Chest, Length, Shoulder",
-          "rows": "S, 38, 42, 17\nM, 40, 43, 17.5\nL, 42, 44, 18\nXL, 44, 45, 18.5\nXXL, 46, 46, 19"
+          "rows": "S, 38, 42, 17\nM, 40, 43, 17.5\nL, 42, 44, 18\nXL, 44, 45, 18.5\nXXL, 46, 46, 19\n3XL, 48, 47, 19.5"
         }
       }
     ]

@@ -1,0 +1,191 @@
+{%- doc -%}
+  JSON-LD for search engines.
+
+  Organization + WebSite are emitted site-wide. Product, Offer and
+  BreadcrumbList are emitted on the pages they describe.
+
+  AggregateRating is emitted ONLY when a review app has written real
+  values into the product's reviews.rating metafields. Never fabricate it:
+  rich-result spam is a manual-action risk.
+{%- enddoc -%}
+
+{%- liquid
+  assign brand_name = settings.brand_name | default: shop.name
+  assign logo_url = ''
+  if settings.logo
+    assign logo_url = settings.logo | image_url: width: 512
+  endif
+-%}
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": {{ brand_name | json }},
+    "url": {{ shop.url | json }},
+    {% if logo_url != blank %}"logo": {{ logo_url | prepend: 'https:' | json }},{% endif %}
+    {% if settings.brand_tagline != blank %}"slogan": {{ settings.brand_tagline | json }},{% endif %}
+    {%- liquid
+      assign social_profiles = ''
+      if settings.social_instagram_link != blank
+        assign social_profiles = social_profiles | append: settings.social_instagram_link | append: ','
+      endif
+      if settings.social_facebook_link != blank
+        assign social_profiles = social_profiles | append: settings.social_facebook_link | append: ','
+      endif
+      if settings.social_youtube_link != blank
+        assign social_profiles = social_profiles | append: settings.social_youtube_link | append: ','
+      endif
+      assign social_profiles = social_profiles | split: ','
+    -%}
+    {% if social_profiles.size > 0 %}"sameAs": {{ social_profiles | json }},{% endif %}
+    {% if settings.contact_email != blank or settings.contact_phone != blank %}
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "areaServed": "IN"
+        {%- if settings.contact_email != blank %},"email": {{ settings.contact_email | json }}{% endif -%}
+        {%- if settings.contact_phone != blank %},"telephone": {{ settings.contact_phone | json }}{% endif -%}
+      },
+    {% endif %}
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "IN"
+    }
+  }
+</script>
+
+{%- if request.page_type == 'index' -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": {{ brand_name | json }},
+      "url": {{ shop.url | json }},
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": {{ shop.url | append: routes.search_url | append: '?q={search_term_string}' | json }}
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+  </script>
+{%- endif -%}
+
+{%- if request.page_type == 'product' -%}
+  {%- liquid
+    assign has_rating = false
+    if settings.reviews_enabled and product.metafields.reviews.rating.value != blank and product.metafields.reviews.rating_count > 0
+      assign has_rating = true
+    endif
+  -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": {{ product.title | json }},
+      "url": {{ product.url | prepend: shop.url | json }},
+      "sku": {{ product.selected_or_first_available_variant.sku | json }},
+      {% if product.description != blank %}"description": {{ product.description | strip_html | truncate: 500 | json }},{% endif %}
+      {% if product.featured_media %}
+        "image": [
+          {%- for media in product.media limit: 5 -%}
+            {{ media.preview_image | image_url: width: 1200 | prepend: 'https:' | json }}{% unless forloop.last %},{% endunless %}
+          {%- endfor -%}
+        ],
+      {% endif %}
+      "brand": {
+        "@type": "Brand",
+        "name": {{ brand_name | json }}
+      },
+      {% if has_rating %}
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": {{ product.metafields.reviews.rating.value.rating | json }},
+          "bestRating": {{ product.metafields.reviews.rating.value.scale_max | json }},
+          "reviewCount": {{ product.metafields.reviews.rating_count.value | json }}
+        },
+      {% endif %}
+      "offers": [
+        {%- for variant in product.variants -%}
+          {
+            "@type": "Offer",
+            "sku": {{ variant.sku | json }},
+            "name": {{ variant.title | json }},
+            "url": {{ variant.url | prepend: shop.url | json }},
+            "price": {{ variant.price | divided_by: 100.0 | json }},
+            "priceCurrency": {{ cart.currency.iso_code | json }},
+            "availability": {% if variant.available %}"https://schema.org/InStock"{% else %}"https://schema.org/OutOfStock"{% endif %},
+            "itemCondition": "https://schema.org/NewCondition"
+          }{% unless forloop.last %},{% endunless %}
+        {%- endfor -%}
+      ]
+    }
+  </script>
+{%- endif -%}
+
+{%- comment -%}
+  BreadcrumbList. Built by walking the page type explicitly rather than
+  string-parsing, so titles containing commas or quotes stay safe.
+{%- endcomment -%}
+{%- liquid
+  assign crumb_names = ''
+  assign crumb_urls = ''
+  assign crumb_sep = '||'
+
+  case request.page_type
+    when 'product'
+      if collection
+        assign crumb_names = collection.title
+        assign crumb_urls = collection.url
+      endif
+      if crumb_names == blank
+        assign crumb_names = product.title
+        assign crumb_urls = product.url
+      else
+        assign crumb_names = crumb_names | append: crumb_sep | append: product.title
+        assign crumb_urls = crumb_urls | append: crumb_sep | append: product.url
+      endif
+    when 'collection'
+      if collection.handle != blank
+        assign crumb_names = collection.title
+        assign crumb_urls = collection.url
+      endif
+    when 'page'
+      assign crumb_names = page.title
+      assign crumb_urls = page.url
+    when 'article'
+      assign crumb_names = blog.title | append: crumb_sep | append: article.title
+      assign crumb_urls = blog.url | append: crumb_sep | append: article.url
+  endcase
+
+  assign crumb_names = crumb_names | split: crumb_sep
+  assign crumb_urls = crumb_urls | split: crumb_sep
+-%}
+
+{%- if crumb_names.size > 0 -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": {{ shop.url | json }}
+        },
+        {%- for name in crumb_names -%}
+          {
+            "@type": "ListItem",
+            "position": {{ forloop.index | plus: 1 }},
+            "name": {{ name | json }},
+            "item": {{ crumb_urls[forloop.index0] | prepend: shop.url | json }}
+          }{% unless forloop.last %},{% endunless %}
+        {%- endfor -%}
+      ]
+    }
+  </script>
+{%- endif -%}

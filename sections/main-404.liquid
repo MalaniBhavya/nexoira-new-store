@@ -4,12 +4,12 @@
   <p class="error-page__text">{{ section.settings.text }}</p>
   <a href="{{ routes.root_url }}" class="button button--solid">{{ section.settings.button_label }}</a>
 
-  {%- if section.settings.show_shop_links -%}
-    <div class="error-page__links">
-      <a href="/collections/shirts">Shirts</a>
-      <a href="/collections/pants">Trousers</a>
-      <a href="/collections/kurta">Kurtas</a>
-    </div>
+  {%- if section.settings.show_shop_links and section.settings.links_menu != blank -%}
+    <nav class="error-page__links" aria-label="Shop">
+      {%- for link in section.settings.links_menu.links -%}
+        <a href="{{ link.url }}">{{ link.title }}</a>
+      {%- endfor -%}
+    </nav>
   {%- endif -%}
 </div>
 
@@ -27,19 +27,26 @@
       "type": "text",
       "id": "text",
       "label": "Text",
-      "default": "The page you're looking for doesn't exist, but your next favorite piece might."
+      "default": "The page you're after has moved or never existed. The wardrobe is still here."
     },
     {
       "type": "text",
       "id": "button_label",
       "label": "Button label",
-      "default": "BACK TO HOMEPAGE"
+      "default": "BACK TO HOME"
     },
     {
       "type": "checkbox",
       "id": "show_shop_links",
       "label": "Show quick shop links",
       "default": true
+    },
+    {
+      "type": "link_list",
+      "id": "links_menu",
+      "label": "Shortcut menu",
+      "info": "Shown under the button so a lost shopper has somewhere to go.",
+      "default": "main-menu"
     }
   ]
 }

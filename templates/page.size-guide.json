@@ -1,0 +1,13 @@
+{
+  "sections": {
+    "main": {
+      "type": "size-guide",
+      "settings": {
+        "heading": "Size guide",
+        "display": "page",
+        "note_page": "<p>Measurements are of the garment, not the body, and are taken flat. Allow up to half an inch either way. If you are between sizes, size up for a relaxed fit.</p>"
+      }
+    }
+  },
+  "order": ["main"]
+}

@@ -1,5 +1,30 @@
+{%- comment -%}
+  Sticky site header.
+
+  Desktop navigation is built entirely from the chosen link list, so the
+  merchant controls it from Navigation — no hard-coded link titles. A top
+  level link with children renders as a dropdown, or as a full-width mega
+  menu when the block for that link says so.
+{%- endcomment -%}
+
+{%- liquid
+  assign menu = section.settings.menu
+  assign transparent = false
+  if section.settings.transparent_on_home and request.page_type == 'index'
+    assign transparent = true
+  endif
+
+  # Map "mega menu" blocks to the menu item they decorate, keyed by handle.
+  assign mega_handles = ''
+  for block in section.blocks
+    if block.type == 'mega_menu' and block.settings.menu_item != blank
+      assign mega_handles = mega_handles | append: block.settings.menu_item | handle | append: ' '
+    endif
+  endfor
+-%}
+
 <header
-  class="site-header{% if request.page_type == 'index' %} site-header--transparent{% endif %}"
+  class="site-header{% if transparent %} site-header--transparent{% endif %}"
   data-header
   data-section-id="{{ section.id }}"
   data-section-type="header"
@@ -7,15 +32,6 @@
   <div class="site-header__row container">
 
     <div class="site-header__side site-header__side--left">
-      <nav class="site-header__nav">
-        {%- for link in section.settings.menu.links -%}
-          {%- assign link_title_down = link.title | downcase -%}
-          {%- if link_title_down == 'shirts' or link_title_down == 'trousers' or link_title_down == 'kurtas' -%}
-            <a href="{{ link.url }}" class="site-header__nav-link">{{ link.title }}</a>
-          {%- endif -%}
-        {%- endfor -%}
-      </nav>
-
       <button
         type="button"
         class="site-header__menu-toggle"
@@ -26,19 +42,87 @@
         {%- render 'icon-menu' -%}
         <span class="visually-hidden">{{ 'general.menu.open' | t }}</span>
       </button>
+
+      <nav class="site-header__nav" aria-label="Primary">
+        <ul class="site-header__nav-list">
+          {%- for link in menu.links -%}
+            {%- liquid
+              assign is_mega = false
+              assign link_handle = link.title | handle
+              if mega_handles contains link_handle
+                assign is_mega = true
+              endif
+            -%}
+
+            {%- if link.links.size > 0 -%}
+              <li class="site-header__nav-item site-header__nav-item--has-children{% if is_mega %} site-header__nav-item--mega{% endif %}" data-nav-item>
+                <a
+                  href="{{ link.url }}"
+                  class="site-header__nav-link{% if link.active or link.child_active %} is-active{% endif %}"
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  data-nav-trigger
+                >
+                  {{ link.title }}
+                  {%- render 'icon-chevron-down' -%}
+                </a>
+
+                {%- if is_mega -%}
+                  {%- render 'header-mega-menu', link: link, blocks: section.blocks -%}
+                {%- else -%}
+                  <ul class="site-header__dropdown" data-nav-panel>
+                    {%- for child in link.links -%}
+                      <li>
+                        <a href="{{ child.url }}"{% if child.active %} aria-current="page"{% endif %}>{{ child.title }}</a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {%- endif -%}
+              </li>
+            {%- else -%}
+              <li class="site-header__nav-item">
+                <a
+                  href="{{ link.url }}"
+                  class="site-header__nav-link{% if link.active %} is-active{% endif %}"
+                  {% if link.active %}aria-current="page"{% endif %}
+                >
+                  {{ link.title }}
+                </a>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </nav>
     </div>
 
     <a href="{{ routes.root_url }}" class="site-header__logo">
-      {%- if section.settings.logo != blank -%}
+      {%- if settings.logo != blank -%}
+        {%- assign logo_height = section.settings.logo_width | divided_by: settings.logo.aspect_ratio | round -%}
         <img
-          src="{{ section.settings.logo | image_url: width: 320 }}"
-          alt="{{ shop.name }}"
+          class="site-header__logo-image{% if settings.logo_mobile != blank %} site-header__logo-image--desktop{% endif %}"
+          src="{{ settings.logo | image_url: width: 400 }}"
+          srcset="{{ settings.logo | image_url: width: 200 }} 1x, {{ settings.logo | image_url: width: 400 }} 2x"
+          alt="{{ settings.brand_name | default: shop.name | escape }}"
           width="{{ section.settings.logo_width }}"
-          height="{{ section.settings.logo_width | divided_by: section.settings.logo.aspect_ratio | round }}"
+          height="{{ logo_height }}"
+          style="width: {{ section.settings.logo_width }}px;"
           loading="eager"
+          fetchpriority="high"
         >
+        {%- if settings.logo_mobile != blank -%}
+          {%- assign logo_mobile_height = section.settings.logo_width_mobile | divided_by: settings.logo_mobile.aspect_ratio | round -%}
+          <img
+            class="site-header__logo-image site-header__logo-image--mobile"
+            src="{{ settings.logo_mobile | image_url: width: 300 }}"
+            alt="{{ settings.brand_name | default: shop.name | escape }}"
+            width="{{ section.settings.logo_width_mobile }}"
+            height="{{ logo_mobile_height }}"
+            style="width: {{ section.settings.logo_width_mobile }}px;"
+            loading="eager"
+          >
+        {%- endif -%}
       {%- else -%}
-        <span class="site-header__logo-text">Nexoira</span>
+        <span class="site-header__logo-text">{{ settings.brand_name | default: shop.name }}</span>
       {%- endif -%}
     </a>
 
@@ -53,9 +137,27 @@
         {%- render 'icon-search' -%}
         <span class="visually-hidden">{{ 'general.search.submit' | t }}</span>
       </button>
-      <a href="{{ routes.account_url }}" class="site-header__action" aria-label="Account">
+
+      <a
+        href="{{ routes.account_url }}"
+        class="site-header__action site-header__action--desktop-only"
+        aria-label="{{ 'customer.account.title' | t }}"
+      >
         {%- render 'icon-account' -%}
       </a>
+
+      {%- if settings.wishlist_enabled -%}
+        <a
+          href="{{ section.settings.wishlist_url | default: routes.account_url }}"
+          class="site-header__action site-header__action--desktop-only"
+          data-wishlist-link
+          aria-label="{{ 'wishlist.title' | t }}"
+        >
+          {%- render 'icon-heart' -%}
+          <span class="site-header__wishlist-count" data-wishlist-count hidden>0</span>
+        </a>
+      {%- endif -%}
+
       <a
         href="{{ routes.cart_url }}"
         class="site-header__action site-header__cart"
@@ -70,52 +172,28 @@
   </div>
 
   <div class="site-header__search-panel" id="HeaderSearch-{{ section.id }}" data-search-panel>
-    <form action="{{ routes.search_url }}" method="get" role="search" class="site-header__search-form container">
-      <input
-        type="search"
-        name="q"
-        value="{{ search.terms | escape }}"
-        placeholder="{{ 'general.search.placeholder' | t }}"
-        autocomplete="off"
-        data-search-input
-      >
-      <button type="submit" aria-label="{{ 'general.search.submit' | t }}">
-        {%- render 'icon-search' -%}
-      </button>
-    </form>
+    <div class="container">
+      {%- render 'predictive-search', section_id: section.id -%}
+    </div>
   </div>
 </header>
 
-<div class="mobile-nav" id="MobileNav-{{ section.id }}" data-mobile-nav>
-  <div class="mobile-nav__header">
-    <a href="{{ routes.root_url }}" class="mobile-nav__logo">Nexoira</a>
-    <button type="button" data-mobile-nav-close aria-label="{{ 'general.menu.close' | t }}">
-      {%- render 'icon-close' -%}
-    </button>
-  </div>
-  <nav class="mobile-nav__body">
-    <p class="mobile-nav__label">Shop</p>
-    <ul class="mobile-nav__list">
-      {%- for link in section.settings.menu.links -%}
-        <li><a href="{{ link.url }}">{{ link.title }}</a></li>
-      {%- endfor -%}
-    </ul>
-    <div class="mobile-nav__actions">
-      <a href="{{ routes.search_url }}">{{ 'general.search.submit' | t }}</a>
-      <a href="{{ routes.account_url }}">Account</a>
-    </div>
-  </nav>
-</div>
-<div class="mobile-nav-overlay" data-mobile-nav-overlay></div>
+{%- render 'mobile-nav', menu: menu, section_id: section.id -%}
 
 {% schema %}
 {
   "name": "Header",
   "settings": [
     {
-      "type": "image_picker",
-      "id": "logo",
-      "label": "Logo"
+      "type": "paragraph",
+      "content": "Logo and mobile logo are set under Theme settings → Brand."
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu",
+      "info": "Top-level links with sub-links become dropdowns. Add a Mega menu block below to make one full width.",
+      "default": "main-menu"
     },
     {
       "type": "range",
@@ -128,11 +206,56 @@
       "default": 150
     },
     {
-      "type": "link_list",
-      "id": "menu",
-      "label": "Shop menu",
-      "info": "Shirts/Trousers/Kurtas links are shown in the header nav; the full list is shown in the mobile menu.",
-      "default": "main-menu"
+      "type": "range",
+      "id": "logo_width_mobile",
+      "label": "Mobile logo width",
+      "min": 60,
+      "max": 180,
+      "step": 10,
+      "unit": "px",
+      "default": 110
+    },
+    {
+      "type": "checkbox",
+      "id": "transparent_on_home",
+      "label": "Overlay the header on the homepage hero",
+      "default": true
+    },
+    {
+      "type": "url",
+      "id": "wishlist_url",
+      "label": "Wishlist page URL",
+      "info": "Point this at the page your wishlist app creates. Defaults to the account page."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "mega_menu",
+      "name": "Mega menu",
+      "limit": 4,
+      "settings": [
+        {
+          "type": "text",
+          "id": "menu_item",
+          "label": "Menu item",
+          "info": "Type the top-level menu link's name exactly, e.g. Shop."
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Feature image"
+        },
+        {
+          "type": "text",
+          "id": "image_heading",
+          "label": "Feature heading"
+        },
+        {
+          "type": "url",
+          "id": "image_link",
+          "label": "Feature link"
+        }
+      ]
     }
   ]
 }

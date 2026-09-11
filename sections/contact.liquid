@@ -1,14 +1,25 @@
-{%- doc -%}
-  Premium minimal contact page using Shopify's native contact form
-  (delivers to the store's customer email — no app required).
-{%- enddoc -%}
+{%- comment -%}
+  Contact page.
+
+  Uses Shopify's native contact form, which delivers to the store's
+  customer email — no app needed. Every contact detail shown alongside it
+  comes from theme settings, so nothing here needs editing in code.
+{%- endcomment -%}
+
+{%- liquid
+  assign wa_number = settings.whatsapp_number | remove: ' ' | remove: '+' | remove: '-' | remove: '(' | remove: ')'
+-%}
 
 <div class="contact-page" data-section-id="{{ section.id }}" data-section-type="contact">
+  <div class="container">
+    {%- render 'breadcrumbs' -%}
+  </div>
+
   <div class="container contact-page__inner">
 
     <div class="contact-page__intro">
       {%- if section.settings.eyebrow != blank -%}
-        <p class="about-story__eyebrow">{{ section.settings.eyebrow }}</p>
+        <p class="eyebrow">{{ section.settings.eyebrow }}</p>
       {%- endif -%}
       <h1 class="contact-page__heading">{{ section.settings.heading }}</h1>
       {%- if section.settings.subtext != blank -%}
@@ -16,21 +27,52 @@
       {%- endif -%}
 
       <div class="contact-page__details">
-        {%- if section.settings.support_email != blank -%}
+        {%- if settings.contact_email != blank -%}
           <div class="contact-page__detail">
             <span class="contact-page__detail-label">Email</span>
-            <a href="mailto:{{ section.settings.support_email }}">{{ section.settings.support_email }}</a>
+            <a href="mailto:{{ settings.contact_email }}">{{ settings.contact_email }}</a>
           </div>
         {%- endif -%}
-        {%- if section.settings.response_time != blank -%}
+
+        {%- if settings.contact_phone != blank -%}
           <div class="contact-page__detail">
-            <span class="contact-page__detail-label">Response time</span>
-            <span>{{ section.settings.response_time }}</span>
+            <span class="contact-page__detail-label">Phone</span>
+            <a href="tel:{{ settings.contact_phone | remove: ' ' }}">{{ settings.contact_phone }}</a>
           </div>
         {%- endif -%}
+
+        {%- if wa_number != blank -%}
+          <div class="contact-page__detail">
+            <span class="contact-page__detail-label">WhatsApp</span>
+            <a
+              href="https://wa.me/{{ wa_number }}{% if settings.whatsapp_message != blank %}?text={{ settings.whatsapp_message | url_encode }}{% endif %}"
+              rel="noopener"
+            >{{ 'general.contact.whatsapp' | t }}</a>
+          </div>
+        {%- endif -%}
+
+        {%- if settings.social_instagram_link != blank -%}
+          <div class="contact-page__detail">
+            <span class="contact-page__detail-label">Instagram</span>
+            <a href="{{ settings.social_instagram_link }}" rel="noopener">
+              {{ settings.social_instagram_handle | default: 'Instagram' }}
+            </a>
+          </div>
+        {%- endif -%}
+
+        {%- if settings.contact_hours != blank -%}
+          <div class="contact-page__detail">
+            <span class="contact-page__detail-label">Hours</span>
+            <span>{{ settings.contact_hours }}</span>
+          </div>
+        {%- endif -%}
+
         {%- if section.settings.faq_link != blank -%}
           <div class="contact-page__detail">
-            <a href="{{ section.settings.faq_link }}" class="contact-page__faq-link">Visit our FAQ &rarr;</a>
+            <a href="{{ section.settings.faq_link }}" class="contact-page__faq-link">
+              Read our FAQs
+              {%- render 'icon-arrow-right' -%}
+            </a>
           </div>
         {%- endif -%}
       </div>
@@ -39,29 +81,57 @@
     <div class="contact-page__form">
       {%- form 'contact' -%}
         {%- if form.posted_successfully? -%}
-          <p class="form-status form-status--success">Thanks — we'll be in touch shortly.</p>
+          <p class="form-status form-status--success" tabindex="-1">
+            Thanks — we've got your message and will get back to you.
+          </p>
         {%- elsif form.errors -%}
-          <p class="form-status form-status--error">{{ form.errors | default_errors }}</p>
+          <p class="form-status form-status--error" tabindex="-1">{{ form.errors | default_errors }}</p>
         {%- endif -%}
 
-        <label for="ContactName">Name</label>
-        <input type="text" id="ContactName" name="contact[name]" autocomplete="name" required>
+        <div class="form-field">
+          <label for="ContactName">Name</label>
+          <input type="text" id="ContactName" name="contact[name]" autocomplete="name" required>
+        </div>
 
-        <label for="ContactEmail">Email</label>
-        <input
-          type="email"
-          id="ContactEmail"
-          name="contact[email]"
-          autocomplete="email"
-          value="{% if customer %}{{ customer.email }}{% endif %}"
-          required
-        >
+        <div class="form-field">
+          <label for="ContactEmail">Email</label>
+          <input
+            type="email"
+            id="ContactEmail"
+            name="contact[email]"
+            autocomplete="email"
+            value="{% if customer %}{{ customer.email }}{% endif %}"
+            required
+          >
+        </div>
 
-        <label for="ContactPhone">Phone (optional)</label>
-        <input type="tel" id="ContactPhone" name="contact[phone]" autocomplete="tel">
+        <div class="form-field">
+          <label for="ContactPhone">Phone <span class="form-field__optional">(optional)</span></label>
+          <input type="tel" id="ContactPhone" name="contact[phone]" autocomplete="tel">
+        </div>
 
-        <label for="ContactMessage">Message</label>
-        <textarea id="ContactMessage" name="contact[body]" rows="6" required></textarea>
+        <div class="form-field">
+          <label for="ContactOrder">Order number <span class="form-field__optional">(optional)</span></label>
+          <input type="text" id="ContactOrder" name="contact[Order number]" inputmode="numeric">
+        </div>
+
+        <div class="form-field">
+          <label for="ContactReason">Reason</label>
+          <div class="form-field__select">
+            <select id="ContactReason" name="contact[Reason]">
+              {%- assign reasons = section.settings.reasons | split: ',' -%}
+              {%- for reason in reasons -%}
+                <option value="{{ reason | strip | escape }}">{{ reason | strip }}</option>
+              {%- endfor -%}
+            </select>
+            {%- render 'icon-chevron-down' -%}
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="ContactMessage">Message</label>
+          <textarea id="ContactMessage" name="contact[body]" rows="6" required></textarea>
+        </div>
 
         <button type="submit" class="button button--solid">Send message</button>
       {%- endform -%}
@@ -74,6 +144,10 @@
 {
   "name": "Contact",
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "Email, phone, WhatsApp, Instagram and support hours come from Theme settings → Contact. Blank fields are hidden."
+    },
     {
       "type": "text",
       "id": "eyebrow",
@@ -89,20 +163,14 @@
     {
       "type": "text",
       "id": "subtext",
-      "label": "Subtext",
-      "default": "Questions about an order, sizing, or anything else — reach out and a real person will get back to you."
+      "label": "Supporting text",
+      "default": "Questions about an order, sizing or anything else — write in and a real person will get back to you."
     },
     {
       "type": "text",
-      "id": "support_email",
-      "label": "Support email",
-      "default": "support@nexoira.com"
-    },
-    {
-      "type": "text",
-      "id": "response_time",
-      "label": "Response time",
-      "default": "Within 24 hours, Monday to Saturday"
+      "id": "reasons",
+      "label": "Reasons (comma separated)",
+      "default": "Order status, Returns or exchange, Sizing help, Payment issue, Product question, Something else"
     },
     {
       "type": "url",

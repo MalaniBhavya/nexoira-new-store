@@ -1,0 +1,44 @@
+{%- doc -%}
+  Delivery pincode checker — integration point.
+
+  The theme validates the PIN code format and emits
+  `nexoira:pincode:check` for a serviceability app to answer. With no app
+  listening it points at the shipping policy instead of inventing a
+  delivery date. See assets/product.js and DEPLOYMENT.md.
+{%- enddoc -%}
+
+{%- liquid
+  assign fallback = 'Delivery times are shown at checkout.'
+  if shop.policies.shipping_policy != blank
+    assign fallback = 'Enter your PIN code at checkout to see delivery options, or read our shipping policy.'
+  endif
+-%}
+
+<div
+  class="pincode"
+  data-pincode-checker
+  data-message-invalid="Enter a valid 6-digit PIN code."
+  data-message-checking="Checking…"
+  data-message-fallback="{{ fallback | escape }}"
+>
+  <form class="pincode__form">
+    <label class="pincode__label" for="PincodeInput">Check delivery</label>
+    <div class="pincode__field">
+      <input
+        type="text"
+        id="PincodeInput"
+        name="pincode"
+        inputmode="numeric"
+        autocomplete="postal-code"
+        maxlength="6"
+        placeholder="6-digit PIN code"
+        data-pincode-input
+      >
+      <button type="submit" class="pincode__submit">Check</button>
+    </div>
+  </form>
+  <p class="pincode__result" data-pincode-result hidden></p>
+  {%- if shop.policies.shipping_policy != blank -%}
+    <a class="pincode__policy-link" href="{{ shop.policies.shipping_policy.url }}">Shipping policy</a>
+  {%- endif -%}
+</div>

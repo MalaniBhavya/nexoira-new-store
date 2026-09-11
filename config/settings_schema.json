@@ -2,41 +2,82 @@
   {
     "name": "theme_info",
     "theme_name": "Nexoira",
-    "theme_version": "0.2.0",
+    "theme_version": "1.0.0",
     "theme_author": "Nexoira",
-    "theme_documentation_url": "",
-    "theme_support_url": ""
+    "theme_documentation_url": "https://github.com/MalaniBhavya/nexoira-new-store/blob/main/SETUP.md",
+    "theme_support_url": "https://github.com/MalaniBhavya/nexoira-new-store/issues"
+  },
+  {
+    "name": "Brand",
+    "settings": [
+      {
+        "type": "text",
+        "id": "brand_name",
+        "label": "Brand name",
+        "info": "Used in structured data, the product page brand line and the footer lockup.",
+        "default": "NEXOIRA"
+      },
+      {
+        "type": "text",
+        "id": "brand_tagline",
+        "label": "Tagline",
+        "default": "The New Face of Tradition"
+      },
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo"
+      },
+      {
+        "type": "image_picker",
+        "id": "logo_mobile",
+        "label": "Mobile logo",
+        "info": "Optional. Falls back to the main logo."
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon"
+      },
+      {
+        "type": "image_picker",
+        "id": "social_share_image",
+        "label": "Social sharing image",
+        "info": "Shown when a link to the shop is shared. 1200 x 630px works best."
+      }
+    ]
   },
   {
     "name": "Colors",
     "settings": [
       {
         "type": "header",
-        "content": "Backgrounds"
+        "content": "Surfaces"
       },
       {
         "type": "color",
         "id": "color_background",
-        "label": "Background (ivory)",
-        "default": "#F4F0E8"
+        "label": "Page canvas",
+        "default": "#F5F9FD"
       },
       {
         "type": "color",
         "id": "color_surface",
-        "label": "Surface (white)",
+        "label": "Surface",
         "default": "#FFFFFF"
       },
       {
         "type": "color",
         "id": "color_surface_alt",
-        "label": "Surface alt (warm neutral)",
-        "default": "#E8E1D7"
+        "label": "Alternate surface",
+        "default": "#E9F0F8"
       },
       {
         "type": "color",
         "id": "color_dark",
         "label": "Dark surface",
-        "default": "#2B2926"
+        "info": "Announcement bar, footer, newsletter, primary buttons.",
+        "default": "#1B2942"
       },
       {
         "type": "header",
@@ -46,19 +87,19 @@
         "type": "color",
         "id": "color_text",
         "label": "Primary text",
-        "default": "#2A1B1B"
+        "default": "#1B2942"
       },
       {
         "type": "color",
         "id": "color_text_muted",
         "label": "Muted text",
-        "default": "#7A6F63"
+        "default": "#5D6B80"
       },
       {
         "type": "color",
         "id": "color_dark_text",
         "label": "Text on dark surfaces",
-        "default": "#F4F0E8"
+        "default": "#F5F9FD"
       },
       {
         "type": "header",
@@ -66,25 +107,27 @@
       },
       {
         "type": "color",
-        "id": "color_accent_primary",
-        "label": "Burgundy accent",
-        "default": "#6E2635"
+        "id": "color_accent",
+        "label": "Accent",
+        "info": "Selected states, hover details, promotional highlights.",
+        "default": "#B97C61"
       },
       {
         "type": "color",
-        "id": "color_accent_secondary",
-        "label": "Gold accent",
-        "default": "#B68A3A"
+        "id": "color_earth",
+        "label": "Secondary earth",
+        "info": "Editorial and festive sections.",
+        "default": "#564245"
       },
       {
         "type": "header",
-        "content": "Borders"
+        "content": "Lines"
       },
       {
         "type": "color",
         "id": "color_border",
         "label": "Border",
-        "default": "#DFD6C7"
+        "default": "#D8E2EE"
       }
     ]
   },
@@ -93,7 +136,7 @@
     "settings": [
       {
         "type": "paragraph",
-        "content": "Nexoira uses DM Serif Display for editorial headings and Manrope for body text and UI, loaded from Google Fonts."
+        "content": "Playfair Display is used for editorial headings, Inter for body text and UI. Both load from Google Fonts."
       },
       {
         "type": "range",
@@ -129,16 +172,92 @@
         "step": 4,
         "unit": "px",
         "default": 24
+      },
+      {
+        "type": "range",
+        "id": "section_spacing",
+        "label": "Space between sections",
+        "min": 48,
+        "max": 140,
+        "step": 4,
+        "unit": "px",
+        "default": 104
+      },
+      {
+        "type": "range",
+        "id": "corner_radius",
+        "label": "Corner radius",
+        "min": 0,
+        "max": 8,
+        "step": 1,
+        "unit": "px",
+        "default": 2
       }
     ]
   },
   {
-    "name": "Favicon",
+    "name": "Cart",
     "settings": [
       {
-        "type": "image_picker",
-        "id": "favicon",
-        "label": "Favicon image"
+        "type": "checkbox",
+        "id": "cart_free_shipping_enabled",
+        "label": "Show free shipping progress",
+        "default": true
+      },
+      {
+        "type": "number",
+        "id": "cart_free_shipping_threshold",
+        "label": "Free shipping threshold",
+        "info": "In your store currency, without decimals. Set to match your Shipping settings — the theme does not create the shipping rate.",
+        "default": 999
+      }
+    ]
+  },
+  {
+    "name": "Contact",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Leave a field blank to hide it everywhere it appears."
+      },
+      {
+        "type": "text",
+        "id": "contact_email",
+        "label": "Support email"
+      },
+      {
+        "type": "text",
+        "id": "contact_phone",
+        "label": "Support phone",
+        "info": "Shown as typed. Example: +91 90000 00000"
+      },
+      {
+        "type": "text",
+        "id": "contact_hours",
+        "label": "Support hours",
+        "default": "Monday to Saturday, 10am - 6pm IST"
+      },
+      {
+        "type": "header",
+        "content": "WhatsApp"
+      },
+      {
+        "type": "checkbox",
+        "id": "whatsapp_enabled",
+        "label": "Show floating WhatsApp button",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "whatsapp_number",
+        "label": "WhatsApp number",
+        "info": "Country code and number, digits only. Example: 919000000000"
+      },
+      {
+        "type": "text",
+        "id": "whatsapp_message",
+        "label": "Default message",
+        "default": "Hi Nexoira, I need help with a product."
       }
     ]
   },
@@ -146,18 +265,55 @@
     "name": "Social media",
     "settings": [
       {
-        "type": "header",
-        "content": "Social accounts"
-      },
-      {
         "type": "text",
         "id": "social_instagram_link",
         "label": "Instagram URL"
       },
       {
         "type": "text",
+        "id": "social_instagram_handle",
+        "label": "Instagram handle",
+        "default": "@nexoira"
+      },
+      {
+        "type": "text",
         "id": "social_facebook_link",
         "label": "Facebook URL"
+      },
+      {
+        "type": "text",
+        "id": "social_youtube_link",
+        "label": "YouTube URL"
+      }
+    ]
+  },
+  {
+    "name": "Integrations",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "These features need a Shopify app to store data. The theme renders the markup an app can bind to and stays tidy when no app is installed. See DEPLOYMENT.md."
+      },
+      {
+        "type": "checkbox",
+        "id": "wishlist_enabled",
+        "label": "Show wishlist buttons",
+        "info": "Requires a wishlist app for saving across devices. Without one, saves stay on the shopper's own device.",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "reviews_enabled",
+        "label": "Show review ratings on product cards and pages",
+        "info": "Requires a review app that writes to the product's rating metafields. Nothing is shown until real reviews exist.",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "pincode_enabled",
+        "label": "Show delivery pincode checker",
+        "info": "Requires a serviceability app. Without one, the field links to your shipping policy instead of inventing delivery dates.",
+        "default": false
       }
     ]
   }

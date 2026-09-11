@@ -1,0 +1,22 @@
+{%- doc -%}
+  Star rating, read from the standard `reviews` metafields that Shopify
+  review apps write to.
+
+  Renders nothing unless reviews are enabled in theme settings AND real
+  review data exists. There is no placeholder and no sample rating.
+
+  @param {product} product - The product to rate
+{%- enddoc -%}
+
+{%- liquid
+  assign rating = product.metafields.reviews.rating.value
+  assign rating_count = product.metafields.reviews.rating_count.value | plus: 0
+-%}
+
+{%- if settings.reviews_enabled and rating != blank and rating_count > 0 -%}
+  {%- assign percent = rating.rating | times: 100.0 | divided_by: rating.scale_max -%}
+  <div class="rating" role="img" aria-label="{{ rating.rating }} out of {{ rating.scale_max }} stars, {{ rating_count }} reviews">
+    <span class="rating__stars" style="--rating-percent: {{ percent }}%;" aria-hidden="true">★★★★★</span>
+    <span class="rating__count">({{ rating_count }})</span>
+  </div>
+{%- endif -%}

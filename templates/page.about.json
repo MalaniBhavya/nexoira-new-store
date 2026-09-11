@@ -1,7 +1,60 @@
 {
   "sections": {
     "main": {
-      "type": "about-story"
+      "type": "about-story",
+      "settings": {
+        "hero_image": "shopify://shop_images/SHTHKCR2DEMFHGAP_1781343025053_3z9x2fa9ojewfir.jpg",
+        "hero_eyebrow": "ABOUT NEXOIRA",
+        "hero_heading": "One wardrobe. Every version of you.",
+        "intro_text": "<p>Nexoira makes menswear for the way men in India actually dress — a shirt for the office on Monday, linen-blend trousers for a Saturday afternoon, a kurta for the wedding everyone in the family is going to.</p><p>We started because that wardrobe was hard to buy in one place. Shirts were either too formal or too loud. Trousers were comfortable or smart, rarely both. Kurtas were treated as costume rather than clothing. So we set out to make all three well, and to price them so that buying the right thing does not need a reason.</p>",
+        "closing_heading": "Made for repeat wear, not one occasion.",
+        "closing_button_label": "SHOP THE COLLECTION",
+        "closing_button_link": "shopify://collections/all"
+      },
+      "blocks": {
+        "design": {
+          "type": "chapter",
+          "settings": {
+            "image": "shopify://shop_images/SHTHKAH97HPGTGYP_1781343041411_ue9udbgci7mysst.jpg",
+            "eyebrow": "DESIGN",
+            "heading": "Restraint, on purpose.",
+            "text": "<p>Our design language is deliberately quiet. Clean lines, considered colour, nothing that dates in a season. A Nexoira shirt should work as easily with denim as it does under a jacket, and still look right two years from now.</p>"
+          }
+        },
+        "fabric": {
+          "type": "chapter",
+          "settings": {
+            "image": "shopify://shop_images/TROHKZXCKWP7W8SV_1781343050579_hj8dxpzhqw4s7ax.jpg",
+            "eyebrow": "FABRIC",
+            "heading": "Built for Indian weather.",
+            "text": "<p>Breathability is not a luxury here, it is the point. We favour cottons and linen blends that move air, hold their shape through a long day, and come out of the wash looking like themselves.</p>"
+          }
+        },
+        "fit": {
+          "type": "chapter",
+          "settings": {
+            "image": "shopify://shop_images/KTAHH4ZEBYGZRACY_1781343026790_fxx90z9lnh7uc37.jpg",
+            "eyebrow": "FIT",
+            "heading": "Comfortable first.",
+            "text": "<p>Our fits sit between slim and relaxed — room to move without losing shape. Every product page carries the measurements for that specific garment, so you can check before you buy rather than guess.</p>"
+          }
+        },
+        "pricing": {
+          "type": "chapter",
+          "settings": {
+            "image": "shopify://shop_images/SHTHKBSTFHXWCRPJ_1781343032912_i8k3afph8m0dicr.jpg",
+            "eyebrow": "PRICING",
+            "heading": "Honest, and stays honest.",
+            "text": "<p>We would rather price fairly year-round than inflate and discount. What you pay reflects what the piece costs to make well — no invented original price, no permanent sale.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "design",
+        "fabric",
+        "fit",
+        "pricing"
+      ]
     }
   },
   "order": [

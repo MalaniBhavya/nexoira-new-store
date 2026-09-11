@@ -1,0 +1,77 @@
+{%- comment -%}
+  Rendered by Shopify's predictive search endpoint and injected into the
+  header search panel by theme.js. Never placed in a JSON template.
+{%- endcomment -%}
+
+{%- liquid
+  assign products = predictive_search.resources.products
+  assign collections = predictive_search.resources.collections
+  assign pages = predictive_search.resources.pages
+  assign has_results = false
+  if products.size > 0 or collections.size > 0 or pages.size > 0
+    assign has_results = true
+  endif
+-%}
+
+{%- if predictive_search.performed -%}
+  {%- if has_results -%}
+    <div class="predictive-search__panel">
+      {%- if products.size > 0 -%}
+        <div class="predictive-search__group">
+          <p class="predictive-search__group-title" id="PredictiveProducts">{{ 'general.search.products' | t }}</p>
+          <ul class="predictive-search__products" aria-labelledby="PredictiveProducts">
+            {%- for product in products -%}
+              <li>
+                <a href="{{ product.url }}" class="predictive-search__product" role="option">
+                  <span class="predictive-search__product-media">
+                    {%- if product.featured_media -%}
+                      <img
+                        src="{{ product.featured_media.preview_image | image_url: width: 120 }}"
+                        alt="{{ product.featured_media.alt | escape }}"
+                        width="60"
+                        height="75"
+                        loading="lazy"
+                      >
+                    {%- endif -%}
+                  </span>
+                  <span class="predictive-search__product-info">
+                    <span class="predictive-search__product-title">{{ product.title }}</span>
+                    <span class="predictive-search__product-price">
+                      {%- if product.price_varies -%}
+                        {%- assign price_min_money = product.price_min | money -%}
+                        {{ 'products.product.from_price' | t: price: price_min_money }}
+                      {%- else -%}
+                        {{ product.price | money }}
+                      {%- endif -%}
+                    </span>
+                  </span>
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      {%- if collections.size > 0 or pages.size > 0 -%}
+        <div class="predictive-search__group predictive-search__group--links">
+          {%- for collection in collections -%}
+            <a href="{{ collection.url }}" class="predictive-search__link" role="option">{{ collection.title }}</a>
+          {%- endfor -%}
+          {%- for page in pages -%}
+            <a href="{{ page.url }}" class="predictive-search__link" role="option">{{ page.title }}</a>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      <a href="{{ routes.search_url }}?q={{ predictive_search.terms | url_encode }}" class="predictive-search__view-all">
+        {{ 'general.search.view_all' | t }}
+      </a>
+    </div>
+  {%- else -%}
+    <div class="predictive-search__panel">
+      <p class="predictive-search__empty">
+        {{ 'general.search.no_results' | t: terms: predictive_search.terms }}
+      </p>
+    </div>
+  {%- endif -%}
+{%- endif -%}

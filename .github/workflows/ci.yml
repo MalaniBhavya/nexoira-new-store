@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+# A PR push triggers both `push` and `pull_request`; cancelling superseded
+# runs keeps that from piling up.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  theme-check:
+    name: Theme Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Annotates changed lines directly on the PR. Fails the job on
+      # errors only; warnings are reported without blocking a merge.
+      - name: Shopify Theme Check
+        uses: shopify/theme-check-action@v2
+        with:
+          theme_root: '.'
+          token: ${{ github.token }}
+          flags: '--fail-level error'
+
+  structure:
+    name: Theme structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Catches what theme-check does not: JSON templates pointing at
+      # sections that do not exist, missing snippets or assets, unbalanced
+      # Liquid tags, and duplicate CSS rules.
+      - name: Validate theme structure
+        run: python3 .github/scripts/validate_theme.py
+
+      - name: Check JavaScript syntax
+        run: |
+          set -e
+          for file in assets/*.js; do
+            echo "checking $file"
+            node --check "$file"
+          done

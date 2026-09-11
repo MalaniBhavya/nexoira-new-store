@@ -1,9 +1,18 @@
+{%- comment -%}
+  Full cart page. The drawer handles most journeys; this stays available
+  for shoppers who prefer a page, and as the no-JS fallback.
+{%- endcomment -%}
+
 <div class="cart" data-section-id="{{ section.id }}" data-section-type="main-cart">
   <div class="container">
+
+    {%- render 'breadcrumbs' -%}
 
     <h1 class="cart__title">{{ 'cart.general.title' | t }}</h1>
 
     {%- if cart.item_count > 0 -%}
+      {%- render 'free-shipping-bar' -%}
+
       {%- form 'cart', cart, class: 'cart__form' -%}
         <table class="cart__table">
           <thead>
@@ -45,7 +54,18 @@
                     aria-label="{{ 'cart.label.quantity' | t }}"
                   >
                 </td>
-                <td class="cart__line-total">{{ item.final_line_price | money }}</td>
+                <td class="cart__line-total">
+                  {%- if item.original_line_price != item.final_line_price -%}
+                    <span class="cart__line-total-sale">{{ item.final_line_price | money }}</span>
+                    <s>{{ item.original_line_price | money }}</s>
+                  {%- else -%}
+                    {{ item.final_line_price | money }}
+                  {%- endif -%}
+                  <a
+                    href="{{ item.url_to_remove }}"
+                    class="cart__remove"
+                  >{{ 'cart.general.remove' | t }}</a>
+                </td>
               </tr>
             {%- endfor -%}
           </tbody>
@@ -56,14 +76,17 @@
             <span>{{ 'cart.label.total' | t }}</span>
             <span>{{ cart.total_price | money }}</span>
           </div>
-          <button type="submit" name="update" class="cart__update">Update cart</button>
-          <button type="submit" name="checkout" class="cart__checkout">{{ 'cart.checkout.button' | t }}</button>
+          <p class="cart__taxes-note">{{ 'cart.checkout.taxes_note' | t }}</p>
+          <div class="cart__actions">
+            <button type="submit" name="update" class="button button--outline">Update cart</button>
+            <button type="submit" name="checkout" class="button button--solid">{{ 'cart.checkout.button' | t }}</button>
+          </div>
         </div>
       {%- endform -%}
     {%- else -%}
       <div class="cart__empty">
         <p>{{ 'cart.general.empty' | t }}</p>
-        <a href="{{ routes.all_products_collection_url }}" class="cart__continue-shopping">
+        <a href="{{ routes.all_products_collection_url }}" class="button button--solid">
           {{ 'cart.general.continue_shopping' | t }}
         </a>
       </div>
@@ -76,7 +99,10 @@
 {
   "name": "Cart",
   "settings": [
-
+    {
+      "type": "paragraph",
+      "content": "The free shipping progress message and its threshold are set under Theme settings → Cart."
+    }
   ]
 }
 {% endschema %}

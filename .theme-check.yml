@@ -1,0 +1,13 @@
+# Shopify Theme Check configuration.
+# Run locally with: npx @shopify/cli theme check
+extends: theme-check:recommended
+
+# The brand brief specifies Playfair Display and Inter, which are loaded
+# from Google Fonts in layout/theme.liquid and layout/password.liquid.
+# That trips RemoteAsset, which wants every asset on Shopify's CDN.
+#
+# The check is deliberately left ON rather than silenced: the warning is
+# a fair point and should stay visible. CI fails on errors only, so this
+# is reported without blocking. If these two families are ever added to
+# Shopify's font library, switch to font_picker settings and font_face,
+# and this warning goes away on its own.

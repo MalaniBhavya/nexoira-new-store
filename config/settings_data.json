@@ -2,31 +2,213 @@
   "current": "Default",
   "presets": {
     "Default": {
-      "color_background": "#F4F0E8",
+      "brand_name": "NEXOIRA",
+      "brand_tagline": "The New Face of Tradition",
+      "logo": "shopify://shop_images/logowithoutbg.png",
+      "favicon": "shopify://shop_images/logowithoutbg.png",
+      "color_background": "#F5F9FD",
       "color_surface": "#FFFFFF",
-      "color_surface_alt": "#E8E1D7",
-      "color_dark": "#2B2926",
-      "color_text": "#2A1B1B",
-      "color_text_muted": "#7A6F63",
-      "color_dark_text": "#F4F0E8",
-      "color_accent_primary": "#6E2635",
-      "color_accent_secondary": "#B68A3A",
-      "color_border": "#DFD6C7",
+      "color_surface_alt": "#E9F0F8",
+      "color_dark": "#1B2942",
+      "color_text": "#1B2942",
+      "color_text_muted": "#5D6B80",
+      "color_dark_text": "#F5F9FD",
+      "color_accent": "#B97C61",
+      "color_earth": "#564245",
+      "color_border": "#D8E2EE",
       "base_font_size": 16,
       "page_width": 1440,
       "grid_gap": 24,
-      "social_instagram_link": "",
-      "social_facebook_link": "",
-      "favicon": "shopify://shop_images/logowithoutbg.png"
+      "section_spacing": 104,
+      "corner_radius": 2,
+      "cart_free_shipping_enabled": true,
+      "cart_free_shipping_threshold": 999,
+      "contact_hours": "Monday to Saturday, 10am - 6pm IST",
+      "whatsapp_enabled": false,
+      "whatsapp_message": "Hi Nexoira, I need help with a product.",
+      "social_instagram_handle": "@nexoira",
+      "wishlist_enabled": true,
+      "reviews_enabled": false,
+      "pincode_enabled": false
     }
   },
   "sections": {
     "header": {
       "type": "header",
       "settings": {
-        "menu": "nexoira-shop-menu",
-        "logo": "shopify://shop_images/logowithoutbg.png"
+        "menu": "nexoira-shop-menu"
       }
+    },
+    "announcement-bar": {
+      "type": "announcement-bar",
+      "settings": {
+        "autoplay": true,
+        "interval": 5
+      },
+      "blocks": {
+        "m1": {
+          "type": "message",
+          "settings": {
+            "text": "FREE SHIPPING ON ORDERS ABOVE ₹999"
+          }
+        },
+        "m2": {
+          "type": "message",
+          "settings": {
+            "text": "COD AVAILABLE ACROSS INDIA"
+          }
+        },
+        "m3": {
+          "type": "message",
+          "settings": {
+            "text": "EASY 7-DAY RETURNS"
+          }
+        }
+      },
+      "block_order": [
+        "m1",
+        "m2",
+        "m3"
+      ]
+    },
+    "footer": {
+      "type": "footer",
+      "settings": {
+        "heading_shop": "Shop",
+        "heading_help": "Help",
+        "heading_legal": "Legal",
+        "heading_connect": "Connect"
+      },
+      "blocks": {
+        "shop-shirts": {
+          "type": "link",
+          "settings": {
+            "column": "shop",
+            "title": "Shirts",
+            "url": "/collections/shirts"
+          }
+        },
+        "shop-trousers": {
+          "type": "link",
+          "settings": {
+            "column": "shop",
+            "title": "Trousers",
+            "url": "/collections/pants"
+          }
+        },
+        "shop-kurtas": {
+          "type": "link",
+          "settings": {
+            "column": "shop",
+            "title": "Kurtas",
+            "url": "/collections/kurtas"
+          }
+        },
+        "shop-new": {
+          "type": "link",
+          "settings": {
+            "column": "shop",
+            "title": "New Arrivals",
+            "url": "/collections/new-arrivals"
+          }
+        },
+        "shop-all": {
+          "type": "link",
+          "settings": {
+            "column": "shop",
+            "title": "Shop All",
+            "url": "/collections/all"
+          }
+        },
+        "help-track": {
+          "type": "link",
+          "settings": {
+            "column": "help",
+            "title": "Track Order",
+            "url": "/pages/track-order"
+          }
+        },
+        "help-size": {
+          "type": "link",
+          "settings": {
+            "column": "help",
+            "title": "Size Guide",
+            "url": "/pages/size-guide"
+          }
+        },
+        "help-faq": {
+          "type": "link",
+          "settings": {
+            "column": "help",
+            "title": "FAQs",
+            "url": "/pages/faq"
+          }
+        },
+        "help-shipping": {
+          "type": "link",
+          "settings": {
+            "column": "help",
+            "title": "Shipping Policy",
+            "url": "/policies/shipping-policy"
+          }
+        },
+        "help-returns": {
+          "type": "link",
+          "settings": {
+            "column": "help",
+            "title": "Returns & Exchanges",
+            "url": "/policies/refund-policy"
+          }
+        },
+        "help-contact": {
+          "type": "link",
+          "settings": {
+            "column": "help",
+            "title": "Contact Us",
+            "url": "/pages/contact"
+          }
+        },
+        "legal-privacy": {
+          "type": "link",
+          "settings": {
+            "column": "legal",
+            "title": "Privacy Policy",
+            "url": "/policies/privacy-policy"
+          }
+        },
+        "legal-terms": {
+          "type": "link",
+          "settings": {
+            "column": "legal",
+            "title": "Terms & Conditions",
+            "url": "/policies/terms-of-service"
+          }
+        },
+        "legal-about": {
+          "type": "link",
+          "settings": {
+            "column": "legal",
+            "title": "About Us",
+            "url": "/pages/about"
+          }
+        }
+      },
+      "block_order": [
+        "shop-shirts",
+        "shop-trousers",
+        "shop-kurtas",
+        "shop-new",
+        "shop-all",
+        "help-track",
+        "help-size",
+        "help-faq",
+        "help-shipping",
+        "help-returns",
+        "help-contact",
+        "legal-privacy",
+        "legal-terms",
+        "legal-about"
+      ]
     }
   }
 }

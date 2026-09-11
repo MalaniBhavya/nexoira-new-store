@@ -1,96 +1,126 @@
 {%- doc -%}
-  Renders a premium product card with hover image swap, sale/sold-out
-  badges and a quick-add action.
+  Editorial product card.
 
-  @param product {product} - the product to render
-  @param reveal_index {number} - optional grid position, used to stagger
+  Minimal by design: a 4:5 image, title, price and the controls that help
+  a shopper act. No heavy card container — the image does the work.
+
+  @param {product} product - The product to render
+  @param {number} [reveal_index] - Grid position, used to stagger
     the card's scroll-reveal entrance. Only pass this from static
     (non-AJAX-refreshed) grids.
+  @param {string} [image_loading] - 'eager' for above-the-fold cards
+  @param {string} [sizes] - Overrides the default sizes attribute
 {%- enddoc -%}
 
 {%- liquid
   assign card_product = product
   assign featured_image = card_product.featured_media.preview_image
   assign selected_variant = card_product.selected_or_first_available_variant
+  assign card_sizes = sizes | default: '(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw'
+  assign loading = image_loading | default: 'lazy'
+
+  assign second_image = blank
+  if card_product.media.size > 1
+    assign second_image = card_product.media[1].preview_image
+  endif
 
   if reveal_index != blank
     assign reveal_delay = reveal_index | at_most: 5 | times: 90
   endif
+
+  assign on_sale = false
+  if selected_variant.compare_at_price > selected_variant.price
+    assign on_sale = true
+  endif
 -%}
 
-<div class="product-card"{% if reveal_delay %} data-reveal style="--reveal-delay: {{ reveal_delay }}ms;"{% endif %}>
-  <a href="{{ card_product.url }}" class="product-card__media-link" aria-hidden="true" tabindex="-1">
-    <div class="product-card__media">
-      {%- if featured_image -%}
-        <img
-          class="product-card__image product-card__image--primary"
-          src="{{ featured_image | image_url: width: 600 }}"
-          srcset="
-            {{ featured_image | image_url: width: 300 }} 300w,
-            {{ featured_image | image_url: width: 600 }} 600w,
-            {{ featured_image | image_url: width: 900 }} 900w,
-            {{ featured_image | image_url: width: 1200 }} 1200w
-          "
-          sizes="(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw"
-          alt="{{ featured_image.alt | escape }}"
-          width="{{ featured_image.width }}"
-          height="{{ featured_image.height }}"
-          loading="lazy"
-        >
-
-        {%- if card_product.media.size > 1 -%}
-          {%- assign second_image = card_product.media[1].preview_image -%}
+<div
+  class="product-card"
+  {% if reveal_delay %}data-reveal style="--reveal-delay: {{ reveal_delay }}ms;"{% endif %}
+>
+  <div class="product-card__media-wrap">
+    <a href="{{ card_product.url }}" class="product-card__media-link" tabindex="-1" aria-hidden="true">
+      <div class="product-card__media">
+        {%- if featured_image -%}
           <img
-            class="product-card__image product-card__image--secondary"
-            src="{{ second_image | image_url: width: 600 }}"
-            alt=""
-            width="{{ second_image.width }}"
-            height="{{ second_image.height }}"
-            loading="lazy"
+            class="product-card__image product-card__image--primary"
+            src="{{ featured_image | image_url: width: 600 }}"
+            srcset="
+              {{ featured_image | image_url: width: 300 }} 300w,
+              {{ featured_image | image_url: width: 600 }} 600w,
+              {{ featured_image | image_url: width: 900 }} 900w,
+              {{ featured_image | image_url: width: 1200 }} 1200w
+            "
+            sizes="{{ card_sizes }}"
+            alt="{{ featured_image.alt | default: card_product.title | escape }}"
+            width="{{ featured_image.width }}"
+            height="{{ featured_image.height }}"
+            loading="{{ loading }}"
+            {% if loading == 'eager' %}fetchpriority="high"{% endif %}
           >
-        {%- endif -%}
-      {%- else -%}
-        <div class="product-card__placeholder"></div>
-      {%- endif -%}
 
-      <div class="product-card__badges">
-        {%- if selected_variant.available == false -%}
-          <span class="badge badge--sold-out">{{ 'products.product.sold_out' | t }}</span>
-        {%- elsif selected_variant.compare_at_price > selected_variant.price -%}
-          <span class="badge badge--sale">{{ 'products.product.on_sale' | t }}</span>
+          {%- if second_image != blank -%}
+            <img
+              class="product-card__image product-card__image--secondary"
+              src="{{ second_image | image_url: width: 600 }}"
+              srcset="
+                {{ second_image | image_url: width: 300 }} 300w,
+                {{ second_image | image_url: width: 600 }} 600w
+              "
+              sizes="{{ card_sizes }}"
+              alt=""
+              width="{{ second_image.width }}"
+              height="{{ second_image.height }}"
+              loading="lazy"
+            >
+          {%- endif -%}
+        {%- else -%}
+          <div class="product-card__placeholder"></div>
         {%- endif -%}
       </div>
+    </a>
+
+    <div class="product-card__badges">
+      {%- if selected_variant.available == false -%}
+        <span class="badge badge--sold-out">{{ 'products.product.sold_out' | t }}</span>
+      {%- elsif on_sale -%}
+        {%- assign discount = selected_variant.compare_at_price | minus: selected_variant.price | times: 100.0 | divided_by: selected_variant.compare_at_price | round -%}
+        <span class="badge badge--sale">{{ discount }}% off</span>
+      {%- endif -%}
     </div>
-  </a>
+
+    {%- render 'wishlist-button', product: card_product, context: 'card' -%}
+
+    {%- if selected_variant.available -%}
+      <button
+        type="button"
+        class="product-card__quick-add"
+        data-quick-add
+        data-product-url="{{ card_product.url }}"
+        data-variant-id="{{ selected_variant.id }}"
+        data-single-variant="{{ card_product.has_only_default_variant }}"
+        data-label-adding="{{ 'products.product.adding' | t | escape }}"
+        data-label-added="{{ 'products.product.added' | t | escape }}"
+        data-label-error="{{ 'products.product.error' | t | escape }}"
+      >
+        {%- if card_product.has_only_default_variant -%}
+          {{ 'products.product.add_to_cart' | t }}
+        {%- else -%}
+          {{ 'products.product.choose_options' | t }}
+        {%- endif -%}
+      </button>
+    {%- endif -%}
+  </div>
 
   <div class="product-card__info">
     <h3 class="product-card__title">
       <a href="{{ card_product.url }}">{{ card_product.title }}</a>
     </h3>
-    <div class="product-card__price">
-      {%- if selected_variant.compare_at_price > selected_variant.price -%}
-        <span class="product-card__price--sale">{{ selected_variant.price | money }}</span>
-        <span class="product-card__price--compare">{{ selected_variant.compare_at_price | money }}</span>
-      {%- else -%}
-        <span>{{ selected_variant.price | money }}</span>
-      {%- endif -%}
-    </div>
-  </div>
 
-  {%- if selected_variant.available -%}
-    <button
-      type="button"
-      class="product-card__quick-add"
-      data-quick-add
-      data-product-url="{{ card_product.url }}"
-      data-variant-id="{{ selected_variant.id }}"
-      data-single-variant="{{ card_product.has_only_default_variant }}"
-    >
-      {%- if card_product.has_only_default_variant -%}
-        {{ 'products.product.add_to_cart' | t }}
-      {%- else -%}
-        {{ 'products.product.choose_options' | t }}
-      {%- endif -%}
-    </button>
-  {%- endif -%}
+    {%- render 'product-rating', product: card_product -%}
+
+    {%- render 'price', product: card_product, variant: selected_variant -%}
+
+    {%- render 'color-swatches', product: card_product, limit: 5, context: 'card' -%}
+  </div>
 </div>

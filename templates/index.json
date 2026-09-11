@@ -2,176 +2,310 @@
   "sections": {
     "hero": {
       "type": "hero-slider",
+      "settings": {
+        "autoplay": true,
+        "interval": 7
+      },
       "blocks": {
-        "slide-shirts": {
+        "slide-brand": {
           "type": "slide",
           "settings": {
             "image": "shopify://shop_images/SHTHMPBGWZYTVW9Z_1781343043969_1gn1mf83smtbbw4.jpg",
-            "heading": "EVERYDAY,\nELEVATED.",
-            "subtext": "Effortless shirts designed for comfort, versatility and everyday style.",
-            "button_label": "SHOP SHIRTS",
-            "button_link": "/collections/shirts"
+            "image_alt": "A man in a Nexoira shirt and linen-blend trousers",
+            "eyebrow": "NEXOIRA",
+            "heading": "The New Face\nof Tradition",
+            "subtext": "Contemporary menswear for everyday moments and meaningful occasions.",
+            "button_label": "SHOP NEW ARRIVALS",
+            "button_link": "shopify://collections/new-arrivals",
+            "button_label_2": "EXPLORE NEXOIRA",
+            "button_link_2": "shopify://collections/all"
           }
         },
         "slide-trousers": {
           "type": "slide",
           "settings": {
             "image": "shopify://shop_images/TROHZ6KZZMCKDSQP_1781343038900_0zkt2tmrtm4r5u0.jpg",
-            "heading": "MOVE WITH\nCOMFORT.",
-            "subtext": "Modern linen-blend trousers designed for effortless movement and refined everyday dressing.",
+            "image_alt": "Linen-blend trousers styled with a relaxed shirt",
+            "eyebrow": "LINEN BLEND",
+            "heading": "Take it easy.\nLook put together.",
+            "subtext": "Trousers designed for comfort without losing structure.",
             "button_label": "SHOP TROUSERS",
-            "button_link": "/collections/pants"
+            "button_link": "shopify://collections/pants"
           }
         },
         "slide-kurtas": {
           "type": "slide",
           "settings": {
             "image": "shopify://shop_images/KTAHKYVS7GEEZXXX_1781343000222_kvesira8nu6p0ch.jpg",
-            "heading": "TRADITION,\nREDEFINED.",
-            "subtext": "Contemporary kurtas crafted for celebrations, gatherings and modern Indian style.",
+            "image_alt": "A man wearing a contemporary Nexoira kurta",
+            "eyebrow": "FESTIVE",
+            "heading": "Tradition,\nreinterpreted.",
+            "subtext": "Kurtas made for celebrations and everything worth dressing up for.",
             "button_label": "SHOP KURTAS",
-            "button_link": "/collections/kurta"
+            "button_link": "shopify://collections/kurtas"
           }
         }
       },
-      "block_order": ["slide-shirts", "slide-trousers", "slide-kurtas"]
+      "block_order": [
+        "slide-brand",
+        "slide-trousers",
+        "slide-kurtas"
+      ]
     },
     "categories": {
       "type": "shop-by-category",
+      "settings": {
+        "heading": "Shop by category"
+      },
       "blocks": {
         "shirts": {
           "type": "category",
           "settings": {
-            "heading": "SHIRTS",
-            "subtext": "Modern essentials for every day.",
-            "link": "/collections/shirts",
+            "heading": "Men's Shirts",
+            "subtext": "Easy essentials for every day.",
+            "link": "shopify://collections/shirts",
             "image": "shopify://shop_images/SHTHKAH97HPGTGYP_1781343041411_ue9udbgci7mysst.jpg"
           }
         },
         "trousers": {
           "type": "category",
           "settings": {
-            "heading": "TROUSERS",
-            "subtext": "Comfort meets contemporary style.",
-            "link": "/collections/pants",
+            "heading": "Linen Blend Trousers",
+            "subtext": "Relaxed, and still sharp.",
+            "link": "shopify://collections/pants",
             "image": "shopify://shop_images/TROHKZXCKWP7W8SV_1781343050579_hj8dxpzhqw4s7ax.jpg"
           }
         },
         "kurtas": {
           "type": "category",
           "settings": {
-            "heading": "KURTAS",
-            "subtext": "Tradition for the modern man.",
-            "link": "/collections/kurta",
+            "heading": "Kurtas",
+            "subtext": "Festive dressing, made modern.",
+            "link": "shopify://collections/kurtas",
             "image": "shopify://shop_images/KTAHH4ZEBYGZRACY_1781343026790_fxx90z9lnh7uc37.jpg"
           }
         }
       },
-      "block_order": ["shirts", "trousers", "kurtas"]
+      "block_order": [
+        "shirts",
+        "trousers",
+        "kurtas"
+      ]
     },
     "new-arrivals": {
       "type": "featured-collection",
       "settings": {
-        "heading": "New Arrivals",
-        "collection": "shopify://collections/new-arrivals"
+        "heading": "New arrivals",
+        "subheading": "The latest additions to the wardrobe.",
+        "collection": "shopify://collections/new-arrivals",
+        "layout": "grid",
+        "products_to_show": 8,
+        "columns_desktop": 4,
+        "show_view_all": true,
+        "view_all_label": "View all"
       }
     },
-    "editorial": {
+    "editorial-banner": {
       "type": "editorial-split",
       "settings": {
         "image_position": "left",
-        "heading": "DESIGNED FOR REAL LIFE.",
-        "text": "<p>Good clothing should not require a special occasion.</p>",
-        "button_label": "DISCOVER NEXOIRA",
-        "button_link": "/collections/all",
-        "image": "shopify://shop_images/SHTHKCR2GNBGZHFZ_1781343050774_fduifwyuzvfh5km.jpg"
+        "image": "shopify://shop_images/SHTHKCR2GNBGZHFZ_1781343050774_fduifwyuzvfh5km.jpg",
+        "heading": "Everyday, considered.",
+        "text": "<p>Designed for the way modern men actually dress.</p>",
+        "button_label": "DISCOVER SHIRTS",
+        "button_link": "shopify://collections/shirts"
       }
     },
-    "trousers-showcase": {
-      "type": "horizontal-showcase",
+    "shirts-feature": {
+      "type": "featured-collection",
       "settings": {
-        "heading": "Featured Trousers",
-        "collection": "shopify://collections/pants"
+        "heading": "The Shirt Edit",
+        "subheading": "Easy silhouettes. Versatile colours. Made for repeat wear.",
+        "collection": "shopify://collections/shirts",
+        "layout": "carousel",
+        "products_to_show": 8,
+        "show_view_all": true,
+        "view_all_label": "SHOP SHIRTS"
       }
     },
-    "brand-story": {
-      "type": "brand-story",
+    "best-sellers": {
+      "type": "featured-collection",
       "settings": {
-        "image": "shopify://shop_images/SHTHKCR2DEMFHGAP_1781343025053_3z9x2fa9ojewfir.jpg"
+        "heading": "Most Wanted",
+        "subheading": "Our most-ordered pieces, updated automatically.",
+        "layout": "grid",
+        "products_to_show": 8,
+        "columns_desktop": 4,
+        "show_view_all": true,
+        "view_all_label": "View all",
+        "collection": "shopify://collections/best-sellers"
+      }
+    },
+    "trouser-campaign": {
+      "type": "editorial-split",
+      "settings": {
+        "image_position": "right",
+        "image": "shopify://shop_images/TROHKNYMZX3WGMNY_1781343040730_txtr80j4727i2ch.jpg",
+        "heading": "Take It Easy. Look Put Together.",
+        "text": "<p>Linen-blend trousers designed for comfort without losing structure.</p>",
+        "button_label": "SHOP TROUSERS",
+        "button_link": "shopify://collections/pants"
       }
     },
     "kurta-editorial": {
       "type": "immersive-banner",
       "settings": {
-        "button_link": "/collections/kurta",
-        "image": "shopify://shop_images/KTAHKH8DHY4Z2BU8_1781343048302_8yfhbxbdu6d3vi9.jpg"
+        "image": "shopify://shop_images/KTAHKH8DHY4Z2BU8_1781343048302_8yfhbxbdu6d3vi9.jpg",
+        "text_color": "light",
+        "heading": "Tradition,\nReinterpreted.",
+        "button_label": "SHOP KURTAS",
+        "button_link": "shopify://collections/kurtas",
+        "tint": "earth"
+      }
+    },
+    "brand-story": {
+      "type": "brand-story",
+      "settings": {
+        "image": "shopify://shop_images/SHTHKCR2DEMFHGAP_1781343025053_3z9x2fa9ojewfir.jpg",
+        "eyebrow": "OUR POINT OF VIEW",
+        "heading": "One wardrobe. Every version of you.",
+        "text": "<p>From everyday shirts to relaxed trousers and celebration-ready kurtas, Nexoira brings modern dressing together under one point of view.</p>",
+        "button_label": "OUR STORY",
+        "button_link": "/pages/about"
       }
     },
     "why-nexoira": {
-      "type": "why-nexoira"
+      "type": "why-nexoira",
+      "settings": {
+        "heading": "Why Nexoira"
+      },
+      "blocks": {
+        "shipping": {
+          "type": "benefit",
+          "settings": {
+            "icon": "shipping",
+            "heading": "FREE SHIPPING",
+            "text": "On orders above ₹999"
+          }
+        },
+        "returns": {
+          "type": "benefit",
+          "settings": {
+            "icon": "returns",
+            "heading": "7-DAY RETURNS",
+            "text": "Simple and convenient"
+          }
+        },
+        "cod": {
+          "type": "benefit",
+          "settings": {
+            "icon": "cod",
+            "heading": "COD AVAILABLE",
+            "text": "Across eligible pincodes"
+          }
+        },
+        "secure": {
+          "type": "benefit",
+          "settings": {
+            "icon": "secure",
+            "heading": "SECURE PAYMENTS",
+            "text": "UPI, cards, net banking & more"
+          }
+        }
+      },
+      "block_order": [
+        "shipping",
+        "returns",
+        "cod",
+        "secure"
+      ]
     },
-    "style-gallery": {
-      "type": "style-gallery",
+    "reviews": {
+      "type": "customer-reviews",
+      "settings": {
+        "heading": "Worn. Loved. Repeated."
+      }
+    },
+    "instagram": {
+      "type": "instagram",
+      "settings": {
+        "heading": "@NEXOIRA",
+        "subheading": "Tag us to be featured."
+      },
       "blocks": {
         "shirt-1": {
           "type": "image",
           "settings": {
             "image": "shopify://shop_images/SHTHKBSTFHXWCRPJ_1781343032912_i8k3afph8m0dicr.jpg",
-            "link": "/collections/shirts"
+            "link": "shopify://collections/shirts"
           }
         },
         "trouser-1": {
           "type": "image",
           "settings": {
             "image": "shopify://shop_images/TROHKNYMZX3WGMNY_1781343040730_txtr80j4727i2ch.jpg",
-            "link": "/collections/pants"
+            "link": "shopify://collections/pants"
           }
         },
         "kurta-1": {
           "type": "image",
           "settings": {
             "image": "shopify://shop_images/KTAHH4ZCYTD6RTTJ_1781343042846_p8mq35h2b9shq4m.jpg",
-            "link": "/collections/kurta"
+            "link": "shopify://collections/kurtas"
           }
         },
         "shirt-2": {
           "type": "image",
           "settings": {
             "image": "shopify://shop_images/SHTHMQNK2JJYTX3Z_1781343044032_1jsazg3nce3djgc.jpg",
-            "link": "/collections/shirts"
+            "link": "shopify://collections/shirts"
           }
         },
         "trouser-2": {
           "type": "image",
           "settings": {
             "image": "shopify://shop_images/TROHZ6KNU4UGFEAY_1781343044562_x178zxlj6z5bd0y.jpg",
-            "link": "/collections/pants"
+            "link": "shopify://collections/pants"
           }
         },
         "kurta-2": {
           "type": "image",
           "settings": {
             "image": "shopify://shop_images/KTAHGUCRFHTWVSJM_1781343008692_9336gnzj3c11rfx.jpg",
-            "link": "/collections/kurta"
+            "link": "shopify://collections/kurtas"
           }
         }
       },
-      "block_order": ["shirt-1", "trouser-1", "kurta-1", "shirt-2", "trouser-2", "kurta-2"]
+      "block_order": [
+        "shirt-1",
+        "trouser-1",
+        "kurta-1",
+        "shirt-2",
+        "trouser-2",
+        "kurta-2"
+      ]
     },
     "newsletter": {
-      "type": "newsletter"
+      "type": "newsletter",
+      "settings": {
+        "heading": "Stay in the Know.",
+        "subtext": "New drops, styling inspiration and Nexoira updates—straight to your inbox."
+      }
     }
   },
   "order": [
     "hero",
     "categories",
     "new-arrivals",
-    "editorial",
-    "trousers-showcase",
-    "brand-story",
+    "editorial-banner",
+    "shirts-feature",
+    "best-sellers",
+    "trouser-campaign",
     "kurta-editorial",
+    "brand-story",
     "why-nexoira",
-    "style-gallery",
+    "reviews",
+    "instagram",
     "newsletter"
   ]
 }

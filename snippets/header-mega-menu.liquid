@@ -1,0 +1,60 @@
+{%- doc -%}
+  Full-width mega menu panel for one top-level navigation link.
+
+  @param {link} link - The top-level menu link being expanded
+  @param {object} blocks - The header section's blocks, searched for the
+    mega_menu block that matches this link
+{%- enddoc -%}
+
+{%- liquid
+  assign link_handle = link.title | handle
+  assign mega_block = nil
+  for block in blocks
+    if block.type == 'mega_menu' and block.settings.menu_item != blank
+      assign block_handle = block.settings.menu_item | handle
+      if block_handle == link_handle
+        assign mega_block = block
+        break
+      endif
+    endif
+  endfor
+-%}
+
+<div class="mega-menu" data-nav-panel {% if mega_block %}{{ mega_block.shopify_attributes }}{% endif %}>
+  <div class="mega-menu__inner container">
+    <div class="mega-menu__columns">
+      {%- for child in link.links -%}
+        <div class="mega-menu__column">
+          <a href="{{ child.url }}" class="mega-menu__column-title">{{ child.title }}</a>
+          {%- if child.links.size > 0 -%}
+            <ul class="mega-menu__list">
+              {%- for grandchild in child.links -%}
+                <li><a href="{{ grandchild.url }}">{{ grandchild.title }}</a></li>
+              {%- endfor -%}
+            </ul>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+
+    {%- if mega_block and mega_block.settings.image != blank -%}
+      <a class="mega-menu__feature" href="{{ mega_block.settings.image_link | default: link.url }}">
+        <img
+          src="{{ mega_block.settings.image | image_url: width: 600 }}"
+          srcset="
+            {{ mega_block.settings.image | image_url: width: 400 }} 400w,
+            {{ mega_block.settings.image | image_url: width: 600 }} 600w
+          "
+          sizes="300px"
+          alt="{{ mega_block.settings.image.alt | default: mega_block.settings.image_heading | escape }}"
+          width="{{ mega_block.settings.image.width }}"
+          height="{{ mega_block.settings.image.height }}"
+          loading="lazy"
+        >
+        {%- if mega_block.settings.image_heading != blank -%}
+          <span class="mega-menu__feature-heading">{{ mega_block.settings.image_heading }}</span>
+        {%- endif -%}
+      </a>
+    {%- endif -%}
+  </div>
+</div>

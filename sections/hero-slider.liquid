@@ -1,7 +1,7 @@
-{%- doc -%}
+{%- comment -%}
   Full-bleed editorial hero slider. Each block is one slide with its own
   image, headline, subtext and call to action.
-{%- enddoc -%}
+{%- endcomment -%}
 
 {%- if section.blocks.size > 0 -%}
   <section
@@ -35,7 +35,7 @@
                   {{ block.settings.image | image_url: width: 2600 }} 2600w
                 "
                 sizes="100vw"
-                alt="{{ block.settings.heading | escape }}"
+                alt="{{ block.settings.image_alt | escape }}"
                 width="{{ block.settings.image.width }}"
                 height="{{ block.settings.image.height }}"
                 {% if forloop.first %}
@@ -59,7 +59,7 @@
                   {{ block.settings.image_mobile | image_url: width: 1200 }} 1200w
                 "
                 sizes="100vw"
-                alt="{{ block.settings.heading | escape }}"
+                alt="{{ block.settings.image_alt | escape }}"
                 width="{{ block.settings.image_mobile.width }}"
                 height="{{ block.settings.image_mobile.height }}"
                 {% if forloop.first %}
@@ -75,16 +75,37 @@
 
           <div class="hero-slider__content container">
             <div class="hero-slider__text">
+              {%- if block.settings.eyebrow != blank -%}
+                <p class="hero-slider__eyebrow">{{ block.settings.eyebrow }}</p>
+              {%- endif -%}
               {%- if block.settings.heading != blank -%}
-                <h2 class="hero-slider__heading">{{ block.settings.heading | newline_to_br }}</h2>
+                {%- comment -%}
+                  The first slide carries the page's H1; the rest are H2 so
+                  the heading order stays valid as slides rotate.
+                {%- endcomment -%}
+                {%- if forloop.first -%}
+                  <h1 class="hero-slider__heading">{{ block.settings.heading | newline_to_br }}</h1>
+                {%- else -%}
+                  <h2 class="hero-slider__heading">{{ block.settings.heading | newline_to_br }}</h2>
+                {%- endif -%}
               {%- endif -%}
               {%- if block.settings.subtext != blank -%}
                 <p class="hero-slider__subtext">{{ block.settings.subtext }}</p>
               {%- endif -%}
-              {%- if block.settings.button_label != blank -%}
-                <a href="{{ block.settings.button_link | default: '#' }}" class="button button--hero">
-                  {{ block.settings.button_label }}
-                </a>
+
+              {%- if block.settings.button_label != blank or block.settings.button_label_2 != blank -%}
+                <div class="hero-slider__actions">
+                  {%- if block.settings.button_label != blank -%}
+                    <a href="{{ block.settings.button_link | default: routes.all_products_collection_url }}" class="button button--hero">
+                      {{ block.settings.button_label }}
+                    </a>
+                  {%- endif -%}
+                  {%- if block.settings.button_label_2 != blank -%}
+                    <a href="{{ block.settings.button_link_2 | default: routes.all_products_collection_url }}" class="button button--hero-ghost">
+                      {{ block.settings.button_label_2 }}
+                    </a>
+                  {%- endif -%}
+                </div>
               {%- endif -%}
             </div>
           </div>
@@ -154,6 +175,12 @@
           "info": "Optional. Falls back to the desktop image."
         },
         {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "Eyebrow",
+          "default": "NEXOIRA"
+        },
+        {
           "type": "textarea",
           "id": "heading",
           "label": "Heading",
@@ -173,6 +200,22 @@
           "type": "url",
           "id": "button_link",
           "label": "Button link"
+        },
+        {
+          "type": "text",
+          "id": "button_label_2",
+          "label": "Secondary button label"
+        },
+        {
+          "type": "url",
+          "id": "button_link_2",
+          "label": "Secondary button link"
+        },
+        {
+          "type": "text",
+          "id": "image_alt",
+          "label": "Image description",
+          "info": "Describes the photo for screen readers. Leave blank if the image is purely decorative."
         }
       ]
     }
@@ -206,7 +249,7 @@
           "heading": "TRADITION,\nREDEFINED.",
           "subtext": "Contemporary kurtas crafted for celebrations, gatherings and modern Indian style.",
           "button_label": "SHOP KURTAS",
-          "button_link": "/collections/kurta"
+          "button_link": "/collections/kurtas"
         }
       }
     ]

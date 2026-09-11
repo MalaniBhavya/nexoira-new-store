@@ -1,7 +1,186 @@
 {
   "sections": {
     "main": {
-      "type": "faq"
+      "type": "faq",
+      "settings": {
+        "heading": "Frequently asked questions",
+        "subtext": "Orders, payment, shipping, returns and sizing — answered."
+      },
+      "blocks": {
+        "orders-place": {
+          "type": "question",
+          "settings": {
+            "category": "Orders",
+            "question": "How do I place an order?",
+            "answer": "<p>Add what you want to your cart, choose your size, and check out. You can order as a guest or create an account — an account makes it easier to track orders and reorder later.</p>"
+          }
+        },
+        "orders-confirm": {
+          "type": "question",
+          "settings": {
+            "category": "Orders",
+            "question": "I have not received an order confirmation. What now?",
+            "answer": "<p>Confirmation emails occasionally land in spam or promotions. If it is not there, write to us with the phone number or email you used and we will find your order.</p>"
+          }
+        },
+        "orders-change": {
+          "type": "question",
+          "settings": {
+            "category": "Orders",
+            "question": "Can I change or cancel my order?",
+            "answer": "<p>Get in touch as soon as you can. We can usually change or cancel an order while it is still being packed, but once it has been handed to the courier it has to run its course — you can return it after delivery instead.</p>"
+          }
+        },
+        "orders-track": {
+          "type": "question",
+          "settings": {
+            "category": "Orders",
+            "question": "How do I track my order?",
+            "answer": "<p>We email a courier tracking link as soon as your order ships. You can also see every order and its status in your account.</p>"
+          }
+        },
+        "ship-where": {
+          "type": "question",
+          "settings": {
+            "category": "Shipping",
+            "question": "Where do you ship?",
+            "answer": "<p>We ship across India. We do not ship internationally at the moment.</p>"
+          }
+        },
+        "ship-free": {
+          "type": "question",
+          "settings": {
+            "category": "Shipping",
+            "question": "Is shipping free?",
+            "answer": "<p>Shipping is free on orders above ₹999. Below that, the shipping charge is shown at checkout before you pay.</p>"
+          }
+        },
+        "ship-time": {
+          "type": "question",
+          "settings": {
+            "category": "Shipping",
+            "question": "How long will delivery take?",
+            "answer": "<p>Delivery time depends on your pincode and the courier serving it. The estimate for your address is shown at checkout, and your tracking link updates as the parcel moves.</p>"
+          }
+        },
+        "pay-methods": {
+          "type": "question",
+          "settings": {
+            "category": "Payments",
+            "question": "What payment methods do you accept?",
+            "answer": "<p>The payment options available to you — UPI, cards, net banking, wallets and cash on delivery where eligible — are all shown at checkout. If a method is not listed there, it is not available on your order.</p>"
+          }
+        },
+        "pay-cod": {
+          "type": "question",
+          "settings": {
+            "category": "Payments",
+            "question": "Do you offer cash on delivery?",
+            "answer": "<p>Cash on delivery is available on eligible pincodes and order values. If your address qualifies, you will see COD as an option at checkout.</p>"
+          }
+        },
+        "pay-safe": {
+          "type": "question",
+          "settings": {
+            "category": "Payments",
+            "question": "Is it safe to pay online?",
+            "answer": "<p>Payments are processed by Shopify's secure checkout. We never see or store your card details.</p>"
+          }
+        },
+        "ret-window": {
+          "type": "question",
+          "settings": {
+            "category": "Returns",
+            "question": "What is your return window?",
+            "answer": "<p>You can return an item within 7 days of delivery, unworn and unwashed, with its tags and original packaging intact.</p>"
+          }
+        },
+        "ret-how": {
+          "type": "question",
+          "settings": {
+            "category": "Returns",
+            "question": "How do I start a return?",
+            "answer": "<p>Write to us with your order number and what you would like to return, and we will send you the steps for your address.</p>"
+          }
+        },
+        "ret-exchange": {
+          "type": "question",
+          "settings": {
+            "category": "Returns",
+            "question": "Can I exchange for another size?",
+            "answer": "<p>Yes. Tell us the size you want and we will arrange the exchange, subject to that size being in stock. If it is not, we will process a refund instead.</p>"
+          }
+        },
+        "ret-refund": {
+          "type": "question",
+          "settings": {
+            "category": "Returns",
+            "question": "When will I get my refund?",
+            "answer": "<p>Once your return reaches us and passes a quick quality check, we process the refund to your original payment method. For cash on delivery orders we refund to a bank account or UPI ID you share with us. Your bank then takes its own processing time.</p>"
+          }
+        },
+        "size-chart": {
+          "type": "question",
+          "settings": {
+            "category": "Sizing",
+            "question": "How do I find my size?",
+            "answer": "<p>Each product page has a size guide beside the size selector, with measurements for that garment. Our measurements are of the garment laid flat, not of the body.</p>"
+          }
+        },
+        "size-between": {
+          "type": "question",
+          "settings": {
+            "category": "Sizing",
+            "question": "I am between two sizes. Which should I pick?",
+            "answer": "<p>Size up. Our shirts and kurtas are cut for an easy fit, and the larger size is usually the more comfortable choice.</p>"
+          }
+        },
+        "prod-care": {
+          "type": "question",
+          "settings": {
+            "category": "Products",
+            "question": "How should I care for my Nexoira pieces?",
+            "answer": "<p>Care instructions specific to each piece are on its product page under Fabric &amp; care. As a rule, a cold gentle wash and a low iron will keep colour and shape for longer.</p>"
+          }
+        },
+        "prod-restock": {
+          "type": "question",
+          "settings": {
+            "category": "Products",
+            "question": "Will a sold-out piece come back?",
+            "answer": "<p>Sometimes. Popular colours are usually restocked — write to us about the piece you want and we will tell you if it is returning.</p>"
+          }
+        },
+        "help-contact": {
+          "type": "question",
+          "settings": {
+            "category": "Orders",
+            "question": "How do I reach a human?",
+            "answer": "<p>Use the contact page, WhatsApp us, or send an email. We reply during our support hours, and we read everything.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "orders-place",
+        "orders-confirm",
+        "orders-change",
+        "orders-track",
+        "ship-where",
+        "ship-free",
+        "ship-time",
+        "pay-methods",
+        "pay-cod",
+        "pay-safe",
+        "ret-window",
+        "ret-how",
+        "ret-exchange",
+        "ret-refund",
+        "size-chart",
+        "size-between",
+        "prod-care",
+        "prod-restock",
+        "help-contact"
+      ]
     }
   },
   "order": [
