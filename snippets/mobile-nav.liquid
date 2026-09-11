@@ -1,0 +1,53 @@
+{%- doc -%}
+  Off-canvas mobile navigation.
+
+  Nested menus render as native <details> so the drawer works with the
+  keyboard and without JavaScript once open.
+
+  @param menu {linklist} - the navigation to render
+  @param section_id {string} - owning section id, for unique ids
+{%- enddoc -%}
+
+<div class="mobile-nav" id="MobileNav-{{ section_id }}" data-mobile-nav aria-hidden="true">
+  <div class="mobile-nav__panel" role="dialog" aria-modal="true" aria-label="{{ 'general.menu.title' | t }}">
+    <div class="mobile-nav__header">
+      <span class="mobile-nav__logo">{{ settings.brand_name | default: shop.name }}</span>
+      <button type="button" data-mobile-nav-close aria-label="{{ 'general.menu.close' | t }}">
+        {%- render 'icon-close' -%}
+      </button>
+    </div>
+
+    <nav class="mobile-nav__body" aria-label="{{ 'general.menu.title' | t }}">
+      <ul class="mobile-nav__list">
+        {%- for link in menu.links -%}
+          <li class="mobile-nav__item">
+            {%- if link.links.size > 0 -%}
+              <details class="mobile-nav__details">
+                <summary class="mobile-nav__summary">
+                  {{ link.title }}
+                  {%- render 'icon-chevron-down' -%}
+                </summary>
+                <ul class="mobile-nav__sublist">
+                  <li><a href="{{ link.url }}">All {{ link.title }}</a></li>
+                  {%- for child in link.links -%}
+                    <li><a href="{{ child.url }}">{{ child.title }}</a></li>
+                  {%- endfor -%}
+                </ul>
+              </details>
+            {%- else -%}
+              <a href="{{ link.url }}" class="mobile-nav__link">{{ link.title }}</a>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+
+      <div class="mobile-nav__actions">
+        <a href="{{ routes.account_url }}">{{ 'customer.account.title' | t }}</a>
+        {%- if settings.contact_email != blank -%}
+          <a href="mailto:{{ settings.contact_email }}">{{ 'general.contact.email_us' | t }}</a>
+        {%- endif -%}
+      </div>
+    </nav>
+  </div>
+</div>
+<div class="mobile-nav-overlay" data-mobile-nav-overlay></div>

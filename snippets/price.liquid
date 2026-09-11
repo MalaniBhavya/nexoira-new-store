@@ -1,0 +1,46 @@
+{%- doc -%}
+  Price block shared by product cards, the product page and the sticky bar.
+
+  Shows a discount badge only when there is a genuine compare-at price
+  above the selling price — never a made-up "was" figure.
+
+  @param product {product} - optional, used for price_varies / "From"
+  @param variant {variant} - the variant to price. Falls back to the
+    product's selected or first available variant.
+  @param show_badge {boolean} - render the "% off" badge (default true)
+{%- enddoc -%}
+
+{%- liquid
+  assign target = variant
+  if target == blank and product != blank
+    assign target = product.selected_or_first_available_variant
+  endif
+
+  assign on_sale = false
+  if target.compare_at_price > target.price
+    assign on_sale = true
+    assign discount = target.compare_at_price | minus: target.price | times: 100.0 | divided_by: target.compare_at_price | round
+  endif
+
+  assign show_from = false
+  if product != blank and product.price_varies and variant == blank
+    assign show_from = true
+  endif
+-%}
+
+<div class="price{% if on_sale %} price--on-sale{% endif %}">
+  {%- if show_from -%}
+    <span class="price__current">{{ 'products.product.from_price' | t: price: product.price_min | money }}</span>
+  {%- else -%}
+    <span class="price__current{% if on_sale %} price__current--sale{% endif %}">{{ target.price | money }}</span>
+    {%- if on_sale -%}
+      <s class="price__compare">
+        <span class="visually-hidden">Regular price</span>
+        {{ target.compare_at_price | money }}
+      </s>
+      {%- if show_badge != false and discount > 0 -%}
+        <span class="price__badge">{{ discount }}% off</span>
+      {%- endif -%}
+    {%- endif -%}
+  {%- endif -%}
+</div>

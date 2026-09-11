@@ -1,14 +1,58 @@
 /**
- * NEXOIRA theme JS.
- * Vanilla, dependency-free. Every init function is idempotent (guarded
- * with a data-initialized flag) so it can safely re-run after Shopify
- * section reloads inside the theme editor.
+ * NEXOIRA — core theme JS.
+ *
+ * Vanilla and dependency-free. This file owns the shared namespace and the
+ * global chrome (header, navigation, announcement bar, hero, motion).
+ * Feature modules live in their own assets and attach themselves through
+ * Nexoira.register(), which runs the init once now and again after every
+ * Shopify section reload in the theme editor.
+ *
+ * Every init must be idempotent — guard with a data-* flag on the element
+ * it owns, because initAll() runs repeatedly.
  */
 
-(function () {
+window.Nexoira = window.Nexoira || {};
+
+(function (Nexoira) {
   'use strict';
 
-  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var modules = [];
+
+  Nexoira.prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  Nexoira.settings = window.theme || {};
+
+  /**
+   * Register a feature init. Runs immediately if the DOM is already
+   * parsed, and on every subsequent initAll().
+   */
+  Nexoira.register = function (fn) {
+    modules.push(fn);
+    if (document.readyState !== 'loading') run(fn);
+  };
+
+  function run(fn) {
+    try {
+      fn();
+    } catch (error) {
+      /* One broken module must never take the rest of the page with it. */
+      if (window.console && console.warn) console.warn('[nexoira]', error);
+    }
+  }
+
+  Nexoira.initAll = function () {
+    modules.forEach(run);
+  };
+
+  /**
+   * Attach a delegated document listener exactly once, however many times
+   * initAll() runs.
+   */
+  Nexoira.once = function (key, fn) {
+    var flag = 'nexoira' + key;
+    if (document.body.dataset[flag]) return;
+    document.body.dataset[flag] = 'true';
+    fn();
+  };
 
   /* ---------------------------------------------------------------------
      Money formatting (mirrors Shopify's money_format token syntax)
@@ -30,7 +74,7 @@
     return dollars + cents;
   }
 
-  function formatMoney(cents, format) {
+  Nexoira.formatMoney = function (cents, format) {
     format = format || window.themeMoneyFormat || '₹{{amount}}';
     var placeholderRegex = /\{\{\s*(\w+)\s*\}\}/;
     var match = format.match(placeholderRegex);
@@ -52,18 +96,60 @@
     }
 
     return format.replace(placeholderRegex, value);
-  }
+  };
+
+  /** Escape a string for safe insertion into innerHTML. */
+  Nexoira.escapeHtml = function (value) {
+    var div = document.createElement('div');
+    div.textContent = value == null ? '' : String(value);
+    return div.innerHTML;
+  };
+
+  /**
+   * Trap Tab inside an open drawer/dialog and restore focus on close.
+   * Returns a release() function.
+   */
+  Nexoira.trapFocus = function (container, returnFocusTo) {
+    var selector =
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
+
+    function onKeydown(event) {
+      if (event.key !== 'Tab') return;
+      var focusable = Array.prototype.slice
+        .call(container.querySelectorAll(selector))
+        .filter(function (el) {
+          return el.offsetParent !== null;
+        });
+      if (!focusable.length) return;
+
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener('keydown', onKeydown);
+
+    return function release() {
+      document.removeEventListener('keydown', onKeydown);
+      if (returnFocusTo && typeof returnFocusTo.focus === 'function') returnFocusTo.focus();
+    };
+  };
 
   /* ---------------------------------------------------------------------
-     Header: sticky/transparent state, shop dropdown, search panel
+     Header: sticky/transparent state
      ------------------------------------------------------------------ */
 
-  function initHeaderScroll() {
+  Nexoira.register(function initHeaderScroll() {
     var header = document.querySelector('[data-header]');
     if (!header || header.dataset.scrollInitialized) return;
     header.dataset.scrollInitialized = 'true';
-
-    if (!header.classList.contains('site-header--transparent')) return;
 
     var ticking = false;
 
@@ -84,79 +170,142 @@
     );
 
     update();
-  }
+  });
 
-  function closePanel(panel, trigger) {
-    panel.classList.remove('is-open');
-    if (trigger) trigger.setAttribute('aria-expanded', 'false');
-  }
+  /* ---------------------------------------------------------------------
+     Header search panel
+     ------------------------------------------------------------------ */
 
-  function openPanel(panel, trigger) {
-    panel.classList.add('is-open');
-    if (trigger) trigger.setAttribute('aria-expanded', 'true');
-  }
-
-  function initHeaderPanels() {
+  Nexoira.register(function initHeaderSearchPanel() {
     var header = document.querySelector('[data-header]');
     if (!header || header.dataset.panelsInitialized) return;
     header.dataset.panelsInitialized = 'true';
 
-    var searchTrigger = header.querySelector('[data-search-toggle]');
-    var searchPanel = header.querySelector('[data-search-panel]');
+    var trigger = header.querySelector('[data-search-toggle]');
+    var panel = header.querySelector('[data-search-panel]');
+    if (!trigger || !panel) return;
 
-    function closeAll() {
-      if (searchPanel) {
-        closePanel(searchPanel, searchTrigger);
-        document.body.classList.remove('search-open');
+    function close() {
+      panel.classList.remove('is-open');
+      trigger.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('search-open');
+    }
+
+    trigger.addEventListener('click', function () {
+      var isOpen = panel.classList.contains('is-open');
+      if (isOpen) {
+        close();
+        return;
       }
-    }
-
-    if (searchTrigger && searchPanel) {
-      searchTrigger.addEventListener('click', function () {
-        var isOpen = searchPanel.classList.contains('is-open');
-        closeAll();
-        if (!isOpen) {
-          openPanel(searchPanel, searchTrigger);
-          document.body.classList.add('search-open');
-          var input = searchPanel.querySelector('[data-search-input]');
-          if (input) input.focus();
-        }
-      });
-    }
+      panel.classList.add('is-open');
+      trigger.setAttribute('aria-expanded', 'true');
+      document.body.classList.add('search-open');
+      var input = panel.querySelector('[data-predictive-search-input]');
+      if (input) input.focus();
+    });
 
     document.addEventListener('click', function (event) {
-      if (!header.contains(event.target)) closeAll();
+      if (!header.contains(event.target)) close();
     });
 
     document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') closeAll();
+      if (event.key === 'Escape' && panel.classList.contains('is-open')) {
+        close();
+        trigger.focus();
+      }
     });
-  }
+  });
+
+  /* ---------------------------------------------------------------------
+     Desktop navigation: dropdowns and mega menus.
+
+     Hover opens on pointer devices via CSS. This handles the keyboard and
+     touch paths: the trigger is a real link, so a first tap/Enter opens
+     the panel and a second follows the link.
+     ------------------------------------------------------------------ */
+
+  Nexoira.register(function initHeaderNav() {
+    var nav = document.querySelector('.site-header__nav');
+    if (!nav || nav.dataset.initialized) return;
+    nav.dataset.initialized = 'true';
+
+    var items = Array.prototype.slice.call(nav.querySelectorAll('[data-nav-item]'));
+    if (!items.length) return;
+
+    function closeAll(except) {
+      items.forEach(function (item) {
+        if (item === except) return;
+        item.classList.remove('is-open');
+        var trigger = item.querySelector('[data-nav-trigger]');
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+      });
+    }
+
+    items.forEach(function (item) {
+      var trigger = item.querySelector('[data-nav-trigger]');
+      if (!trigger) return;
+
+      trigger.addEventListener('click', function (event) {
+        /* Only intercept the first activation; once open the link works. */
+        if (item.classList.contains('is-open')) return;
+        event.preventDefault();
+        closeAll(item);
+        item.classList.add('is-open');
+        trigger.setAttribute('aria-expanded', 'true');
+      });
+
+      item.addEventListener('focusout', function (event) {
+        if (!item.contains(event.relatedTarget)) {
+          item.classList.remove('is-open');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+    });
+
+    nav.addEventListener('mouseleave', function () {
+      closeAll(null);
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') closeAll(null);
+    });
+  });
 
   /* ---------------------------------------------------------------------
      Mobile navigation drawer
      ------------------------------------------------------------------ */
 
-  function initMobileNav() {
+  Nexoira.register(function initMobileNav() {
     var toggle = document.querySelector('[data-mobile-nav-toggle]');
     var nav = document.querySelector('[data-mobile-nav]');
-    var overlay = document.querySelector('[data-mobile-nav-overlay]');
-    var closeBtn = document.querySelector('[data-mobile-nav-close]');
     if (!toggle || !nav || nav.dataset.initialized) return;
     nav.dataset.initialized = 'true';
 
+    var overlay = document.querySelector('[data-mobile-nav-overlay]');
+    var closeBtn = nav.querySelector('[data-mobile-nav-close]');
+    var releaseFocus = null;
+
     function open() {
       nav.classList.add('is-open');
+      nav.setAttribute('aria-hidden', 'false');
       if (overlay) overlay.classList.add('is-open');
       toggle.setAttribute('aria-expanded', 'true');
       document.body.classList.add('nav-open');
+      if (closeBtn) closeBtn.focus();
+      releaseFocus = Nexoira.trapFocus(nav, toggle);
     }
 
     function close() {
+      if (!nav.classList.contains('is-open')) return;
       nav.classList.remove('is-open');
+      nav.setAttribute('aria-hidden', 'true');
       if (overlay) overlay.classList.remove('is-open');
       toggle.setAttribute('aria-expanded', 'false');
       document.body.classList.remove('nav-open');
+      if (releaseFocus) {
+        releaseFocus();
+        releaseFocus = null;
+      }
     }
 
     toggle.addEventListener('click', open);
@@ -166,20 +315,20 @@
     document.addEventListener('keydown', function (event) {
       if (event.key === 'Escape') close();
     });
-  }
+  });
 
   /* ---------------------------------------------------------------------
      Announcement bar rotation
      ------------------------------------------------------------------ */
 
-  function initAnnouncementBar() {
+  Nexoira.register(function initAnnouncementBar() {
     var bar = document.querySelector('[data-announcement-bar]');
     if (!bar || bar.dataset.initialized) return;
     bar.dataset.initialized = 'true';
 
     var messages = Array.prototype.slice.call(bar.querySelectorAll('.announcement-bar__message'));
     if (messages.length < 2) return;
-    if (prefersReducedMotion || bar.dataset.autoplay !== 'true') return;
+    if (Nexoira.prefersReducedMotion || bar.dataset.autoplay !== 'true') return;
 
     var interval = parseInt(bar.dataset.interval, 10) || 5000;
     var index = 0;
@@ -189,16 +338,14 @@
       index = (index + 1) % messages.length;
       messages[index].classList.add('is-active');
     }, interval);
-  }
+  });
 
   /* ---------------------------------------------------------------------
      Hero slider
      ------------------------------------------------------------------ */
 
-  function initHeroSliders() {
-    var sliders = document.querySelectorAll('[data-hero-slider]');
-
-    sliders.forEach(function (slider) {
+  Nexoira.register(function initHeroSliders() {
+    document.querySelectorAll('[data-hero-slider]').forEach(function (slider) {
       if (slider.dataset.initialized) return;
       slider.dataset.initialized = 'true';
 
@@ -211,7 +358,7 @@
       var current = 0;
       var timer = null;
       var interval = parseInt(slider.dataset.interval, 10) || 6000;
-      var autoplay = slider.dataset.autoplay === 'true' && !prefersReducedMotion;
+      var autoplay = slider.dataset.autoplay === 'true' && !Nexoira.prefersReducedMotion;
 
       function goTo(index) {
         slides[current].classList.remove('is-active');
@@ -231,23 +378,18 @@
         }
       }
 
-      function next() {
-        goTo(current + 1);
-      }
+      function next() { goTo(current + 1); }
+      function prev() { goTo(current - 1); }
 
-      function prev() {
-        goTo(current - 1);
+      function stopAutoplay() {
+        if (timer) clearInterval(timer);
+        timer = null;
       }
 
       function startAutoplay() {
         if (!autoplay) return;
         stopAutoplay();
         timer = setInterval(next, interval);
-      }
-
-      function stopAutoplay() {
-        if (timer) clearInterval(timer);
-        timer = null;
       }
 
       if (nextBtn) nextBtn.addEventListener('click', function () { next(); startAutoplay(); });
@@ -280,692 +422,14 @@
 
       startAutoplay();
     });
-  }
+  });
 
   /* ---------------------------------------------------------------------
-     Product form: variant selection + price sync
+     Login / recover password toggle. Shopify redirects back to #recover
+     after a recovery submission, so the hash alone decides the panel.
      ------------------------------------------------------------------ */
 
-  function initProductForms() {
-    var forms = document.querySelectorAll('#ProductForm');
-
-    forms.forEach(function (form) {
-      if (form.dataset.initialized) return;
-      form.dataset.initialized = 'true';
-
-      var hiddenIdInput = form.querySelector('#ProductSelectedVariant');
-      var addButton = form.querySelector('.product__add-to-cart');
-      var priceContainer = document.querySelector('[data-product-price]');
-
-      /* Variant matching only applies when the product has more than
-         one variant and therefore ships an options → variants map. */
-      var variantsScript = form.querySelector('[data-product-variants]');
-      var variants = [];
-      if (variantsScript) {
-        try {
-          variants = JSON.parse(variantsScript.textContent);
-        } catch (error) {
-          variants = [];
-        }
-      }
-
-      if (variants.length) {
-        var optionInputs = Array.prototype.slice.call(form.querySelectorAll('.product__option-input'));
-        var positions = [];
-        optionInputs.forEach(function (input) {
-          if (positions.indexOf(input.dataset.optionPosition) === -1) {
-            positions.push(input.dataset.optionPosition);
-          }
-        });
-        positions.sort(function (a, b) {
-          return parseInt(a, 10) - parseInt(b, 10);
-        });
-
-        var selectedOptions = function () {
-          return positions.map(function (pos) {
-            var checked = form.querySelector('.product__option-input[data-option-position="' + pos + '"]:checked');
-            return checked ? checked.value : null;
-          });
-        };
-
-        var findVariant = function () {
-          var selected = selectedOptions();
-          return variants.filter(function (variant) {
-            return selected.every(function (value, index) {
-              return variant['option' + (index + 1)] === value;
-            });
-          })[0];
-        };
-
-        var renderPrice = function (variant) {
-          if (!priceContainer) return;
-          var onSale = variant.compare_at_price && variant.compare_at_price > variant.price;
-          if (onSale) {
-            priceContainer.innerHTML =
-              '<span class="product__price--sale">' + formatMoney(variant.price) + '</span>' +
-              '<span class="product__price--compare">' + formatMoney(variant.compare_at_price) + '</span>';
-          } else {
-            priceContainer.innerHTML = '<span>' + formatMoney(variant.price) + '</span>';
-          }
-        };
-
-        var updateForVariant = function (variant) {
-          if (!variant || !hiddenIdInput) return;
-          hiddenIdInput.value = variant.id;
-          renderPrice(variant);
-
-          if (addButton) {
-            if (variant.available) {
-              addButton.removeAttribute('disabled');
-              addButton.textContent = addButton.dataset.labelAvailable || addButton.textContent;
-            } else {
-              addButton.setAttribute('disabled', 'disabled');
-              addButton.textContent = addButton.dataset.labelSoldOut || addButton.textContent;
-            }
-          }
-        };
-
-        optionInputs.forEach(function (input) {
-          input.addEventListener('change', function () {
-            var pos = input.dataset.optionPosition;
-            form.querySelectorAll('.product__option-input[data-option-position="' + pos + '"]').forEach(function (sibling) {
-              var label = sibling.closest('label');
-              if (label) label.classList.toggle('is-selected', sibling.checked);
-            });
-
-            var group = input.closest('.product__option');
-            var valueDisplay = group ? group.querySelector('.product__option-label strong') : null;
-            if (valueDisplay) valueDisplay.textContent = input.value;
-
-            updateForVariant(findVariant());
-          });
-        });
-      }
-
-      /* AJAX add-to-cart applies to every product form, single or
-         multi-variant, so the drawer opens instead of a full navigation. */
-      form.addEventListener('submit', function (event) {
-        event.preventDefault();
-        if (!addButton || addButton.hasAttribute('disabled') || addButton.dataset.loading) return;
-
-        var originalText = addButton.textContent;
-        var quantityField = form.querySelector('[name="quantity"]');
-        var idField = hiddenIdInput || form.querySelector('[name="id"]');
-        addButton.dataset.loading = 'true';
-        addButton.setAttribute('disabled', 'disabled');
-        addButton.textContent = '…';
-
-        cartRequest('/cart/add.js', {
-          id: idField.value,
-          quantity: parseInt(quantityField ? quantityField.value : 1, 10) || 1
-        })
-          .then(function (data) {
-            applyCartResponse(data);
-            openCartDrawer();
-            addButton.textContent = originalText;
-            addButton.removeAttribute('disabled');
-            delete addButton.dataset.loading;
-          })
-          .catch(function () {
-            addButton.textContent = 'Try again';
-            addButton.removeAttribute('disabled');
-            delete addButton.dataset.loading;
-            setTimeout(function () {
-              addButton.textContent = originalText;
-            }, 1600);
-          });
-      });
-    });
-  }
-
-  /* ---------------------------------------------------------------------
-     Cart quantity guard (cart page)
-     ------------------------------------------------------------------ */
-
-  function initCartQuantities() {
-    var cartForm = document.querySelector('.cart__form');
-    if (!cartForm || cartForm.dataset.initialized) return;
-    cartForm.dataset.initialized = 'true';
-
-    var quantityInputs = cartForm.querySelectorAll('input[name="updates[]"]');
-    quantityInputs.forEach(function (input) {
-      input.addEventListener('change', function () {
-        if (parseInt(input.value, 10) < 0) {
-          input.value = 0;
-        }
-      });
-    });
-  }
-
-  /* ---------------------------------------------------------------------
-     Cart drawer: open/close + AJAX mutations via the cart endpoints'
-     native `sections` rendering parameter, so the drawer markup is
-     always server-rendered Liquid, never duplicated in JS.
-     ------------------------------------------------------------------ */
-
-  var CART_DRAWER_SECTION = 'cart-drawer';
-
-  function updateCartCount(itemCount) {
-    document.querySelectorAll('[data-cart-count]').forEach(function (el) {
-      el.textContent = itemCount;
-    });
-  }
-
-  function replaceCartDrawerMarkup(sectionHtml) {
-    if (!sectionHtml) return;
-    var parser = new DOMParser();
-    var doc = parser.parseFromString(sectionHtml, 'text/html');
-    var freshDrawer = doc.querySelector('[data-cart-drawer]');
-    var freshOverlay = doc.querySelector('[data-cart-drawer-overlay]');
-    var currentDrawer = document.querySelector('[data-cart-drawer]');
-    var currentOverlay = document.querySelector('[data-cart-drawer-overlay]');
-
-    if (freshDrawer && currentDrawer) {
-      var wasOpen = currentDrawer.classList.contains('is-open');
-      currentDrawer.replaceWith(freshDrawer);
-      if (wasOpen) {
-        freshDrawer.classList.add('is-open');
-        freshDrawer.setAttribute('aria-hidden', 'false');
-      }
-    }
-    if (freshOverlay && currentOverlay) {
-      var overlayWasOpen = currentOverlay.classList.contains('is-open');
-      currentOverlay.replaceWith(freshOverlay);
-      if (overlayWasOpen) freshOverlay.classList.add('is-open');
-    }
-  }
-
-  function openCartDrawer() {
-    var drawer = document.querySelector('[data-cart-drawer]');
-    var overlay = document.querySelector('[data-cart-drawer-overlay]');
-    if (!drawer) return;
-    drawer.classList.add('is-open');
-    drawer.setAttribute('aria-hidden', 'false');
-    if (overlay) overlay.classList.add('is-open');
-    document.body.classList.add('cart-drawer-open');
-    var closeBtn = drawer.querySelector('[data-cart-drawer-close]');
-    if (closeBtn) closeBtn.focus();
-  }
-
-  function closeCartDrawer() {
-    var drawer = document.querySelector('[data-cart-drawer]');
-    var overlay = document.querySelector('[data-cart-drawer-overlay]');
-    if (!drawer) return;
-    drawer.classList.remove('is-open');
-    drawer.setAttribute('aria-hidden', 'true');
-    if (overlay) overlay.classList.remove('is-open');
-    document.body.classList.remove('cart-drawer-open');
-  }
-
-  function cartRequest(url, body) {
-    body = body || {};
-    body.sections = CART_DRAWER_SECTION;
-    return fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify(body)
-    }).then(function (response) {
-      if (!response.ok) throw new Error('Cart request failed');
-      return response.json();
-    });
-  }
-
-  function applyCartResponse(data) {
-    /* /cart/add.js resolves with the added line item, not the cart, so
-       it has no item_count field — /cart/change.js and /cart/update.js
-       DO include one. Rather than branch on which endpoint was called,
-       always read the count back off the freshly re-rendered drawer,
-       which Liquid renders correctly from `cart.item_count` either way. */
-    if (data.sections && data.sections[CART_DRAWER_SECTION]) {
-      replaceCartDrawerMarkup(data.sections[CART_DRAWER_SECTION]);
-    }
-    var drawer = document.querySelector('[data-cart-drawer]');
-    if (drawer && typeof drawer.dataset.cartItemCount !== 'undefined') {
-      updateCartCount(drawer.dataset.cartItemCount);
-    }
-  }
-
-  function initCartDrawerInteractions() {
-    if (document.body.dataset.cartDrawerInitialized) return;
-    document.body.dataset.cartDrawerInitialized = 'true';
-
-    document.addEventListener('click', function (event) {
-      if (event.target.closest('[data-cart-drawer-open]')) {
-        event.preventDefault();
-        openCartDrawer();
-        return;
-      }
-
-      if (event.target.closest('[data-cart-drawer-close]')) {
-        event.preventDefault();
-        closeCartDrawer();
-        return;
-      }
-
-      var qtyButton = event.target.closest('[data-cart-qty]');
-      if (qtyButton) {
-        var item = qtyButton.closest('.cart-drawer__item');
-        var valueEl = item ? item.querySelector('.cart-drawer__qty-value') : null;
-        var current = valueEl ? parseInt(valueEl.textContent, 10) : 0;
-        var next = qtyButton.dataset.cartQty === 'increase' ? current + 1 : current - 1;
-        cartRequest('/cart/change.js', { line: parseInt(qtyButton.dataset.line, 10), quantity: Math.max(next, 0) })
-          .then(applyCartResponse)
-          .catch(function () {});
-        return;
-      }
-
-      var removeButton = event.target.closest('[data-cart-remove]');
-      if (removeButton) {
-        cartRequest('/cart/change.js', { line: parseInt(removeButton.dataset.line, 10), quantity: 0 })
-          .then(applyCartResponse)
-          .catch(function () {});
-      }
-    });
-
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') closeCartDrawer();
-    });
-  }
-
-  /* ---------------------------------------------------------------------
-     Quick add (product cards): AJAX add for single-variant products,
-     otherwise send the shopper to the product page to choose options.
-     ------------------------------------------------------------------ */
-
-  function initQuickAdd() {
-    document.addEventListener('click', function (event) {
-      var button = event.target.closest('[data-quick-add]');
-      if (!button || button.dataset.loading) return;
-
-      if (button.dataset.singleVariant !== 'true') {
-        window.location.href = button.dataset.productUrl;
-        return;
-      }
-
-      event.preventDefault();
-      var originalText = button.textContent;
-      button.dataset.loading = 'true';
-      button.textContent = '…';
-
-      cartRequest('/cart/add.js', { id: button.dataset.variantId, quantity: 1 })
-        .then(function (data) {
-          button.textContent = 'Added';
-          applyCartResponse(data);
-          openCartDrawer();
-          setTimeout(function () {
-            button.textContent = originalText;
-            delete button.dataset.loading;
-          }, 1600);
-        })
-        .catch(function () {
-          button.textContent = 'Try again';
-          setTimeout(function () {
-            button.textContent = originalText;
-            delete button.dataset.loading;
-          }, 1600);
-        });
-    });
-  }
-
-  /* ---------------------------------------------------------------------
-     Collection filter drawer + AJAX filtering/sorting (native Shopify
-     filters via collection.filters — no app dependency assumed; the
-     drawer simply doesn't render when a collection has none).
-     ------------------------------------------------------------------ */
-
-  function openFilterDrawer(root) {
-    var drawer = root.querySelector('[data-filter-drawer]');
-    var overlay = root.querySelector('[data-filter-drawer-overlay]');
-    var trigger = root.querySelector('[data-filter-drawer-open]');
-    if (!drawer) return;
-    drawer.classList.add('is-open');
-    drawer.setAttribute('aria-hidden', 'false');
-    if (overlay) overlay.classList.add('is-open');
-    if (trigger) trigger.setAttribute('aria-expanded', 'true');
-    document.body.classList.add('filter-drawer-open');
-  }
-
-  function closeFilterDrawer(root) {
-    var drawer = root.querySelector('[data-filter-drawer]');
-    var overlay = root.querySelector('[data-filter-drawer-overlay]');
-    var trigger = root.querySelector('[data-filter-drawer-open]');
-    if (!drawer) return;
-    drawer.classList.remove('is-open');
-    drawer.setAttribute('aria-hidden', 'true');
-    if (overlay) overlay.classList.remove('is-open');
-    if (trigger) trigger.setAttribute('aria-expanded', 'false');
-    document.body.classList.remove('filter-drawer-open');
-  }
-
-  function initCollectionFilters() {
-    var root = document.querySelector('[data-collection-section-root]');
-    if (!root || root.dataset.filtersInitialized) return;
-    root.dataset.filtersInitialized = 'true';
-
-    var sectionId = root.dataset.sectionFetchId;
-
-    function updateFromUrl(url) {
-      var separator = url.indexOf('?') > -1 ? '&' : '?';
-      root.classList.add('is-loading');
-
-      fetch(url + separator + 'section_id=' + sectionId)
-        .then(function (response) {
-          return response.text();
-        })
-        .then(function (html) {
-          var doc = new DOMParser().parseFromString(html, 'text/html');
-          var freshRoot = doc.querySelector('[data-collection-section-root]');
-          if (freshRoot) {
-            root.innerHTML = freshRoot.innerHTML;
-            root.classList.remove('is-loading');
-            window.history.pushState({}, '', url);
-            window.scrollTo({ top: root.offsetTop - 100, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
-          }
-        })
-        .catch(function () {
-          window.location.href = url;
-        });
-    }
-
-    function buildUrlFromFilterForm(form) {
-      var params = new URLSearchParams(new FormData(form));
-      var sortSelect = root.querySelector('[data-collection-sort]');
-      if (sortSelect && sortSelect.value) params.set('sort_by', sortSelect.value);
-      return window.location.pathname + '?' + params.toString();
-    }
-
-    root.addEventListener('click', function (event) {
-      if (event.target.closest('[data-filter-drawer-open]')) {
-        openFilterDrawer(root);
-        return;
-      }
-      if (event.target.closest('[data-filter-drawer-close]') || event.target.closest('[data-filter-drawer-overlay]')) {
-        closeFilterDrawer(root);
-        return;
-      }
-
-      var link = event.target.closest('a');
-      if (!link) return;
-      if (
-        link.closest('.filter-pill') ||
-        link.closest('.collection-active-filters__clear') ||
-        link.closest('.pagination') ||
-        link.closest('.collection__empty')
-      ) {
-        event.preventDefault();
-        closeFilterDrawer(root);
-        updateFromUrl(link.getAttribute('href'));
-      }
-    });
-
-    root.addEventListener('submit', function (event) {
-      var form = event.target.closest('[data-filter-form]');
-      if (!form) return;
-      event.preventDefault();
-      closeFilterDrawer(root);
-      updateFromUrl(buildUrlFromFilterForm(form));
-    });
-
-    root.addEventListener('change', function (event) {
-      if (event.target.matches('[data-collection-sort]')) {
-        var url = new URL(window.location.href);
-        url.searchParams.set('sort_by', event.target.value);
-        updateFromUrl(url.pathname + '?' + url.searchParams.toString());
-      }
-    });
-
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') closeFilterDrawer(root);
-    });
-
-    window.addEventListener('popstate', function () {
-      updateFromUrl(window.location.href);
-    });
-  }
-
-  /* ---------------------------------------------------------------------
-     Product gallery: thumbnail navigation + swipe
-     ------------------------------------------------------------------ */
-
-  function initProductGallery() {
-    var galleries = document.querySelectorAll('[data-product-gallery]');
-
-    galleries.forEach(function (gallery) {
-      if (gallery.dataset.initialized) return;
-      gallery.dataset.initialized = 'true';
-
-      var slides = Array.prototype.slice.call(gallery.querySelectorAll('[data-gallery-slide]'));
-      var thumbs = Array.prototype.slice.call(gallery.querySelectorAll('[data-gallery-thumb]'));
-      var main = gallery.querySelector('[data-gallery-main]');
-      if (slides.length < 2) return;
-
-      function goTo(index) {
-        index = (index + slides.length) % slides.length;
-        slides.forEach(function (slide, i) {
-          slide.classList.toggle('is-active', i === index);
-        });
-        thumbs.forEach(function (thumb, i) {
-          thumb.classList.toggle('is-active', i === index);
-        });
-      }
-
-      thumbs.forEach(function (thumb, index) {
-        thumb.addEventListener('click', function () {
-          goTo(index);
-        });
-      });
-
-      if (main) {
-        var touchStartX = null;
-        main.addEventListener('touchstart', function (event) {
-          touchStartX = event.touches[0].clientX;
-        }, { passive: true });
-
-        main.addEventListener('touchend', function (event) {
-          if (touchStartX === null) return;
-          var deltaX = event.changedTouches[0].clientX - touchStartX;
-          var current = slides.findIndex(function (slide) {
-            return slide.classList.contains('is-active');
-          });
-          if (Math.abs(deltaX) > 40) {
-            goTo(deltaX < 0 ? current + 1 : current - 1);
-          }
-          touchStartX = null;
-        });
-      }
-    });
-  }
-
-  /* ---------------------------------------------------------------------
-     Product image zoom (native <dialog>)
-     ------------------------------------------------------------------ */
-
-  function initProductZoom() {
-    var dialog = document.querySelector('[data-zoom-dialog]');
-    if (!dialog || dialog.dataset.initialized) return;
-    dialog.dataset.initialized = 'true';
-
-    var image = dialog.querySelector('[data-zoom-image]');
-    var closeBtn = dialog.querySelector('[data-zoom-close]');
-
-    document.addEventListener('click', function (event) {
-      var trigger = event.target.closest('[data-zoom-trigger]');
-      if (!trigger) return;
-      image.src = trigger.dataset.zoomSrc;
-      image.alt = trigger.dataset.zoomAlt || '';
-      if (typeof dialog.showModal === 'function') dialog.showModal();
-    });
-
-    if (closeBtn) closeBtn.addEventListener('click', function () { dialog.close(); });
-    dialog.addEventListener('click', function (event) {
-      if (event.target === dialog) dialog.close();
-    });
-  }
-
-  /* ---------------------------------------------------------------------
-     Quantity stepper (product page)
-     ------------------------------------------------------------------ */
-
-  function initQuantitySteppers() {
-    document.addEventListener('click', function (event) {
-      var decrease = event.target.closest('[data-quantity-decrease]');
-      var increase = event.target.closest('[data-quantity-increase]');
-      if (!decrease && !increase) return;
-
-      var stepper = (decrease || increase).closest('.product__quantity-stepper');
-      var input = stepper ? stepper.querySelector('input[type="number"]') : null;
-      if (!input) return;
-
-      var value = parseInt(input.value, 10) || 1;
-      var min = parseInt(input.min, 10) || 1;
-      value = decrease ? Math.max(min, value - 1) : value + 1;
-      input.value = value;
-    });
-  }
-
-  /* ---------------------------------------------------------------------
-     Product recommendations (native recommendations endpoint)
-     ------------------------------------------------------------------ */
-
-  function initProductRecommendations() {
-    var mount = document.querySelector('[data-product-recommendations]');
-    if (!mount || mount.dataset.initialized) return;
-    mount.dataset.initialized = 'true';
-
-    fetch(mount.dataset.url)
-      .then(function (response) {
-        return response.text();
-      })
-      .then(function (html) {
-        var doc = new DOMParser().parseFromString(html, 'text/html');
-        var section = doc.querySelector('.product-recommendations');
-        if (section) mount.innerHTML = section.outerHTML;
-      })
-      .catch(function () {});
-  }
-
-  /* ---------------------------------------------------------------------
-     Recently viewed (localStorage, no extra network requests)
-     ------------------------------------------------------------------ */
-
-  var RECENTLY_VIEWED_KEY = 'nexoira:recently-viewed';
-  var RECENTLY_VIEWED_MAX = 8;
-
-  function initRecentlyViewed() {
-    var mount = document.querySelector('[data-recently-viewed]');
-    if (!mount || mount.dataset.initialized) return;
-    mount.dataset.initialized = 'true';
-
-    var stored = [];
-    try {
-      stored = JSON.parse(window.localStorage.getItem(RECENTLY_VIEWED_KEY)) || [];
-    } catch (error) {
-      stored = [];
-    }
-
-    var current = {
-      handle: mount.dataset.productHandle,
-      title: mount.dataset.productTitle,
-      url: mount.dataset.productUrl,
-      image: mount.dataset.productImage,
-      price: mount.dataset.productPrice
-    };
-
-    var updated = [current].concat(
-      stored.filter(function (item) {
-        return item.handle !== current.handle;
-      })
-    ).slice(0, RECENTLY_VIEWED_MAX);
-
-    try {
-      window.localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(updated));
-    } catch (error) {}
-
-    var toShow = updated.filter(function (item) {
-      return item.handle !== mount.dataset.currentHandle;
-    }).slice(0, 4);
-
-    if (!toShow.length) return;
-
-    var escapeHtml = function (value) {
-      var div = document.createElement('div');
-      div.textContent = value == null ? '' : String(value);
-      return div.innerHTML;
-    };
-
-    var cardsHtml = toShow.map(function (item) {
-      return (
-        '<a class="product-card recently-viewed__card" href="' + escapeHtml(item.url) + '">' +
-          '<div class="product-card__media">' +
-            (item.image ? '<img class="product-card__image product-card__image--primary" src="' + escapeHtml(item.image) + '" alt="" loading="lazy" width="600" height="800">' : '') +
-          '</div>' +
-          '<div class="product-card__info">' +
-            '<h3 class="product-card__title">' + escapeHtml(item.title) + '</h3>' +
-            '<div class="product-card__price"><span>' + escapeHtml(item.price) + '</span></div>' +
-          '</div>' +
-        '</a>'
-      );
-    }).join('');
-
-    mount.innerHTML =
-      '<div class="container">' +
-        '<div class="section-heading"><h2 class="section-heading__title">Recently Viewed</h2></div>' +
-        '<div class="product-grid" style="--grid-columns: 4;">' + cardsHtml + '</div>' +
-      '</div>';
-  }
-
-  /* ---------------------------------------------------------------------
-     Size guide dialog
-     ------------------------------------------------------------------ */
-
-  function initSizeGuide() {
-    var dialog = document.querySelector('[data-size-guide-dialog]');
-    if (!dialog || dialog.dataset.initialized) return;
-    dialog.dataset.initialized = 'true';
-
-    var tabs = Array.prototype.slice.call(dialog.querySelectorAll('[data-size-guide-tab]'));
-    var panels = Array.prototype.slice.call(dialog.querySelectorAll('[data-size-guide-panel]'));
-    var closeBtn = dialog.querySelector('[data-size-guide-close]');
-
-    function showCategory(category) {
-      tabs.forEach(function (tab) {
-        tab.classList.toggle('is-active', tab.dataset.sizeGuideTab === category);
-      });
-      panels.forEach(function (panel) {
-        panel.hidden = panel.dataset.sizeGuidePanel !== category;
-      });
-    }
-
-    tabs.forEach(function (tab) {
-      tab.addEventListener('click', function () {
-        showCategory(tab.dataset.sizeGuideTab);
-      });
-    });
-
-    document.addEventListener('click', function (event) {
-      var trigger = event.target.closest('[data-size-guide-open]');
-      if (!trigger) return;
-      var type = (trigger.dataset.garmentType || '').toLowerCase();
-      var match = tabs.filter(function (tab) {
-        return type.indexOf(tab.dataset.sizeGuideTab) > -1;
-      })[0];
-      showCategory(match ? match.dataset.sizeGuideTab : (tabs[0] ? tabs[0].dataset.sizeGuideTab : null));
-      if (typeof dialog.showModal === 'function') dialog.showModal();
-    });
-
-    if (closeBtn) closeBtn.addEventListener('click', function () { dialog.close(); });
-    dialog.addEventListener('click', function (event) {
-      if (event.target === dialog) dialog.close();
-    });
-  }
-
-  /* ---------------------------------------------------------------------
-     Login / recover password toggle (native Shopify convention: Shopify
-     redirects back to #recover on the same page after a recovery-form
-     submission, so the hash alone decides which panel shows).
-     ------------------------------------------------------------------ */
-
-  function initAuthForms() {
+  Nexoira.register(function initAuthForms() {
     var wrapper = document.querySelector('[data-auth-toggle]');
     if (!wrapper || wrapper.dataset.initialized) return;
     wrapper.dataset.initialized = 'true';
@@ -996,28 +460,26 @@
         showLogin();
       }
     });
-  }
+  });
 
   /* ---------------------------------------------------------------------
-     Scroll reveal: single shared IntersectionObserver driving every
+     Scroll reveal: one shared IntersectionObserver drives every
      [data-reveal] element (see base.css "Motion system"). Elements are
-     marked data-reveal-bound once observed so repeated initAll() calls
-     (theme editor section reloads) never re-observe the same node.
-     Falls back to revealing everything immediately if IntersectionObserver
-     is unavailable or anything here throws, so content is never stuck
-     invisible.
+     marked bound once observed, so repeated initAll() calls never
+     re-observe. Falls back to revealing everything if anything throws —
+     content must never be stuck invisible.
      ------------------------------------------------------------------ */
 
   var revealObserver = null;
 
-  function initScrollReveal() {
+  Nexoira.register(function initScrollReveal() {
     try {
       var items = Array.prototype.slice.call(
         document.querySelectorAll('[data-reveal]:not([data-reveal-bound])')
       );
       if (!items.length) return;
 
-      if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+      if (Nexoira.prefersReducedMotion || !('IntersectionObserver' in window)) {
         items.forEach(function (el) {
           el.dataset.revealBound = 'true';
           el.classList.add('is-revealed');
@@ -1043,41 +505,15 @@
         el.dataset.revealBound = 'true';
         revealObserver.observe(el);
       });
-    } catch (err) {
+    } catch (error) {
       document.querySelectorAll('[data-reveal]').forEach(function (el) {
         el.classList.add('is-revealed');
       });
     }
-  }
-
-  /* ---------------------------------------------------------------------
-     Init
-     ------------------------------------------------------------------ */
-
-  function initAll() {
-    initHeaderScroll();
-    initHeaderPanels();
-    initMobileNav();
-    initAnnouncementBar();
-    initHeroSliders();
-    initProductForms();
-    initCartQuantities();
-    initCollectionFilters();
-    initProductGallery();
-    initProductZoom();
-    initQuantitySteppers();
-    initProductRecommendations();
-    initRecentlyViewed();
-    initSizeGuide();
-    initAuthForms();
-    initScrollReveal();
-  }
-
-  document.addEventListener('DOMContentLoaded', function () {
-    initAll();
-    initQuickAdd();
-    initCartDrawerInteractions();
   });
 
-  document.addEventListener('shopify:section:load', initAll);
-})();
+  /* ------------------------------------------------------------------ */
+
+  document.addEventListener('DOMContentLoaded', Nexoira.initAll);
+  document.addEventListener('shopify:section:load', Nexoira.initAll);
+})(window.Nexoira);

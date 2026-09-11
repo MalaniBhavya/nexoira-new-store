@@ -20,6 +20,7 @@
 
     {% if settings.favicon %}
       <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+      <link rel="apple-touch-icon" href="{{ settings.favicon | image_url: width: 180, height: 180 }}">
     {% endif %}
 
     <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
@@ -27,16 +28,49 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
     >
+
+    {%- render 'meta-tags' -%}
 
     {{ content_for_header }}
 
     {%- render 'css-variables' -%}
     {{ 'base.css' | asset_url | stylesheet_tag }}
 
-    <script>window.themeMoneyFormat = {{ shop.money_format | json }};</script>
+    <script>
+      window.themeMoneyFormat = {{ shop.money_format | json }};
+      window.theme = {
+        routes: {
+          cart_add_url: '{{ routes.cart_add_url }}',
+          cart_change_url: '{{ routes.cart_change_url }}',
+          cart_update_url: '{{ routes.cart_update_url }}',
+          predictive_search_url: '{{ routes.predictive_search_url }}'
+        },
+        cart: {
+          freeShippingEnabled: {{ settings.cart_free_shipping_enabled | json }},
+          freeShippingThreshold: {{ settings.cart_free_shipping_threshold | default: 0 | times: 100 }}
+        },
+        wishlistEnabled: {{ settings.wishlist_enabled | json }}
+      };
+    </script>
+    {%- comment -%}
+      Core + cart load everywhere (the drawer and header are global).
+      The rest load only on the templates that use them. All deferred, so
+      they execute in order after parsing and before DOMContentLoaded.
+    {%- endcomment -%}
     <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'cart.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'search.js' | asset_url }}" defer="defer"></script>
+    {%- if settings.wishlist_enabled -%}
+      <script src="{{ 'wishlist.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+    {%- if request.page_type == 'product' -%}
+      <script src="{{ 'product.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+    {%- if request.page_type == 'collection' or request.page_type == 'search' -%}
+      <script src="{{ 'collection.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
     <noscript>
       <style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style>
     </noscript>
@@ -50,11 +84,14 @@
     {% section 'announcement-bar' %}
     {% section 'header' %}
 
-    <main id="MainContent" class="main-content">
+    <main id="MainContent" class="main-content" role="main">
       {{ content_for_layout }}
     </main>
 
     {% section 'footer' %}
     {% section 'cart-drawer' %}
+
+    {%- render 'whatsapp-button' -%}
+    {%- render 'structured-data' -%}
   </body>
 </html>

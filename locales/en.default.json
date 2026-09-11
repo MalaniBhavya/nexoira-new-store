@@ -1,36 +1,72 @@
 {
   "general": {
     "search": {
-      "placeholder": "Search",
-      "submit": "Search"
+      "placeholder": "Search for shirts, trousers, kurtas",
+      "submit": "Search",
+      "products": "Products",
+      "view_all": "View all results",
+      "no_results": "No results for “{{ terms }}”",
+      "results_for": "{{ count }} results for “{{ terms }}”",
+      "title": "Search"
     },
     "menu": {
+      "title": "Menu",
       "open": "Open menu",
       "close": "Close menu"
+    },
+    "contact": {
+      "email_us": "Email us",
+      "call_us": "Call us",
+      "whatsapp": "WhatsApp"
     },
     "password_page": {
       "login_form_error": "Wrong password"
     }
   },
   "accessibility": {
-    "skip_to_content": "Skip to content"
+    "skip_to_content": "Skip to content",
+    "previous": "Previous",
+    "next": "Next",
+    "close": "Close"
+  },
+  "wishlist": {
+    "title": "Wishlist",
+    "add": "Save to wishlist",
+    "remove": "Remove from wishlist"
   },
   "products": {
     "product": {
       "add_to_cart": "Add to cart",
+      "buy_now": "Buy it now",
       "sold_out": "Sold out",
       "unavailable": "Unavailable",
       "on_sale": "Sale",
+      "from_price": "From {{ price }}",
+      "save_amount": "Save {{ amount }}",
       "quantity": {
-        "label": "Quantity"
+        "label": "Quantity",
+        "increase": "Increase quantity",
+        "decrease": "Decrease quantity"
       },
-      "choose_options": "Choose options"
+      "choose_options": "Choose options",
+      "size_guide": "Size guide",
+      "adding": "Adding…",
+      "added": "Added",
+      "error": "Could not add"
     }
   },
   "collections": {
     "general": {
-      "no_matches": "No products found",
-      "pagination_label": "Pagination"
+      "no_matches": "No products match these filters",
+      "pagination_label": "Pagination",
+      "product_count": {
+        "one": "{{ count }} product",
+        "other": "{{ count }} products"
+      },
+      "filter": "Filter",
+      "sort_by": "Sort by",
+      "clear_all": "Clear all",
+      "apply": "Apply filters"
     }
   },
   "cart": {
@@ -38,15 +74,28 @@
       "title": "Cart",
       "empty": "Your cart is empty",
       "continue_shopping": "Continue shopping",
-      "remove": "Remove"
+      "remove": "Remove",
+      "view_cart": "View cart"
     },
     "label": {
       "product": "Product",
       "quantity": "Quantity",
-      "total": "Total"
+      "total": "Subtotal"
+    },
+    "shipping": {
+      "progress": "You're {{ amount }} away from free shipping.",
+      "unlocked": "You've unlocked free shipping."
     },
     "checkout": {
-      "button": "Check out"
+      "button": "Check out",
+      "taxes_note": "Taxes and shipping calculated at checkout."
+    }
+  },
+  "customer": {
+    "account": {
+      "title": "Account",
+      "log_in": "Log in",
+      "log_out": "Log out"
     }
   },
   "footer": {

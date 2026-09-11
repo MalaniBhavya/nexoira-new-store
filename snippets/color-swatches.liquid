@@ -1,0 +1,56 @@
+{%- doc -%}
+  Colour swatches.
+
+  This catalogue expresses colour as separate products (a shirt has only a
+  Size option), so swatches are built from the `custom.sibling_products`
+  metafield and each product's `custom.color_swatch` / `custom.color_name`.
+
+  If a product genuinely has a Colour *option* instead, the product page
+  renders real variant swatches — this snippet is for the card-level and
+  cross-product case.
+
+  @param product {product} - the product whose siblings to show
+  @param limit {number} - maximum swatches to render (default 5)
+  @param context {string} - 'card' or 'product'
+{%- enddoc -%}
+
+{%- liquid
+  assign siblings = product.metafields.custom.sibling_products.value
+  assign max = limit | default: 5
+-%}
+
+{%- if siblings != blank and siblings.size > 0 -%}
+  {%- assign shown = 0 -%}
+  <div class="swatches swatches--{{ context | default: 'card' }}">
+    {%- for sibling in siblings -%}
+      {%- if shown >= max -%}{%- break -%}{%- endif -%}
+      {%- liquid
+        assign swatch_color = sibling.metafields.custom.color_swatch.value
+        assign swatch_name = sibling.metafields.custom.color_name.value | default: sibling.title
+        assign is_current = false
+        if sibling.handle == product.handle
+          assign is_current = true
+        endif
+        assign shown = shown | plus: 1
+      -%}
+      <a
+        class="swatch{% if is_current %} is-current{% endif %}{% unless sibling.available %} is-sold-out{% endunless %}"
+        href="{{ sibling.url }}"
+        title="{{ swatch_name | escape }}"
+        {% if is_current %}aria-current="true"{% endif %}
+      >
+        <span
+          class="swatch__dot"
+          {% if swatch_color != blank %}style="background-color: {{ swatch_color }};"{% endif %}
+          aria-hidden="true"
+        ></span>
+        {%- comment -%} Colour name stays in the accessibility tree. {%- endcomment -%}
+        <span class="visually-hidden">{{ swatch_name }}</span>
+      </a>
+    {%- endfor -%}
+
+    {%- if siblings.size > max -%}
+      <a class="swatch__more" href="{{ product.url }}">+{{ siblings.size | minus: max }}</a>
+    {%- endif -%}
+  </div>
+{%- endif -%}

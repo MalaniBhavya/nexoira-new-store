@@ -1,20 +1,39 @@
 {%- doc -%}
-  Reusable size guide modal, included on the product template and
-  triggered from the "Size Guide" link next to the size selector.
-  Table content is merchant-editable (no product data is hardcoded) —
-  each category block holds a comma-separated header row and one
-  comma-separated measurement row per line.
+  Size guide modal, included on the product template and opened from the
+  "Size guide" link beside the size selector.
+
+  Charts are per-garment blocks, so nothing is hard-coded in the template.
+  A single product can override them all with a `custom.size_guide`
+  metafield (rich text or a metaobject with a `chart` field), which is
+  what a made-to-order or oddly-sized piece needs.
 {%- enddoc -%}
+
+{%- liquid
+  assign product_guide = blank
+  assign guide_metafield = product.metafields.custom.size_guide
+  if guide_metafield != blank
+    if guide_metafield.type == 'metaobject_reference'
+      assign product_guide = guide_metafield.value.chart
+    else
+      assign product_guide = guide_metafield.value
+    endif
+  endif
+-%}
 
 <dialog class="size-guide" data-size-guide-dialog aria-label="{{ section.settings.heading }}">
   <div class="size-guide__header">
     <h2>{{ section.settings.heading }}</h2>
-    <button type="button" class="size-guide__close" data-size-guide-close aria-label="{{ 'general.menu.close' | t }}">
+    <button type="button" class="size-guide__close" data-size-guide-close aria-label="{{ 'accessibility.close' | t }}">
       {%- render 'icon-close' -%}
     </button>
   </div>
 
-  {%- if section.blocks.size > 0 -%}
+  {%- if product_guide != blank -%}
+    {%- comment -%} A product-level chart wins over the generic ones. {%- endcomment -%}
+    <div class="size-guide__body">
+      <div class="size-guide__panel rte">{{ product_guide }}</div>
+    </div>
+  {%- elsif section.blocks.size > 0 -%}
     <div class="size-guide__tabs" role="tablist">
       {%- for block in section.blocks -%}
         <button
@@ -22,6 +41,7 @@
           class="size-guide__tab{% if forloop.first %} is-active{% endif %}"
           data-size-guide-tab="{{ block.settings.category_key }}"
           role="tab"
+          aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
         >
           {{ block.settings.category_name }}
         </button>
@@ -81,7 +101,7 @@
       "type": "text",
       "id": "heading",
       "label": "Heading",
-      "default": "Size Guide"
+      "default": "Size guide"
     }
   ],
   "blocks": [
@@ -118,7 +138,7 @@
           "type": "textarea",
           "id": "rows",
           "label": "Rows (one per line, comma separated)",
-          "default": "S, 38, 27, 24\nM, 40, 28, 24.5\nL, 42, 29, 25\nXL, 44, 30, 25.5\nXXL, 46, 31, 26"
+          "default": "S, 38, 27, 24\nM, 40, 28, 24.5\nL, 42, 29, 25\nXL, 44, 30, 25.5\nXXL, 46, 31, 26\n3XL, 48, 32, 26.5"
         }
       ]
     }
@@ -132,7 +152,7 @@
           "category_name": "Shirts",
           "note": "All measurements are in inches.",
           "columns": "Size, Chest, Length, Sleeve",
-          "rows": "S, 38, 27, 24\nM, 40, 28, 24.5\nL, 42, 29, 25\nXL, 44, 30, 25.5\nXXL, 46, 31, 26"
+          "rows": "S, 38, 27, 24\nM, 40, 28, 24.5\nL, 42, 29, 25\nXL, 44, 30, 25.5\nXXL, 46, 31, 26\n3XL, 48, 32, 26.5"
         }
       },
       {
@@ -152,7 +172,7 @@
           "category_name": "Kurtas",
           "note": "All measurements are in inches.",
           "columns": "Size, Chest, Length, Shoulder",
-          "rows": "S, 38, 42, 17\nM, 40, 43, 17.5\nL, 42, 44, 18\nXL, 44, 45, 18.5\nXXL, 46, 46, 19"
+          "rows": "S, 38, 42, 17\nM, 40, 43, 17.5\nL, 42, 44, 18\nXL, 44, 45, 18.5\nXXL, 46, 46, 19\n3XL, 48, 47, 19.5"
         }
       }
     ]
