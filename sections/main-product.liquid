@@ -1,4 +1,4 @@
-{%- doc -%}
+{%- comment -%}
   Product detail page.
 
   Desktop: gallery left, a sticky information column right.
@@ -8,7 +8,7 @@
   Copy comes from product data and metafields wherever it exists, with
   merchant-editable fallbacks in the section settings. Nothing about
   delivery, stock or ratings is invented here.
-{%- enddoc -%}
+{%- endcomment -%}
 
 {%- liquid
   assign current_variant = product.selected_or_first_available_variant
@@ -419,7 +419,8 @@
   <button type="button" class="product-zoom__close" data-zoom-close aria-label="{{ 'accessibility.close' | t }}">
     {%- render 'icon-close' -%}
   </button>
-  <img data-zoom-image src="" alt="" width="1200" height="1500" loading="lazy">
+  {%- comment -%} src is set by product.js when a zoom trigger fires. {%- endcomment -%}
+  <img data-zoom-image alt="" width="1200" height="1500" loading="lazy">
 </dialog>
 
 {% schema %}

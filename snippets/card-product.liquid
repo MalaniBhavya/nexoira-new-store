@@ -4,12 +4,12 @@
   Minimal by design: a 4:5 image, title, price and the controls that help
   a shopper act. No heavy card container — the image does the work.
 
-  @param product {product} - the product to render
-  @param reveal_index {number} - optional grid position, used to stagger
+  @param {product} product - The product to render
+  @param {number} [reveal_index] - Grid position, used to stagger
     the card's scroll-reveal entrance. Only pass this from static
     (non-AJAX-refreshed) grids.
-  @param image_loading {string} - 'eager' for above-the-fold cards
-  @param sizes {string} - optional sizes attribute override
+  @param {string} [image_loading] - 'eager' for above-the-fold cards
+  @param {string} [sizes] - Overrides the default sizes attribute
 {%- enddoc -%}
 
 {%- liquid

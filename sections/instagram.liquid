@@ -1,4 +1,4 @@
-{%- doc -%}
+{%- comment -%}
   Instagram / styling gallery.
 
   Deliberately not an Instagram API integration: the Basic Display API
@@ -6,7 +6,7 @@
   feed would break within weeks. Instead this renders merchant-curated
   images that always work, and accepts an app block so an installed feed
   app can take the section over. See DEPLOYMENT.md.
-{%- enddoc -%}
+{%- endcomment -%}
 
 {%- liquid
   assign profile_url = section.settings.handle_link | default: settings.social_instagram_link

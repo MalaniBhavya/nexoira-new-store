@@ -4,10 +4,10 @@
   Shows a discount badge only when there is a genuine compare-at price
   above the selling price — never a made-up "was" figure.
 
-  @param product {product} - optional, used for price_varies / "From"
-  @param variant {variant} - the variant to price. Falls back to the
+  @param {product} [product] - Used for price_varies and the "From" prefix
+  @param {variant} [variant] - The variant to price. Falls back to the
     product's selected or first available variant.
-  @param show_badge {boolean} - render the "% off" badge (default true)
+  @param {boolean} [show_badge] - Render the "% off" badge (default true)
 {%- enddoc -%}
 
 {%- liquid

@@ -1,8 +1,8 @@
-{%- doc -%}
+{%- comment -%}
   Rendered standalone via routes.product_recommendations_url?section_id=...
   and injected client-side (see assets/product.js).
   Never rendered directly in a template.
-{%- enddoc -%}
+{%- endcomment -%}
 
 {%- if recommendations.performed and recommendations.products_count > 0 -%}
   <section class="product-recommendations">

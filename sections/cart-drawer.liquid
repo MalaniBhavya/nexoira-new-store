@@ -1,8 +1,8 @@
-{%- doc -%}
+{%- comment -%}
   Global slide-out cart drawer. Rendered once in layout/theme.liquid.
   Re-fetched wholesale via the cart endpoints' `sections` parameter
   after every add/change so it always reflects the live cart.
-{%- enddoc -%}
+{%- endcomment -%}
 
 <div class="cart-drawer" data-cart-drawer data-cart-item-count="{{ cart.item_count }}" aria-hidden="true">
   <div class="cart-drawer__panel" role="dialog" aria-modal="true" aria-label="{{ 'cart.general.title' | t }}">

@@ -1,11 +1,11 @@
-{%- doc -%}
+{%- comment -%}
   Site footer.
 
   Shop / Help / Legal columns are built from repeatable link blocks, so
   every link is editable in the customizer without needing a pre-built
   navigation menu. The Connect column is generated from theme settings —
   no contact detail is written into this file.
-{%- enddoc -%}
+{%- endcomment -%}
 
 {%- liquid
   assign wa_number = settings.whatsapp_number | remove: ' ' | remove: '+' | remove: '-' | remove: '(' | remove: ')'

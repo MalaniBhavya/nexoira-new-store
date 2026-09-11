@@ -179,7 +179,31 @@ stops working within weeks.
 
 ---
 
-## 9. Things the theme will not do
+## 9. Running the checks yourself
+
+CI runs two jobs on every push and pull request (`.github/workflows/ci.yml`):
+
+- **Theme Check** — Shopify's official linter, annotating changed lines on
+  the PR. Fails on errors; warnings are reported without blocking.
+- **Theme structure** — the things theme-check does not cover: JSON
+  templates pointing at sections that do not exist, missing snippets or
+  assets, unbalanced Liquid tags, duplicate CSS rules, and JS syntax.
+
+Both run locally:
+
+```sh
+npx @shopify/cli theme check          # Shopify's linter
+python3 .github/scripts/validate_theme.py   # structural checks
+```
+
+There is one standing Theme Check warning, `RemoteAsset`, six times over.
+Playfair Display and Inter load from Google Fonts, and the check would
+rather every asset came from Shopify's CDN. The check is left enabled
+rather than silenced so the point stays visible; see `.theme-check.yml`.
+
+---
+
+## 10. Things the theme will not do
 
 Worth knowing before someone asks for them:
 

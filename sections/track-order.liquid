@@ -1,4 +1,4 @@
-{%- doc -%}
+{%- comment -%}
   Track order page.
 
   Shopify has no storefront order-lookup by number, so this does not
@@ -6,7 +6,7 @@
   genuinely work — the tracking link in their shipping email, and their
   account's order history — and leaves a clean mount point for a tracking
   app to render its own lookup form. See DEPLOYMENT.md.
-{%- enddoc -%}
+{%- endcomment -%}
 
 <div class="track-order" data-section-id="{{ section.id }}" data-section-type="track-order">
   <div class="container">

@@ -1,8 +1,8 @@
-{%- doc -%}
+{%- comment -%}
   Full-bleed immersive image banner with centered overlay text.
   Used for the Kurta editorial moment, but works for any large
   lifestyle statement.
-{%- enddoc -%}
+{%- endcomment -%}
 
 <section
   class="immersive-banner{% if section.settings.text_color == 'light' %} immersive-banner--light{% endif %} immersive-banner--tint-{{ section.settings.tint | default: 'none' }}"

@@ -1,10 +1,10 @@
-{%- doc -%}
+{%- comment -%}
   Contact page.
 
   Uses Shopify's native contact form, which delivers to the store's
   customer email — no app needed. Every contact detail shown alongside it
   comes from theme settings, so nothing here needs editing in code.
-{%- enddoc -%}
+{%- endcomment -%}
 
 {%- liquid
   assign wa_number = settings.whatsapp_number | remove: ' ' | remove: '+' | remove: '-' | remove: '(' | remove: ')'
