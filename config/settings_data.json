@@ -2,6 +2,7 @@
   "current": "Default",
   "presets": {
     "Default": {
+      "logo": "shopify://shop_images/logowithoutbg.png",
       "logo_width": 140,
       "accent_color": "#D8A224",
       "surface_style": "warm",
