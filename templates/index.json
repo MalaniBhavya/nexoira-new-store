@@ -7,12 +7,17 @@
           "type": "slide",
           "settings": {
             "heading": "Nexoira",
+            "subheading": "Classic menswear, without the markup.",
+            "cta_label": "Shop New Arrivals",
+            "cta_url": "/collections/all",
             "position": "start",
-            "text_color": "light"
+            "text_color": "light",
+            "image": "shopify://shop_images/KTAHH4ZEBYGZRACY_1781343026790_fxx90z9lnh7uc37.jpg"
           }
         }
       },
-      "block_order": ["slide-1"]
+      "block_order": ["slide-1"],
+      "settings": {}
     },
     "early-merch": {
       "type": "featured-collection",
@@ -26,29 +31,28 @@
     },
     "category-discovery": {
       "type": "editorial-cards",
-      "settings": {
-        "heading": "Shop by Category"
-      },
       "blocks": {
         "shirts": {
           "type": "card",
-          "settings": { "heading": "Shirts" }
+          "settings": { "heading": "Shirts", "image": "shopify://shop_images/SHTHMPBGWZYTVW9Z_1781343043969_1gn1mf83smtbbw4.jpg" }
         },
         "kurtas": {
           "type": "card",
-          "settings": { "heading": "Kurtas" }
+          "settings": { "heading": "Kurtas", "image": "shopify://shop_images/KTAHH4ZEDEKPFBAT_1781343045318_krb6mqehb29c5aq.jpg" }
         },
         "pants": {
           "type": "card",
-          "settings": { "heading": "Pants" }
+          "settings": { "heading": "Pants", "image": "shopify://shop_images/TROHKZWFVYDKYSHS_1781343004148_z1bidfbge5p1x26.jpg" }
         }
       },
-      "block_order": ["shirts", "kurtas", "pants"]
+      "block_order": ["shirts", "kurtas", "pants"],
+      "settings": { "heading": "Shop by Category" }
     },
     "featured-merch": {
       "type": "featured-collection",
       "settings": {
         "heading": "Bestsellers",
+        "collection": "kurtas",
         "max_products": 8,
         "columns_desktop": 4
       }
@@ -56,50 +60,68 @@
     "quality-banner": {
       "type": "banner",
       "settings": {
-        "layout": "image-left"
+        "layout": "image-left",
+        "eyebrow": "Quality, plainly stated",
+        "heading": "Built for everyday wear",
+        "body": "<p>Breathable cotton, honest fits, and construction made to hold up to daily wear — priced without the retail markup.</p>",
+        "cta_label": "Shop All",
+        "cta_url": "/collections/all",
+        "image": "shopify://shop_images/SHTHKBSDVDJ8NBBY_1781343026359_dqfwex54r5vo8tn.jpg"
       }
     },
     "occasion-discovery": {
       "type": "editorial-cards",
-      "settings": {
-        "heading": "Shop by Occasion"
-      },
       "blocks": {
         "casual": {
           "type": "card",
-          "settings": { "heading": "Casual" }
+          "settings": { "heading": "Casual", "image": "shopify://shop_images/SHTHMPBGHVFVFWXH_1781343054065_4zebfy0np96z6av.jpg" }
         },
         "smart-casual": {
           "type": "card",
-          "settings": { "heading": "Smart Casual" }
+          "settings": { "heading": "Smart Casual", "image": "shopify://shop_images/SHTHMYXHMMDWVCMZ_1781343039470_ssibzk7cytqtjoo.jpg" }
         },
         "traditional": {
           "type": "card",
-          "settings": { "heading": "Traditional" }
+          "settings": { "heading": "Traditional", "image": "shopify://shop_images/KTAHH4PFGDWA44WQ_1781342963010_2cl9sdl1dilmar3.jpg" }
         }
       },
-      "block_order": ["casual", "smart-casual", "traditional"]
+      "block_order": ["casual", "smart-casual", "traditional"],
+      "settings": { "heading": "Shop by Occasion" }
     },
     "social-proof": {
-      "type": "reviews-highlight"
+      "type": "reviews-highlight",
+      "settings": {}
     },
     "brand-story": {
       "type": "banner",
       "settings": {
-        "layout": "image-right"
+        "layout": "image-right",
+        "eyebrow": "About Nexoira",
+        "heading": "Menswear, without the markup",
+        "body": "<p>We design classic shirts, kurtas, and pants in solid fabrics and considered fits — nothing trend-chasing, nothing overpriced.</p>",
+        "cta_label": "Our Story",
+        "cta_url": "/pages/about",
+        "image": "shopify://shop_images/TROHKZXCKWP7W8SV_1781343050579_hj8dxpzhqw4s7ax.jpg"
       }
     },
     "ugc": {
-      "type": "ugc-gallery"
+      "type": "ugc-gallery",
+      "settings": {}
     },
     "final-cta": {
       "type": "banner",
       "settings": {
-        "layout": "image-left"
+        "layout": "image-left",
+        "heading": "Ready when you are",
+        "body": "<p>Free shipping on orders above ₹999. Cash on delivery available.</p>",
+        "cta_label": "Shop Now",
+        "cta_url": "/collections/all",
+        "image": "shopify://shop_images/SHTHMPBGHUP3GUCG_1781343041385_8bco62mdmejsyt2.jpg"
       }
     },
     "popup": {
-      "type": "promo-popup"
+      "type": "promo-popup",
+      "settings": {}
     }
   },
   "order": [
