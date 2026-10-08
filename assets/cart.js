@@ -73,26 +73,48 @@
     }
   };
 
+  var REQUEST_TIMEOUT_MS = 15000;
+
   cart.request = function (url, body) {
     body = body || {};
     body.sections = CART_DRAWER_SECTION;
+
+    /* Without a timeout, a request that never resolves (a dropped mobile
+       connection, a hung server) leaves whatever button triggered it
+       disabled and reading "Adding…" indefinitely, with no way out but a
+       page refresh. */
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timedOut = false;
+    var timer = setTimeout(function () {
+      timedOut = true;
+      if (controller) controller.abort();
+    }, REQUEST_TIMEOUT_MS);
+
     return fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify(body)
-    }).then(function (response) {
-      return response.json().then(function (data) {
-        if (!response.ok) {
-          /* Shopify returns a `description` for cart errors such as
-             "all N are in your cart" — surface it rather than a generic
-             failure. */
-          var error = new Error(data.description || data.message || 'Cart request failed');
-          error.data = data;
-          throw error;
-        }
-        return data;
+      body: JSON.stringify(body),
+      signal: controller ? controller.signal : undefined
+    })
+      .then(function (response) {
+        clearTimeout(timer);
+        return response.json().then(function (data) {
+          if (!response.ok) {
+            /* Shopify returns a `description` for cart errors such as
+               "all N are in your cart" — surface it rather than a generic
+               failure. */
+            var error = new Error(data.description || data.message || 'Cart request failed');
+            error.data = data;
+            throw error;
+          }
+          return data;
+        });
+      })
+      .catch(function (error) {
+        clearTimeout(timer);
+        if (timedOut) throw new Error('That took too long. Please try again.');
+        throw error;
       });
-    });
   };
 
   cart.apply = function (data) {
@@ -115,6 +137,45 @@
      Drawer interactions (delegated, bound once)
      ------------------------------------------------------------------ */
 
+  /* Lines with a change request already in flight, keyed by line number.
+     Blocks a second request for the same line from reading the same
+     stale DOM quantity a first one hasn't resolved against yet — without
+     this, clicking "+" three times fast sends three requests that each
+     compute current + 1 from the same pre-update value instead of
+     accumulating to +3. */
+  var pendingLines = {};
+
+  function showLineError(item, message) {
+    if (!item) return;
+    var container = item.querySelector('.cart-drawer__item-info') || item;
+    var existing = container.querySelector('.cart-drawer__item-error');
+    if (existing) existing.remove();
+    var el = document.createElement('p');
+    el.className = 'cart-drawer__item-error';
+    el.setAttribute('role', 'alert');
+    el.textContent = message;
+    container.appendChild(el);
+    setTimeout(function () {
+      if (el.parentNode) el.remove();
+    }, 4000);
+  }
+
+  function changeLine(line, quantity, item) {
+    if (pendingLines[line]) return;
+    pendingLines[line] = true;
+
+    cart
+      .request(window.theme.routes.cart_change_url + '.js', { line: line, quantity: Math.max(quantity, 0) })
+      .then(function (data) {
+        pendingLines[line] = false;
+        cart.apply(data);
+      })
+      .catch(function (error) {
+        pendingLines[line] = false;
+        showLineError(item, error.message || 'Could not update your cart. Please try again.');
+      });
+  }
+
   Nexoira.register(function initCartDrawer() {
     Nexoira.once('CartDrawer', function () {
       document.addEventListener('click', function (event) {
@@ -133,28 +194,20 @@
         var qtyButton = event.target.closest('[data-cart-qty]');
         if (qtyButton) {
           var item = qtyButton.closest('.cart-drawer__item');
+          var line = parseInt(qtyButton.dataset.line, 10);
+          if (pendingLines[line]) return;
           var valueEl = item ? item.querySelector('.cart-drawer__qty-value') : null;
           var current = valueEl ? parseInt(valueEl.textContent, 10) : 0;
           var next = qtyButton.dataset.cartQty === 'increase' ? current + 1 : current - 1;
-          cart
-            .request(window.theme.routes.cart_change_url + '.js', {
-              line: parseInt(qtyButton.dataset.line, 10),
-              quantity: Math.max(next, 0)
-            })
-            .then(cart.apply)
-            .catch(function () {});
+          changeLine(line, next, item);
           return;
         }
 
         var removeButton = event.target.closest('[data-cart-remove]');
         if (removeButton) {
-          cart
-            .request(window.theme.routes.cart_change_url + '.js', {
-              line: parseInt(removeButton.dataset.line, 10),
-              quantity: 0
-            })
-            .then(cart.apply)
-            .catch(function () {});
+          var removeLine = parseInt(removeButton.dataset.line, 10);
+          if (pendingLines[removeLine]) return;
+          changeLine(removeLine, 0, removeButton.closest('.cart-drawer__item'));
         }
       });
 

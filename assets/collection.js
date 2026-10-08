@@ -47,13 +47,22 @@
     root.dataset.filtersInitialized = 'true';
 
     var sectionId = root.dataset.sectionFetchId;
+    var activeController = null;
 
     function render(url, pushState) {
+      /* Cancel whatever's still in flight — without this, firing two
+         filters quickly lets responses land out of order and whichever
+         resolves last overwrites the grid, regardless of which was
+         clicked last. */
+      if (activeController) activeController.abort();
+      var controller = new AbortController();
+      activeController = controller;
+
       var separator = url.indexOf('?') > -1 ? '&' : '?';
       root.classList.add('is-loading');
       root.setAttribute('aria-busy', 'true');
 
-      fetch(url + separator + 'section_id=' + sectionId)
+      fetch(url + separator + 'section_id=' + sectionId, { signal: controller.signal })
         .then(function (response) {
           if (!response.ok) throw new Error('Filter request failed');
           return response.text();
@@ -74,9 +83,12 @@
             behavior: Nexoira.prefersReducedMotion ? 'auto' : 'smooth'
           });
 
+          activeController = null;
           Nexoira.initAll();
         })
-        .catch(function () {
+        .catch(function (error) {
+          if (error && error.name === 'AbortError') return;
+          activeController = null;
           /* Fall back to a normal navigation rather than stranding the
              shopper on a stale grid. */
           window.location.href = url;

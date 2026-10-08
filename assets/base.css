@@ -2008,6 +2008,12 @@ details > summary::-webkit-details-marker {
   align-self: flex-start;
 }
 
+.cart-drawer__item-error {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--color-error);
+}
+
 .cart-drawer__item-remove:hover {
   color: var(--color-text);
 }

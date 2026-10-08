@@ -22,6 +22,35 @@ window.Nexoira = window.Nexoira || {};
   Nexoira.settings = window.theme || {};
 
   /**
+   * Central error sink. console.error alone is invisible to anyone not
+   * actively watching devtools on the affected device, so every failure
+   * also fires a `nexoira:error` event — a monitoring snippet (Sentry, a
+   * logging beacon, anything) can subscribe to that one event and start
+   * receiving every error the theme catches, the same integration-point
+   * pattern already used for wishlist/pincode. With nothing listening,
+   * this is a no-op beyond the console line.
+   *
+   * @param {Error} error
+   * @param {string} context - Where this was caught, e.g. a module name.
+   */
+  Nexoira.reportError = function (error, context) {
+    if (window.console && console.error) console.error('[nexoira]', context || '', error);
+    try {
+      document.dispatchEvent(
+        new CustomEvent('nexoira:error', {
+          detail: {
+            message: error && error.message,
+            stack: error && error.stack,
+            context: context || null
+          }
+        })
+      );
+    } catch (dispatchError) {
+      /* CustomEvent itself failing is not something error reporting can report. */
+    }
+  };
+
+  /**
    * Register a feature init. Runs immediately if the DOM is already
    * parsed, and on every subsequent initAll().
    */
@@ -35,9 +64,23 @@ window.Nexoira = window.Nexoira || {};
       fn();
     } catch (error) {
       /* One broken module must never take the rest of the page with it. */
-      if (window.console && console.warn) console.warn('[nexoira]', error);
+      Nexoira.reportError(error, fn.name || 'module init');
     }
   }
+
+  /* Covers everything run() can't: errors thrown later from inside an
+     event listener a module registered (a click handler, a timer), which
+     execute outside run()'s try/catch entirely. Without this, that whole
+     class of runtime error has no trace anywhere. */
+  window.addEventListener('error', function (event) {
+    Nexoira.reportError(event.error || new Error(event.message), 'window.onerror');
+  });
+
+  window.addEventListener('unhandledrejection', function (event) {
+    var reason = event.reason;
+    var error = reason instanceof Error ? reason : new Error(String(reason));
+    Nexoira.reportError(error, 'unhandledrejection');
+  });
 
   Nexoira.initAll = function () {
     modules.forEach(run);
